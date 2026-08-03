@@ -61,3 +61,5 @@ formula. Do not disable Homebrew tap-trust checks or trust unrelated taps.
 
 See [architecture](docs/architecture.md), [profiles](docs/profiles.md), and
 [security](docs/security.md) for the repository boundaries.
+Repository maintenance and skill lifecycle instructions are in
+[`AGENTS.md`](AGENTS.md).

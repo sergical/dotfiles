@@ -25,7 +25,7 @@ rejected_paths=""
 while IFS= read -r source_path; do
   [ -n "$source_path" ] || continue
   case "$source_path" in
-    .chezmoi.toml.tmpl|.chezmoiignore.tmpl|.gitignore|LICENSE|README.md|SECURITY.md|package.json|package-lock.json) ;;
+    .chezmoi.toml.tmpl|.chezmoiignore.tmpl|.gitignore|AGENTS.md|LICENSE|README.md|SECURITY.md|package.json|package-lock.json) ;;
     .github/workflows/validate.yml|.githooks/pre-commit) ;;
     docs/architecture.md|docs/profiles.md|docs/security.md) ;;
     scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb) ;;
