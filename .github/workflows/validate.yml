@@ -1,0 +1,146 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for secrets
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+      - name: Check source
+        run: |
+          ./scripts/check-source.sh paths
+          sh -n scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit
+          ruby -c scripts/normalize-opencode-user-skills.rb
+          git diff --check
+          jq empty private_dot_claude/private_settings.json
+          python3 - <<'PY'
+          import tomllib
+          with open("dot_agents/agents.toml", "rb") as file:
+              tomllib.load(file)
+          PY
+          npm ci --ignore-scripts
+          npx --no-install prettier --check \
+            "private_Library/private_Application Support/private_Cursor/private_User/settings.json" \
+            "private_Library/private_Application Support/private_Cursor/private_User/keybindings.json"
+
+  render:
+    needs: source
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            editor: "false"
+            aws: "false"
+            install_skills: "true"
+          - os: macos-latest
+            editor: "true"
+            aws: "true"
+            install_skills: "false"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install validation dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zsh
+
+      - name: Install pinned Chezmoi
+        shell: bash
+        run: |
+          case "$RUNNER_OS/$RUNNER_ARCH" in
+            Linux/X64)
+              asset=chezmoi_2.70.3_linux_amd64.tar.gz
+              checksum=ed3a131a7e71798513255d8c05534a14a16d98839820708e839d3403be5b46b2
+              ;;
+            macOS/X64)
+              asset=chezmoi_2.70.3_darwin_amd64.tar.gz
+              checksum=b1df8211b594375eed78c6685b7e1019e08a0e4e607f28ff452fbb87f62c2211
+              ;;
+            macOS/ARM64)
+              asset=chezmoi_2.70.3_darwin_arm64.tar.gz
+              checksum=2de26b4217795c2bcf2c5209739f8f0f4c8d687e9441f99e3ca9b51d2269caab
+              ;;
+            *)
+              echo "Unsupported runner: $RUNNER_OS/$RUNNER_ARCH" >&2
+              exit 1
+              ;;
+          esac
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSLo "$RUNNER_TEMP/$asset" \
+            "https://github.com/twpayne/chezmoi/releases/download/v2.70.3/$asset"
+          if command -v sha256sum >/dev/null 2>&1; then
+            printf '%s  %s\n' "$checksum" "$RUNNER_TEMP/$asset" | sha256sum --check -
+          else
+            printf '%s  %s\n' "$checksum" "$RUNNER_TEMP/$asset" | shasum -a 256 --check
+          fi
+          tar -xzf "$RUNNER_TEMP/$asset" -C "$RUNNER_TEMP/bin" chezmoi
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Render and apply to an isolated home
+        shell: bash
+        run: |
+          set -euo pipefail
+          export HOME="$RUNNER_TEMP/home"
+          mkdir -p "$HOME"
+          chezmoi --source "$GITHUB_WORKSPACE" --destination "$HOME" init \
+            --config-path "$RUNNER_TEMP/chezmoi.toml" \
+            --promptString "Git user name=CI" \
+            --promptString "Git email=ci@example.invalid" \
+            --promptBool "Install AI configuration=true" \
+            --promptBool "Install editor configuration=${{ matrix.editor }}" \
+            --promptBool "Install AWS SSO configuration=${{ matrix.aws }}" \
+            --promptString "Optional cmux embedded-browser hostname=private.invalid" \
+            --promptString "AWS profile name=test" \
+            --promptString "AWS SSO session name=test-session" \
+            --promptString "AWS account ID=000000000000" \
+            --promptString "AWS SSO start URL=https://example.invalid/start/" \
+            --promptString "AWS region=us-east-1" \
+            --apply
+
+          status_output=$(chezmoi --config "$RUNNER_TEMP/chezmoi.toml" \
+            --source "$GITHUB_WORKSPACE" --destination "$HOME" status)
+          test -z "$status_output"
+          chezmoi --config "$RUNNER_TEMP/chezmoi.toml" \
+            --source "$GITHUB_WORKSPACE" --destination "$HOME" apply
+          status_output=$(chezmoi --config "$RUNNER_TEMP/chezmoi.toml" \
+            --source "$GITHUB_WORKSPACE" --destination "$HOME" status)
+          test -z "$status_output"
+          zsh -n "$HOME/.zshrc"
+
+          if [[ "$RUNNER_OS" == Linux ]]; then
+            test ! -e "$HOME/.Brewfile"
+            test ! -e "$HOME/.aws"
+            test ! -e "$HOME/.config/cmux"
+            test ! -e "$HOME/Library/Application Support/Cursor"
+          else
+            test -f "$HOME/.Brewfile"
+            test -f "$HOME/.aws/config"
+            test -f "$HOME/.config/cmux/cmux.json"
+            test -f "$HOME/Library/Application Support/Cursor/User/settings.json"
+            grep -q '^sso_account_id = 000000000000$' "$HOME/.aws/config"
+            grep -q 'private.invalid' "$HOME/.config/cmux/cmux.json"
+          fi
+
+          if [[ "${{ matrix.install_skills }}" == true ]]; then
+            "$GITHUB_WORKSPACE/scripts/install-public-skills.sh"
+            test "$(find "$HOME/.agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)" -eq 49
+            ruby "$GITHUB_WORKSPACE/scripts/normalize-opencode-user-skills.rb" \
+              --check "$HOME/.agents/skills"
+          fi

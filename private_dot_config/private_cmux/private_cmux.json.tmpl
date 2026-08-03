@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+  "shortcuts": {
+    "bindings": {
+      "focusLeft": "cmd+opt+shift+left",
+      "focusDown": "cmd+opt+shift+down",
+      "focusUp": "cmd+opt+shift+up",
+      "focusRight": "cmd+opt+shift+right"
+    }
+  },
+  "browser": {
+    "hostsToOpenInEmbeddedBrowser": [
+{{- if .cmux_browser_host }}
+      {{ .cmux_browser_host | quote }}
+{{- end }}
+    ]
+  }
+}

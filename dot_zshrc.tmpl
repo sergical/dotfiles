@@ -1,0 +1,53 @@
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+
+# Completion paths must be registered before Oh My Zsh runs compinit.
+fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+
+plugins=(git z zsh-shift-select zsh-autosuggestions fast-syntax-highlighting zsh-autocomplete)
+if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
+  source "$ZSH/oh-my-zsh.sh"
+fi
+
+alias ez='code ~/.zshrc'
+alias sz='source ~/.zshrc'
+alias gup='git pull --ff-only'
+alias pnd='pnpm run dev'
+
+export VOLTA_HOME="$HOME/.volta"
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$VOLTA_HOME/bin:$PNPM_HOME:$PATH"
+
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
+
+if command -v brew >/dev/null 2>&1; then
+  fzf_shell="$(brew --prefix)/opt/fzf/shell"
+  [[ -r "$fzf_shell/completion.zsh" ]] && source "$fzf_shell/completion.zsh"
+  [[ -r "$fzf_shell/key-bindings.zsh" ]] && source "$fzf_shell/key-bindings.zsh"
+  unset fzf_shell
+fi
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && command -v kiro >/dev/null 2>&1 && . "$(kiro --locate-shell-integration-path zsh)"
+[[ -s "$HOME/.vite-plus/env" ]] && . "$HOME/.vite-plus/env"
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
+{{- if .profile_ai }}
+alias cs='code ~/.claude/settings.json'
+if command -v opencode2 >/dev/null 2>&1; then
+  alias oc='opencode2'
+else
+  alias oc='opencode'
+fi
+{{- end }}
+
+{{- if .profile_aws }}
+export AWS_PROFILE={{ .aws_profile | quote }}
+alias awslogin='aws sso login'
+alias awswho='aws sts get-caller-identity'
+alias ec2ls='aws ec2 describe-instances --query "Reservations[*].Instances[*].[InstanceId,State.Name,InstanceType,PrivateIpAddress,Tags[?Key==\`Name\`].Value|[0]]" --output table'
+alias s3ls='aws s3 ls'
+{{- end }}
+
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

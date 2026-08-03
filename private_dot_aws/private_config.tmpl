@@ -1,0 +1,16 @@
+[profile {{ .aws_profile }}]
+sso_session = {{ .aws_sso_session }}
+sso_account_id = {{ .aws_account_id }}
+sso_role_name = PowerUserAccess
+region = {{ .aws_region }}
+
+[profile {{ .aws_profile }}-admin]
+sso_session = {{ .aws_sso_session }}
+sso_account_id = {{ .aws_account_id }}
+sso_role_name = AdministratorAccess
+region = {{ .aws_region }}
+
+[sso-session {{ .aws_sso_session }}]
+sso_start_url = {{ .aws_sso_start_url }}
+sso_region = {{ .aws_region }}
+sso_registration_scopes = sso:account:access

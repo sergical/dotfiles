@@ -1,0 +1,17 @@
+// Place your key bindings in this file to override the defaults
+[
+  {
+    "key": "cmd+t",
+    "command": "workbench.action.createTerminalEditorSide"
+  },
+  {
+    "key": "alt+t",
+    "command": "claude-code.insertAtMentioned",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "alt+cmd+k",
+    "command": "-claude-code.insertAtMentioned",
+    "when": "editorTextFocus"
+  }
+]

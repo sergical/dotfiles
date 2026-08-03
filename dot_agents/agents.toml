@@ -1,0 +1,136 @@
+version = 1
+agents = ["claude"]
+
+[trust]
+github_orgs = [
+  "GoogleChrome",
+  "cloudflare",
+  "getsentry",
+  "manaflow-ai",
+  "mattpocock",
+  "modem-dev",
+  "stripe",
+  "vercel-labs",
+]
+github_repos = [
+  "ayghri/i-have-adhd",
+]
+git_domains = ["github.com/dmmulroy/.dotfiles"]
+
+[[skills]]
+name = "bro"
+source = "git:https://github.com/dmmulroy/.dotfiles.git"
+ref = "112aa522ff6695870f94177edc51f672ecb04026"
+path = "home/.agents/skills/bro"
+
+[[skills]]
+name = "i-have-adhd"
+source = "ayghri/i-have-adhd"
+ref = "34f746dda9664fb5ea52149be5dbab2adc6e60d3"
+path = "skills/i-have-adhd"
+
+[[skills]]
+name = "modern-web-guidance"
+source = "GoogleChrome/modern-web-guidance"
+ref = "ccb800c9519286eaa7263d30c409e5bc9c0c6d9f"
+path = "skills/modern-web-guidance"
+
+[[skills]]
+name = "sentry-cli"
+source = "getsentry/cli"
+ref = "96cd99d2c23d4b7db51df23f22e1507dd77da021"
+path = "plugins/sentry-cli/skills/sentry-cli"
+
+[[skills]]
+name = "*"
+source = "cloudflare/skills"
+ref = "30553f89ae1ef1e3c2917cd09d72dac992bb4e9a"
+path = "skills"
+
+[[skills]]
+name = "*"
+source = "stripe/ai"
+ref = "2ecd560bd426075690686536200174785c94f2b5"
+path = "skills"
+exclude = ["connect-recommend", "stripe-directory", "stripe-docs"]
+
+[[skills]]
+name = "iterate-pr"
+source = "getsentry/skills"
+ref = "c2783e84cde7e75807c6fff810c6a67fb66c2430"
+path = "skills/iterate-pr"
+
+[[skills]]
+name = "pr-writer"
+source = "getsentry/skills"
+ref = "c2783e84cde7e75807c6fff810c6a67fb66c2430"
+path = "skills/pr-writer"
+
+[[skills]]
+name = "cmux"
+source = "manaflow-ai/cmux"
+ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+path = "skills/cmux"
+
+[[skills]]
+name = "cmux-customization"
+source = "manaflow-ai/cmux"
+ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+path = "skills/cmux-customization"
+
+[[skills]]
+name = "cmux-diagnostics"
+source = "manaflow-ai/cmux"
+ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+path = "skills/cmux-diagnostics"
+
+[[skills]]
+name = "cmux-markdown"
+source = "manaflow-ai/cmux"
+ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+path = "skills/cmux-markdown"
+
+[[skills]]
+name = "cmux-workspace"
+source = "manaflow-ai/cmux"
+ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+path = "skills/cmux-workspace"
+
+[[skills]]
+name = "*"
+source = "mattpocock/skills"
+ref = "2ab958093e83e0ec752e6c1c5932da465bf23e0c"
+path = "skills"
+exclude = [
+  "batch-grill-me",
+  "claude-handoff",
+  "design-an-interface",
+  "edit-article",
+  "git-guardrails-claude-code",
+  "loop-me",
+  "migrate-to-shoehorn",
+  "obsidian-vault",
+  "qa",
+  "request-refactor-plan",
+  "scaffold-exercises",
+  "setup-pre-commit",
+  "setup-ts-deep-modules",
+  "to-questionnaire",
+  "ubiquitous-language",
+  "wizard",
+  "writing-beats",
+  "writing-fragments",
+  "writing-shape",
+]
+
+[[skills]]
+name = "write-discoverable-code"
+source = "modem-dev/skills"
+ref = "edcdedb38a545f67c065f4084b3627517f0d79cf"
+path = "write-discoverable-code"
+
+[[skills]]
+name = "agent-browser"
+source = "vercel-labs/agent-browser"
+ref = "215880302a6fac217fd2741210d45685b36d6b7c"
+path = "skills/agent-browser"

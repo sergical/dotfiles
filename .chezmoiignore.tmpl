@@ -1,0 +1,39 @@
+.github/
+.githooks/
+.gitignore
+docs/
+LICENSE
+package-lock.json
+package.json
+README.md
+SECURITY.md
+scripts/
+
+{{- if not .profile_ai }}
+.agents
+.agents/**
+.claude
+.claude/**
+{{- end }}
+
+{{- if not .profile_editor }}
+.config/cmux
+.config/cmux/**
+.config/cspell
+.config/cspell/**
+Library/Application Support/Cursor
+Library/Application Support/Cursor/**
+{{- end }}
+
+{{- if not .profile_aws }}
+.aws
+.aws/**
+{{- end }}
+
+{{- if ne .chezmoi.os "darwin" }}
+.Brewfile
+.config/cmux
+.config/cmux/**
+Library/Application Support/Cursor
+Library/Application Support/Cursor/**
+{{- end }}

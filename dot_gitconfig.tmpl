@@ -1,0 +1,12 @@
+[user]
+    name = {{ .git_name | quote }}
+    email = {{ .git_email | quote }}
+
+[push]
+    autoSetupRemote = true
+
+[init]
+    defaultBranch = main
+
+[include]
+    path = ~/.gitconfig.local

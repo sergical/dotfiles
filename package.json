@@ -1,0 +1,8 @@
+{
+  "name": "sergical-dotfiles",
+  "private": true,
+  "devDependencies": {
+    "@sentry/dotagents": "1.19.0",
+    "prettier": "3.6.2"
+  }
+}
