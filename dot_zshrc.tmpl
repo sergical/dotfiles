@@ -1,8 +1,9 @@
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
-# Completion paths must be registered before Oh My Zsh runs compinit.
-fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+# Sentry CLI installs completions here and detects the rendered absolute path.
+# sentry
+fpath=({{ joinPath .chezmoi.homeDir ".local/share/zsh/site-functions" | quote }} $fpath)
 
 plugins=(git z zsh-shift-select zsh-autosuggestions fast-syntax-highlighting zsh-autocomplete)
 if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
