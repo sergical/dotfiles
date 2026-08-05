@@ -30,13 +30,15 @@ while IFS= read -r source_path; do
     docs/architecture.md|docs/profiles.md|docs/security.md) ;;
     scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb) ;;
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl) ;;
-    dot_agents/agents.toml) ;;
+    dot_agents/AGENTS.md|dot_agents/agents.toml) ;;
     private_dot_aws/private_config.tmpl) ;;
-    private_dot_claude/private_settings.json) ;;
+    private_dot_claude/private_settings.json|private_dot_claude/symlink_CLAUDE.md) ;;
     private_dot_config/private_cmux/private_cmux.json.tmpl) ;;
     private_dot_config/private_cspell/serge-makes-up-words.txt) ;;
     private_dot_config/private_gh/private_config.yml) ;;
     private_dot_config/private_git/ignore) ;;
+    private_dot_config/private_opencode/symlink_AGENTS.md) ;;
+    private_dot_pi/agent/symlink_AGENTS.md) ;;
     private_Library/private_Application\ Support/private_Cursor/private_User/keybindings.json) ;;
     private_Library/private_Application\ Support/private_Cursor/private_User/settings.json) ;;
     *) rejected_paths="${rejected_paths}${rejected_paths:+

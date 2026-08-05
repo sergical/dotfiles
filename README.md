@@ -36,7 +36,9 @@ chezmoi update
 "$(chezmoi source-path)/scripts/install-public-skills.sh"
 ```
 
-The 49 public skills are commit-pinned in `~/.agents/agents.toml`. The installer
+The 49 public skills are commit-pinned in `~/.agents/agents.toml`. Shared global
+agent instructions live in `~/.agents/AGENTS.md` and are linked into Pi,
+OpenCode, and Claude Code's default global instruction paths. The installer
 restores user-only OpenCode metadata after every dotagents update.
 
 Package changes remain explicit:

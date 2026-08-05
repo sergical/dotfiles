@@ -5,7 +5,7 @@ Initialization stores profile choices in the machine-local Chezmoi config.
 | Profile | Contents |
 | --- | --- |
 | Base | Zsh, Git, GitHub CLI behavior, Homebrew intent |
-| AI | Claude portable defaults and 49 public dotagents pins |
+| AI | Shared global agent instructions, Claude portable defaults, and 49 public dotagents pins |
 | Editor | Cursor preferences, cmux shortcuts, cspell dictionary |
 | AWS | Locally rendered SSO profiles from prompted account metadata |
 
