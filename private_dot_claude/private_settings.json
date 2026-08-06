@@ -8,5 +8,11 @@
     "sentry@claude-plugins-official": true
   },
   "effortLevel": "xhigh",
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "statusLine": {
+    "type": "command",
+    "command": "/Users/sergiydybskiy/.vite-plus/bin/ccstatusline",
+    "padding": 0,
+    "refreshInterval": 10
+  }
 }
