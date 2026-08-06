@@ -34,7 +34,7 @@ while IFS= read -r source_path; do
     dot_plannotator/config.json) ;;
     private_dot_aws/private_config.tmpl) ;;
     private_dot_claude/private_settings.json|private_dot_claude/symlink_CLAUDE.md) ;;
-    private_dot_config/private_cmux/private_cmux.json.tmpl) ;;
+    private_dot_config/private_cmux/private_cmux.json) ;;
     private_dot_config/private_cspell/serge-makes-up-words.txt) ;;
     private_dot_config/private_gh/private_config.yml) ;;
     private_dot_config/private_git/ignore) ;;

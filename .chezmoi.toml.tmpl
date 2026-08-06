@@ -3,10 +3,6 @@
 {{- $profileAI := promptBoolOnce . "profile_ai" "Install AI configuration" true -}}
 {{- $profileEditor := promptBoolOnce . "profile_editor" "Install editor configuration" true -}}
 {{- $profileAWS := promptBoolOnce . "profile_aws" "Install AWS SSO configuration" false -}}
-{{- $cmuxBrowserHost := "" -}}
-{{- if and $profileEditor (eq .chezmoi.os "darwin") -}}
-{{- $cmuxBrowserHost = promptStringOnce . "cmux_browser_host" "Optional cmux embedded-browser hostname" "" -}}
-{{- end -}}
 {{- $awsProfile := "" -}}
 {{- $awsSession := "" -}}
 {{- $awsAccountID := "" -}}
@@ -26,9 +22,6 @@
     profile_ai = {{ $profileAI }}
     profile_editor = {{ $profileEditor }}
     profile_aws = {{ $profileAWS }}
-{{- if and $profileEditor (eq .chezmoi.os "darwin") }}
-    cmux_browser_host = {{ $cmuxBrowserHost | quote }}
-{{- end }}
 {{- if $profileAWS }}
     aws_profile = {{ $awsProfile | quote }}
     aws_sso_session = {{ $awsSession | quote }}

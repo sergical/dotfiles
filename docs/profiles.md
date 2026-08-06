@@ -10,5 +10,4 @@ Initialization stores profile choices in the machine-local Chezmoi config.
 | AWS | Locally rendered SSO profiles from prompted account metadata |
 
 The macOS-only Brewfile, Cursor paths, and cmux configuration are ignored on
-other operating systems. An optional cmux embedded-browser hostname is prompted
-during initialization and stored only in machine-local Chezmoi data.
+other operating systems.

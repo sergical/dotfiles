@@ -10,11 +10,10 @@
     }
   },
   "browser": {
-    "hostsToOpenInEmbeddedBrowser": [
-{{- if .cmux_browser_host }}
-      {{ .cmux_browser_host | quote }}
-{{- end }}
-    ]
+    "hostsToOpenInEmbeddedBrowser": [],
+    "openTerminalLinksInCmuxBrowser": false,
+    "interceptTerminalOpenCommandInCmuxBrowser": false,
+    "urlsToAlwaysOpenExternally": ["*"]
   },
   "sidebar": {
     "showPorts": false
