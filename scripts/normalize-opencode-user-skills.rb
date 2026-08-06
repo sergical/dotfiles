@@ -7,9 +7,7 @@ USER_INVOKED_SKILLS = %w[
   grill-with-docs
   handoff
   implement
-  improve-codebase-architecture
   setup-matt-pocock-skills
-  teach
   to-questionnaire
   to-spec
   to-tickets

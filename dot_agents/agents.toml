@@ -104,11 +104,15 @@ path = "skills"
 exclude = [
   "claude-handoff",
   "git-guardrails-claude-code",
+  # improve-codebase-architecture and teach are carried as modified copies in
+  # the private skills repository (Plannotator delivery instead of browser open).
+  "improve-codebase-architecture",
   "loop-me",
   "migrate-to-shoehorn",
   "scaffold-exercises",
   "setup-pre-commit",
   "setup-ts-deep-modules",
+  "teach",
   "writing-beats",
   "writing-fragments",
   "writing-shape",

@@ -140,7 +140,7 @@ jobs:
 
           if [[ "${{ matrix.install_skills }}" == true ]]; then
             "$GITHUB_WORKSPACE/scripts/install-public-skills.sh"
-            test "$(find "$HOME/.agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)" -eq 52
+            test "$(find "$HOME/.agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)" -eq 50
             ruby "$GITHUB_WORKSPACE/scripts/normalize-opencode-user-skills.rb" \
               --check "$HOME/.agents/skills"
           fi
