@@ -31,6 +31,7 @@ while IFS= read -r source_path; do
     scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb) ;;
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl) ;;
     dot_agents/AGENTS.md|dot_agents/agents.toml) ;;
+    dot_plannotator/config.json) ;;
     private_dot_aws/private_config.tmpl) ;;
     private_dot_claude/private_settings.json|private_dot_claude/symlink_CLAUDE.md) ;;
     private_dot_config/private_cmux/private_cmux.json.tmpl) ;;
