@@ -4,15 +4,24 @@
     "defaultMode": "auto"
   },
   "model": "claude-fable-5[1m]",
-  "enabledPlugins": {
-    "sentry@claude-plugins-official": true
-  },
-  "effortLevel": "xhigh",
-  "tui": "fullscreen",
   "statusLine": {
     "type": "command",
     "command": "/Users/sergiydybskiy/.vite-plus/bin/ccstatusline",
     "padding": 0,
     "refreshInterval": 10
-  }
+  },
+  "enabledPlugins": {
+    "sentry@claude-plugins-official": true,
+    "plannotator@plannotator": true
+  },
+  "extraKnownMarketplaces": {
+    "plannotator": {
+      "source": {
+        "source": "github",
+        "repo": "backnotprop/plannotator"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "tui": "fullscreen"
 }
