@@ -19,3 +19,16 @@ visual verification is needed.
 Code should be self-documenting. Comments should be additive in value.
 Not describing a decision that was made. But provide more context to the code,
 that otherwise would be hard to infer.
+
+# HTML Deliverables
+
+When a skill's instructions say to generate an HTML report, dashboard, or
+lesson and open it in a browser (improve-codebase-architecture's HTML report,
+teach's lessons), do not use the skill's bundled HTML template or hand off via
+`open`/`xdg-open`. Build the document following the `plannotator-visual-explainer`
+skill's theming and structure (fall back to the skill's own template only if
+that skill is unavailable) and deliver it with `plannotator annotate <file>`,
+adding `--gate` when the output needs an approve/deny decision. Plannotator's
+annotation UI feeds the reader's feedback back to the agent, which a browser
+tab cannot. Keep the originating skill's file locations and archives (e.g.
+teach's `./lessons/`) unchanged — only the styling source and delivery change.
