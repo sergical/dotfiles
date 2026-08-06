@@ -1,4 +1,5 @@
 tap "oven-sh/bun"
+brew "agent-browser"
 brew "awscli"
 brew "biome"
 brew "chezmoi"
