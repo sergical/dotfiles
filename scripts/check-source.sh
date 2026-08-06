@@ -28,7 +28,7 @@ while IFS= read -r source_path; do
     .chezmoi.toml.tmpl|.chezmoiignore.tmpl|.gitignore|AGENTS.md|LICENSE|README.md|SECURITY.md|package.json|package-lock.json) ;;
     .github/workflows/validate.yml|.githooks/pre-commit) ;;
     docs/architecture.md|docs/profiles.md|docs/security.md) ;;
-    scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb) ;;
+    scripts/capture.sh|scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb) ;;
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl) ;;
     dot_agents/AGENTS.md|dot_agents/agents.toml) ;;
     dot_plannotator/config.json) ;;

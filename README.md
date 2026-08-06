@@ -36,7 +36,7 @@ chezmoi update
 "$(chezmoi source-path)/scripts/install-public-skills.sh"
 ```
 
-The 49 public skills are commit-pinned in `~/.agents/agents.toml`. Shared global
+The 52 public skills are commit-pinned in `~/.agents/agents.toml`. Shared global
 agent instructions live in `~/.agents/AGENTS.md` and are linked into Pi,
 OpenCode, and Claude Code's default global instruction paths. The installer
 restores user-only OpenCode metadata after every dotagents update.
@@ -55,6 +55,9 @@ formula. Do not disable Homebrew tap-trust checks or trust unrelated taps.
 
 - Edit individual targets with `chezmoi edit`; never run blanket
   `chezmoi re-add`.
+- Capture target-side drift with `dotcapture <target-path>...`
+  (`scripts/capture.sh`): re-adds only the named paths, runs the allowlist and
+  gitleaks checks, then commits and pushes.
 - Review `chezmoi diff` before applying.
 - Run `scripts/check-source.sh` before committing.
 - Keep identities, signing keys, work aliases, secrets, and auth state in local
