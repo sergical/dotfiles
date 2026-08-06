@@ -10,11 +10,12 @@ USER_INVOKED_SKILLS = %w[
   improve-codebase-architecture
   setup-matt-pocock-skills
   teach
+  to-questionnaire
   to-spec
   to-tickets
   triage
+  wait-what
   wayfinder
-  writing-great-skills
 ].freeze
 
 check_only = ARGV.delete("--check")

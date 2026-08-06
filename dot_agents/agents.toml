@@ -99,25 +99,16 @@ path = "skills/cmux-workspace"
 [[skills]]
 name = "*"
 source = "mattpocock/skills"
-ref = "2ab958093e83e0ec752e6c1c5932da465bf23e0c"
+ref = "8b36d4fb2635b3c21998dcd8144439c9e5ba7302"
 path = "skills"
 exclude = [
-  "batch-grill-me",
   "claude-handoff",
-  "design-an-interface",
-  "edit-article",
   "git-guardrails-claude-code",
   "loop-me",
   "migrate-to-shoehorn",
-  "obsidian-vault",
-  "qa",
-  "request-refactor-plan",
   "scaffold-exercises",
   "setup-pre-commit",
   "setup-ts-deep-modules",
-  "to-questionnaire",
-  "ubiquitous-language",
-  "wizard",
   "writing-beats",
   "writing-fragments",
   "writing-shape",
