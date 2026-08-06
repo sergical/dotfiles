@@ -22,6 +22,9 @@ jobs:
           ruby -c scripts/normalize-opencode-user-skills.rb
           git diff --check
           jq empty private_dot_claude/private_settings.json
+          jq empty private_dot_pi/agent/settings.json
+          jq empty private_dot_pi/agent/subagents.json
+          jq empty private_dot_config/private_cmux/private_cmux.json
           python3 - <<'PY'
           import tomllib
           with open("dot_agents/agents.toml", "rb") as file:
@@ -106,7 +109,6 @@ jobs:
             --promptBool "Install AI configuration=true" \
             --promptBool "Install editor configuration=${{ matrix.editor }}" \
             --promptBool "Install AWS SSO configuration=${{ matrix.aws }}" \
-            --promptString "Optional cmux embedded-browser hostname=private.invalid" \
             --promptString "AWS profile name=test" \
             --promptString "AWS SSO session name=test-session" \
             --promptString "AWS account ID=000000000000" \
@@ -135,7 +137,7 @@ jobs:
             test -f "$HOME/.config/cmux/cmux.json"
             test -f "$HOME/Library/Application Support/Cursor/User/settings.json"
             grep -q '^sso_account_id = 000000000000$' "$HOME/.aws/config"
-            grep -q 'private.invalid' "$HOME/.config/cmux/cmux.json"
+            grep -qF '"hostsToOpenInEmbeddedBrowser": []' "$HOME/.config/cmux/cmux.json"
           fi
 
           if [[ "${{ matrix.install_skills }}" == true ]]; then
