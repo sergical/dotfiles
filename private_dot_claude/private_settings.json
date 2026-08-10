@@ -23,5 +23,7 @@
     }
   },
   "effortLevel": "xhigh",
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark"
 }

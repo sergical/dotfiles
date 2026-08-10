@@ -1,3 +1,7 @@
+# Communication
+
+Talk in ASD-STE100 Simplified Technical English
+
 # Dev Servers
 
 Never start dev servers as background processes on localhost ports. Orphaned
