@@ -37,6 +37,7 @@ fi
 [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
 
 {{- if .profile_ai }}
+alias ea='code ~/.agents/AGENTS.md'
 alias cs='code ~/.claude/settings.json'
 if command -v opencode2 >/dev/null 2>&1; then
   alias oc='opencode2'
