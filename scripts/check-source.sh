@@ -33,7 +33,7 @@ while IFS= read -r source_path; do
     dot_agents/AGENTS.md|dot_agents/agents.toml) ;;
     dot_plannotator/config.json) ;;
     private_dot_aws/private_config.tmpl) ;;
-    private_dot_claude/private_settings.json|private_dot_claude/symlink_CLAUDE.md) ;;
+    private_dot_claude/private_settings.json.tmpl|private_dot_claude/symlink_CLAUDE.md) ;;
     private_dot_claude/bin/executable_ccstatusline-autocompact) ;;
     private_dot_config/ccstatusline/settings.json) ;;
     private_dot_config/private_cmux/private_cmux.json) ;;
