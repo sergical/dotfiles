@@ -36,10 +36,13 @@ chezmoi update
 "$(chezmoi source-path)/scripts/install-public-skills.sh"
 ```
 
-The 51 public skills are commit-pinned in `~/.agents/agents.toml`. Shared global
-agent instructions live in `~/.agents/AGENTS.md` and are linked into Pi,
-OpenCode, and Claude Code's default global instruction paths. The installer
-restores user-only OpenCode metadata after every dotagents update.
+Public skills are commit-pinned in `~/.agents/agents.toml`, which holds 14
+declarations that currently resolve to 36 installed skills. Shared global agent
+instructions live in `~/.agents/AGENTS.md` and are linked into Pi, OpenCode, and
+Claude Code's default global instruction paths. After every dotagents update the
+installer runs `scripts/normalize-opencode-user-skills.rb`, which restores the
+user-only OpenCode metadata on each skill whose frontmatter carries
+`disable-model-invocation: true`.
 
 Package changes remain explicit:
 

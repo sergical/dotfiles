@@ -21,7 +21,7 @@ jobs:
           sh -n scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit
           ruby -c scripts/normalize-opencode-user-skills.rb
           git diff --check
-          jq empty private_dot_claude/private_settings.json
+          jq empty private_dot_claude/private_settings.json.tmpl
           jq empty private_dot_pi/agent/settings.json
           jq empty private_dot_pi/agent/subagents.json
           jq empty private_dot_config/private_cmux/private_cmux.json
@@ -125,6 +125,7 @@ jobs:
             --source "$GITHUB_WORKSPACE" --destination "$HOME" status)
           test -z "$status_output"
           zsh -n "$HOME/.zshrc"
+          jq empty "$HOME/.claude/settings.json"
 
           if [[ "$RUNNER_OS" == Linux ]]; then
             test ! -e "$HOME/.Brewfile"
@@ -142,7 +143,9 @@ jobs:
 
           if [[ "${{ matrix.install_skills }}" == true ]]; then
             "$GITHUB_WORKSPACE/scripts/install-public-skills.sh"
-            test "$(find "$HOME/.agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)" -eq 51
+            installed=$(find "$HOME/.agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)
+            test "$installed" -eq "$(grep -c '^\[skills\.' "$HOME/.agents/agents.lock")"
+            test "$installed" -ge 30
             ruby "$GITHUB_WORKSPACE/scripts/normalize-opencode-user-skills.rb" \
               --check "$HOME/.agents/skills"
           fi
