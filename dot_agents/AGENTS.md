@@ -1,6 +1,5 @@
 # Communication
-
-Talk in ASD-STE100 Simplified Technical English
+- Always follow ISO 24495-1 and ASD-STE100 Simplified Technical English
 
 # Dev Servers
 
