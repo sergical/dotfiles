@@ -14,6 +14,7 @@ github_orgs = [
 ]
 github_repos = [
   "ayghri/i-have-adhd",
+  "dmmulroy/anti-slop",
 ]
 git_domains = ["github.com/dmmulroy/.dotfiles"]
 
@@ -129,3 +130,9 @@ name = "agent-browser"
 source = "vercel-labs/agent-browser"
 ref = "215880302a6fac217fd2741210d45685b36d6b7c"
 path = "skills/agent-browser"
+
+[[skills]]
+name = "install-anti-slop"
+source = "dmmulroy/anti-slop"
+ref = "9b80d9a5c317d3af94d88a577bdbde4d9a45f7be"
+path = "skills/install-anti-slop"
