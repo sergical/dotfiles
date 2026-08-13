@@ -6,10 +6,11 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "opus",
+  "autoCompactWindow": 150000,
   "statusLine": {
     "type": "command",
-    "command": "/Users/sergiydybskiy/.vite-plus/bin/ccstatusline",
+    "command": "/Users/sergiydybskiy/.claude/bin/ccstatusline-autocompact",
     "padding": 0,
     "refreshInterval": 10
   },
@@ -35,5 +36,28 @@
   "effortLevel": "xhigh",
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
-  "theme": "dark"
+  "theme": "dark",
+  "skillOverrides": {
+    "animations": "user-invocable-only",
+    "color": "user-invocable-only",
+    "component-design": "user-invocable-only",
+    "design-foundations": "user-invocable-only",
+    "forms-and-inputs": "user-invocable-only",
+    "marketing-pages": "user-invocable-only",
+    "performance": "user-invocable-only",
+    "surfaces": "user-invocable-only",
+    "touch-and-accessibility": "user-invocable-only",
+    "typography": "user-invocable-only",
+    "ui-polish": "user-invocable-only",
+    "ui-review": "user-invocable-only",
+    "uish-add-dark-mode": "user-invocable-only",
+    "uish-brand-kit": "user-invocable-only",
+    "uish-canonicalize-tailwind": "user-invocable-only",
+    "uish-componentize": "user-invocable-only",
+    "uish-dark-mode-image": "user-invocable-only",
+    "uish-design": "user-invocable-only",
+    "uish-ideas": "user-invocable-only",
+    "uish-make-responsive": "user-invocable-only",
+    "uish-markup-from-image": "user-invocable-only"
+  }
 }

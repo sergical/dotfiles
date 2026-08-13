@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""Report context usage against the auto-compact threshold, not the model window.
+
+Claude Code hands the statusline the model's full context window (1M for Opus 5),
+but compaction actually fires at settings.autoCompactWindow. ccstatusline has no
+setting for this, so rewrite the payload before it reads it.
+"""
+import json
+import os
+import shutil
+import subprocess
+import sys
+
+CCSTATUSLINE = (
+    shutil.which("ccstatusline")
+    or os.path.expanduser("~/.vite-plus/bin/ccstatusline")
+)
+SETTINGS = os.path.expanduser("~/.claude/settings.json")
+
+
+def rescale(raw):
+    try:
+        data = json.loads(raw)
+        window = json.load(open(SETTINGS)).get("autoCompactWindow")
+        context_window = data.get("context_window")
+        if not isinstance(window, int) or window <= 0:
+            return raw
+        if not isinstance(context_window, dict):
+            return raw
+        context_window["context_window_size"] = window
+        # Claude Code precomputes these against the full window. Drop them so the
+        # bar and the percentage both recompute against the threshold instead.
+        context_window.pop("used_percentage", None)
+        context_window.pop("remaining_percentage", None)
+        return json.dumps(data)
+    except Exception:
+        return raw
+
+
+raw = sys.stdin.read()
+result = subprocess.run([CCSTATUSLINE, *sys.argv[1:]], input=rescale(raw), text=True)
+sys.exit(result.returncode)

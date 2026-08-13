@@ -1,0 +1,37 @@
+{
+  "version": 3,
+  "lines": [
+    [
+      { "id": "1", "type": "model", "color": "black", "backgroundColor": "magenta", "rawValue": true },
+      { "id": "2", "type": "git-branch", "color": "black", "backgroundColor": "blue" },
+      { "id": "3", "type": "git-status", "color": "black", "backgroundColor": "blue" },
+      { "id": "4", "type": "context-bar", "color": "white", "backgroundColor": "brightBlack" },
+      { "id": "5", "type": "context-percentage", "color": "white", "backgroundColor": "brightBlack" }
+    ],
+    [
+      { "id": "6", "type": "session-usage", "color": "black", "backgroundColor": "green" },
+      { "id": "7", "type": "block-timer", "color": "black", "backgroundColor": "green" },
+      { "id": "8", "type": "weekly-usage", "color": "black", "backgroundColor": "yellow" },
+      { "id": "9", "type": "weekly-reset-timer", "color": "black", "backgroundColor": "yellow" },
+      { "id": "10", "type": "weekly-pace", "color": "black", "backgroundColor": "cyan" }
+    ],
+    []
+  ],
+  "flexMode": "full-minus-40",
+  "compactThreshold": 60,
+  "colorLevel": 2,
+  "inheritSeparatorColors": false,
+  "globalBold": false,
+  "gitCacheTtlSeconds": 5,
+  "minimalistMode": false,
+  "defaultPadding": " ",
+  "powerline": {
+    "enabled": true,
+    "separators": [""],
+    "separatorInvertBackground": [false],
+    "startCaps": [""],
+    "endCaps": [""],
+    "autoAlign": false,
+    "continueThemeAcrossLines": false
+  }
+}
