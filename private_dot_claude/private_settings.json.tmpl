@@ -6,8 +6,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus",
-  "autoCompactWindow": 150000,
+  "model": "claude-fable-5[1m]",
   "statusLine": {
     "type": "command",
     "command": "{{ .chezmoi.homeDir }}/.claude/bin/ccstatusline-autocompact",
@@ -34,6 +33,8 @@
     }
   },
   "effortLevel": "xhigh",
+  "autoCompactWindow": 200000,
+  "skillListingBudgetFraction": 0.002,
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
   "theme": "dark"

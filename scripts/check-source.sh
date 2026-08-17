@@ -41,6 +41,7 @@ while IFS= read -r source_path; do
     private_dot_config/private_gh/private_config.yml) ;;
     private_dot_config/private_git/ignore) ;;
     private_dot_config/private_opencode/symlink_AGENTS.md) ;;
+    private_dot_config/private_opencode/private_opencode.json|private_dot_config/private_opencode/private_cli.json) ;;
     private_dot_pi/agent/settings.json|private_dot_pi/agent/subagents.json|private_dot_pi/agent/symlink_AGENTS.md) ;;
     private_Library/private_Application\ Support/private_Cursor/private_User/keybindings.json) ;;
     private_Library/private_Application\ Support/private_Cursor/private_User/settings.json) ;;
