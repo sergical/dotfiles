@@ -40,8 +40,11 @@ fi
 alias ea='code ~/.agents/AGENTS.md'
 alias cs='code ~/.claude/settings.json'
 if command -v opencode2 >/dev/null 2>&1; then
-  # Interactive sessions need a process-local server so tools retain cmux access.
-  alias oc='opencode2 --standalone'
+  # OpenCode's detached tool processes need cmux's inherited capability exported.
+  oc() (
+    export CMUX_WORKSPACE_ID CMUX_SURFACE_ID CMUX_SOCKET_PATH CMUX_SOCKET_CAPABILITY
+    command opencode2 --standalone "$@"
+  )
 else
   alias oc='opencode'
 fi
