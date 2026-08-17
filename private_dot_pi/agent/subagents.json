@@ -1,4 +1,16 @@
 {
+  "maxConcurrent": 3,
+  "defaultMaxTurns": 30,
+  "graceTurns": 4,
+  "defaultJoinMode": "smart",
+  "schedulingEnabled": false,
+  "scopeModels": true,
+  "strictAgentFiles": true,
   "disableDefaultAgents": true,
-  "toolDescriptionMode": "compact"
+  "toolDescriptionMode": "custom",
+  "fleetView": true,
+  "widgetMode": "background",
+  "outputTranscript": true,
+  "maxSubagentDepth": 1,
+  "fallbackSubagent": "none"
 }

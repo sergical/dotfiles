@@ -1,13 +1,19 @@
 {
-  "defaultProvider": "openrouter",
-  "defaultModel": "openai/gpt-5.6-sol",
-  "lastChangelogVersion": "0.83.0",
-  "defaultThinkingLevel": "xhigh",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-sol",
+  "lastChangelogVersion": "0.84.2",
+  "defaultThinkingLevel": "medium",
+  "enabledModels": [
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra",
+    "openai-codex/gpt-5.6-luna",
+    "openrouter/x-ai/grok-4.6",
+    "openrouter/google/gemini-3.7-flash"
+  ],
   "packages": [
     "git:github.com/nicobailon/pi-mcp-adapter",
     {
-      "source": "npm:@tintinweb/pi-subagents",
-      "extensions": []
+      "source": "npm:@tintinweb/pi-subagents"
     },
     "npm:@plannotator/pi-extension"
   ],

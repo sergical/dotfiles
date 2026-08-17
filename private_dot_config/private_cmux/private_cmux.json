@@ -1,6 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
   "schemaVersion": 1,
+  "app": {
+    "preferredEditor": "/usr/local/bin/cursor"
+  },
   "shortcuts": {
     "bindings": {
       "focusLeft": "cmd+opt+shift+left",
