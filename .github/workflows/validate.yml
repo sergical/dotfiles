@@ -18,12 +18,14 @@ jobs:
       - name: Check source
         run: |
           ./scripts/check-source.sh paths
-          sh -n scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit
+          sh -n scripts/check-agent-routing.sh scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit
+          ./scripts/check-agent-routing.sh
           ruby -c scripts/normalize-opencode-user-skills.rb
           git diff --check
           jq empty private_dot_claude/private_settings.json.tmpl
           jq empty private_dot_pi/agent/settings.json
           jq empty private_dot_pi/agent/subagents.json
+          jq empty private_dot_config/private_opencode/private_opencode.json.tmpl
           jq empty private_dot_config/private_cmux/private_cmux.json
           python3 - <<'PY'
           import tomllib
@@ -126,6 +128,23 @@ jobs:
           test -z "$status_output"
           zsh -n "$HOME/.zshrc"
           jq empty "$HOME/.claude/settings.json"
+          jq empty "$HOME/.config/opencode/opencode.json"
+          test -f "$HOME/.agents/skills/simplify-code/SKILL.md"
+          test -f "$HOME/.claude/agents/simplify.md"
+          test -f "$HOME/.codex/agents/architect.toml"
+          test -f "$HOME/.codex/agents/explorer.toml"
+          test -f "$HOME/.codex/agents/repair.toml"
+          test -f "$HOME/.codex/agents/review.toml"
+          test -f "$HOME/.codex/agents/simplify.toml"
+          test -f "$HOME/.codex/agents/verify.toml"
+          test -f "$HOME/.codex/agents/visual.toml"
+          test -f "$HOME/.codex/agents/worker.toml"
+          cmp "$HOME/.agents/AGENTS.md" "$GITHUB_WORKSPACE/.chezmoitemplates/shared-agent-guidance.md"
+          grep -q '^# Codex Delegation$' "$HOME/.codex/AGENTS.md"
+          grep -q '^# Dev Servers$' "$HOME/.codex/AGENTS.md"
+          test -f "$HOME/.config/opencode/agents/simplify.md"
+          test -f "$HOME/.pi/agent/agents/simplify.md"
+          test -x "$HOME/.local/bin/skill-inventory"
 
           if [[ "$RUNNER_OS" == Linux ]]; then
             test ! -e "$HOME/.Brewfile"
@@ -144,8 +163,13 @@ jobs:
           if [[ "${{ matrix.install_skills }}" == true ]]; then
             "$GITHUB_WORKSPACE/scripts/install-public-skills.sh"
             installed=$(find "$HOME/.agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)
-            test "$installed" -eq "$(grep -c '^\[skills\.' "$HOME/.agents/agents.lock")"
+            pinned=$(grep -c '^\[skills\.' "$HOME/.agents/agents.lock")
+            repository_owned=$(find "$GITHUB_WORKSPACE/dot_agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)
+            test "$installed" -eq "$((pinned + repository_owned))"
             test "$installed" -ge 30
             ruby "$GITHUB_WORKSPACE/scripts/normalize-opencode-user-skills.rb" \
               --check "$HOME/.agents/skills"
+            "$HOME/.local/bin/skill-inventory" matt | grep -q '^mattpocock/skills ('
+            "$HOME/.local/bin/skill-inventory" --model-visible |
+              grep -q '^Model-visible skills:'
           fi

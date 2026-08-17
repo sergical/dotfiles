@@ -12,6 +12,10 @@ Never track:
 - AWS account IDs and SSO URLs as repository literals
 - private skill contents, internal prompts, conversations, caches, or databases
 
+Portable public agent prompts and the repository-owned `simplify-code` skill are
+allowed. Review every new prompt for machine paths, private repository names,
+customer data, and internal-only operating details before adding it.
+
 Chezmoi's `private_` source prefix controls target permissions only. It does not
 encrypt source and must not be treated as a secrecy boundary.
 

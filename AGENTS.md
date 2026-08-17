@@ -18,6 +18,20 @@ caches, generated databases, or private repository topology.
 - Run `scripts/check-source.sh` before every commit. If a new public source path
   is intentional, add its exact path to that script's allowlist.
 
+## Update Agent Routing
+
+Read `docs/agent-routing.md` before changing a shared instruction, custom agent,
+model route, permission, or the `simplify-code` skill. Keep the OpenCode2 and Pi
+rosters coherent with their coordinator allowlists. Run
+`scripts/check-agent-routing.sh` before applying or committing the change.
+
+## Update Skill Inventory
+
+Read `docs/skills.md` before renaming an installed skill or changing installer
+ownership. Preserve third-party canonical IDs unless the installer supports an
+alias. Run the rendered `skill-inventory` command and account for every
+override before committing an installer change.
+
 ## Add A Public Skill
 
 Only add a skill here when its source and license permit public use. Paid,
@@ -84,6 +98,7 @@ Run from the repository root:
 ./scripts/check-source.sh
 git diff --check
 sh -n scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit
+./scripts/check-agent-routing.sh
 ruby -c scripts/normalize-opencode-user-skills.rb
 npm ci --ignore-scripts
 npx --no-install prettier --check \

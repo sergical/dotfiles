@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+"""List installed agent skills by effective provenance."""
+
+from __future__ import annotations
+
+import json
+import pathlib
+import re
+import sys
+import tomllib
+
+
+agents_root = pathlib.Path.home() / ".agents"
+skills_root = agents_root / "skills"
+
+
+def load_toml(path: pathlib.Path) -> dict:
+    if not path.is_file():
+        return {}
+    return tomllib.loads(path.read_text())
+
+
+def load_json(path: pathlib.Path) -> dict:
+    if not path.is_file():
+        return {}
+    return json.loads(path.read_text())
+
+
+def load_lines(path: pathlib.Path) -> set[str]:
+    if not path.is_file():
+        return set()
+    return {
+        line.strip()
+        for line in path.read_text().splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+
+
+def frontmatter_name(skill_id: str) -> str:
+    path = skills_root / skill_id / "SKILL.md"
+    if not path.is_file():
+        return skill_id
+    match = re.search(r"(?m)^name:\s*([^\n]+)$", path.read_text(errors="replace"))
+    return match.group(1).strip().strip('"\'') if match else skill_id
+
+
+def model_invocable(skill_id: str) -> bool:
+    path = skills_root / skill_id / "SKILL.md"
+    if not path.is_file():
+        return False
+    text = path.read_text(errors="replace")
+    frontmatter = text.split("---", 2)[1] if text.startswith("---") else ""
+    return not re.search(
+        r"(?m)^disable-model-invocation:\s*true\s*$", frontmatter
+    )
+
+
+installed = {
+    path.parent.name
+    for path in skills_root.glob("*/SKILL.md")
+    if path.is_file()
+}
+
+dotagents = load_toml(agents_root / "agents.lock").get("skills", {})
+skill_lock = load_json(agents_root / ".skill-lock.json").get("skills", {})
+private_skills = load_lines(agents_root / ".agent-skills-private")
+private_sources = load_json(agents_root / ".agent-skill-sources-private.json")
+
+source_by_skill: dict[str, str] = {}
+masked_source: dict[str, str] = {}
+
+for skill_id, record in dotagents.items():
+    source_by_skill[skill_id] = record.get("source", "dotagents")
+
+for skill_id, record in skill_lock.items():
+    source_by_skill.setdefault(skill_id, record.get("source", "skills installer"))
+
+for skill_id in installed:
+    if skill_id.startswith("plannotator-"):
+        source_by_skill.setdefault(skill_id, "backnotprop/plannotator")
+
+if "simplify-code" in installed:
+    source_by_skill["simplify-code"] = "sergical/dotfiles"
+
+for skill_id in private_skills & installed:
+    previous = source_by_skill.get(skill_id)
+    if previous:
+        masked_source[skill_id] = previous
+    source_by_skill[skill_id] = private_sources.get(
+        skill_id, "private/agent-skills-private"
+    )
+
+for skill_id in installed:
+    source_by_skill.setdefault(skill_id, "unmanaged/local")
+
+arguments = sys.argv[1:]
+visibility = "all"
+if "--model-visible" in arguments:
+    visibility = "model-visible"
+    arguments.remove("--model-visible")
+if "--manual-only" in arguments:
+    if visibility != "all":
+        raise SystemExit("Choose only one visibility filter")
+    visibility = "manual-only"
+    arguments.remove("--manual-only")
+
+query = " ".join(arguments).lower().strip()
+groups: dict[str, list[str]] = {}
+for skill_id in sorted(installed):
+    invocable = model_invocable(skill_id)
+    if visibility == "model-visible" and not invocable:
+        continue
+    if visibility == "manual-only" and invocable:
+        continue
+
+    source = source_by_skill[skill_id]
+    visible_name = frontmatter_name(skill_id)
+    searchable = " ".join((skill_id, visible_name, source, masked_source.get(skill_id, ""))).lower()
+    if query and query not in searchable:
+        continue
+
+    label = skill_id
+    if visible_name != skill_id:
+        label += f" -> {visible_name}"
+    if skill_id in masked_source:
+        label += f" (overrides {masked_source[skill_id]})"
+    groups.setdefault(source, []).append(label)
+
+if not groups:
+    raise SystemExit(f"No installed skills match: {query}")
+
+shown = sum(map(len, groups.values()))
+heading = {
+    "all": "Installed skills",
+    "model-visible": "Model-visible skills",
+    "manual-only": "Manual-only skills",
+}[visibility]
+print(f"{heading}: {shown}" + (f" matching {query!r}" if query else ""))
+for source in sorted(groups, key=lambda item: (-len(groups[item]), item)):
+    print(f"\n{source} ({len(groups[source])})")
+    for skill in groups[source]:
+        print(f"  {skill}")

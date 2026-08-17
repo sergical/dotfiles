@@ -28,6 +28,17 @@ change. For small iterative changes made while collaborating closely, prefer a
 quick implementation and let the user check it unless end-to-end, smoke, or
 visual verification is needed.
 
+# Post-green Simplification
+
+After a task adds or materially changes production or test code, first make the
+acceptance checks green. Then run one fresh-context simplification pass before
+the final independent review. Give the simplifier the request, comparison base,
+changed paths, and exact passing commands; do not give it the implementer's
+reasoning. Use the `simplify-code` skill, rerun the same checks after its edits,
+and accept a no-op when the diff is already simple. Keep one writer active at a
+time. Skip this stage for documentation-only, generated, vendored, snapshot,
+lockfile, formatting-only, and mechanical configuration changes.
+
 # Comments
 
 Code should be self-documenting. Comments should be additive in value.

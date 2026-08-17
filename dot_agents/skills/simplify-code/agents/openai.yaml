@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simplify Code"
+  short_description: "Simplify working code without behavior changes"
+  default_prompt: "Use $simplify-code to simplify the current working diff without changing behavior."

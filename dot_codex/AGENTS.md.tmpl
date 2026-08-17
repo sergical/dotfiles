@@ -1,0 +1,33 @@
+{{ template "shared-agent-guidance.md" . }}
+# Codex Delegation
+
+The root agent owns task classification, decomposition, the final diff,
+verification, and the user-facing response. Work directly when a task is small,
+the relevant files are already known, and verification is obvious. Delegate a
+meaningful bounded unit when a separate context improves speed, evidence, or
+quality.
+
+Route by task shape:
+
+- `explorer`: fast read-only file ownership and control-flow discovery.
+- `worker`: default writer for a bounded implementation or fix.
+- `architect`: read-only design for ambiguous, cross-cutting, or high-risk work.
+- `repair`: one substantial repair after concrete failure evidence.
+- `visual`: implementation where screenshots, images, PDFs, or visual judgment
+  materially affect the result.
+- `verify`: focused build, test, lint, typecheck, or diff evidence. It may write
+  generated test artifacts but must not edit source files.
+- `simplify`: one fresh behavior-preserving cleanup after checks are green.
+- `review`: fresh read-only final correctness, security, and regression review.
+
+Give each child a self-contained contract: objective, exact scope, constraints,
+relevant paths, acceptance criteria, and verification. Child summaries are not
+proof; inspect the actual diff and command results. Run only one writer against
+a shared checkout. Parallelize independent read-only work only.
+
+Use `repair` only after diagnosing a failed `worker` result; never use it as the
+first writer. After material production or test changes are green, spawn
+`simplify` in a fresh non-forked thread, rerun the same checks, then spawn
+`review` in another fresh non-forked thread. Accept a simplifier no-op. Skip the
+post-green sequence for documentation-only, generated, vendored, snapshot,
+lockfile, formatting-only, and mechanical configuration changes.

@@ -36,13 +36,44 @@ chezmoi update
 "$(chezmoi source-path)/scripts/install-public-skills.sh"
 ```
 
-Public skills are commit-pinned in `~/.agents/agents.toml`, which holds 14
-declarations that currently resolve to 36 installed skills. Shared global agent
-instructions live in `~/.agents/AGENTS.md` and are linked into Pi, OpenCode, and
-Claude Code's default global instruction paths. After every dotagents update the
-installer runs `scripts/normalize-opencode-user-skills.rb`, which restores the
-user-only OpenCode metadata on each skill whose frontmatter carries
+Public external skills are commit-pinned in `~/.agents/agents.toml`, which holds
+14 declarations that currently resolve to 36 installed skills. Chezmoi also
+owns the repository-local `simplify-code` skill, for 37 portable public skills
+in total. Shared global instructions live in `~/.agents/AGENTS.md`; complete
+Claude, Codex, OpenCode2, and Pi agent definitions are managed alongside them.
+After every dotagents update the installer runs
+`scripts/normalize-opencode-user-skills.rb`, which restores the user-only
+OpenCode metadata on each skill whose frontmatter carries
 `disable-model-invocation: true`.
+
+## Agent Routing
+
+Routing prompts, model/effort choices, permissions, and custom agents are
+portable source. Authentication and runtime state are not. Use source-first
+`chezmoi edit`, or capture only named target files after a live canary. Run the
+routing and public-source checks before applying or committing:
+
+```sh
+./scripts/check-agent-routing.sh
+./scripts/check-source.sh
+chezmoi diff
+```
+
+See [agent routing](docs/agent-routing.md) for the managed layout, target-first
+canary workflow, release checks, and atomic roster rules. See
+[context loading](docs/context-loading.md) for the exact per-harness instruction
+order and the role of `~/.agents/AGENTS.md`.
+
+Use `skill-inventory` to group the effective skill catalog by provenance without
+renaming upstream invocation IDs:
+
+```sh
+skill-inventory
+skill-inventory matt
+```
+
+See [skill inventory](docs/skills.md) for source precedence, override reporting,
+and the naming policy.
 
 Package changes remain explicit:
 
@@ -67,7 +98,8 @@ formula. Do not disable Homebrew tap-trust checks or trust unrelated taps.
   includes such as `~/.gitconfig.local` and `~/.zshrc.local`, or in
   application-owned credential stores.
 
-See [architecture](docs/architecture.md), [profiles](docs/profiles.md), and
-[security](docs/security.md) for the repository boundaries.
+See [architecture](docs/architecture.md), [profiles](docs/profiles.md),
+[agent routing](docs/agent-routing.md), [context loading](docs/context-loading.md),
+and [security](docs/security.md) for the repository boundaries.
 Repository maintenance and skill lifecycle instructions are in
 [`AGENTS.md`](AGENTS.md).

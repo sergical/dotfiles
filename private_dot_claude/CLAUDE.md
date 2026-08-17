@@ -31,3 +31,16 @@ source with `head`, `wc`, `grep`, or a field selector. Never put a raw `find`,
 Read a file directly only when you will edit it. Do not read whole files to
 build a map of the code. Agents return conclusions. Do not ask an agent for
 file contents.
+
+# Claude Post-green Simplification
+
+For the routine post-green simplification stage from the shared instructions,
+spawn the custom `simplify` agent exactly once with a self-contained contract.
+It is a fresh Sonnet-medium writer with the shared `simplify-code` skill. After
+it returns, send the same acceptance commands to `verify`, then perform the
+separate final correctness review. If verification regresses, restore only the
+simplification edits and keep the previously working implementation.
+
+Reserve Claude Code's bundled `/simplify` skill for an explicit user request or
+for a large, cross-cutting diff where four specialized review passes justify
+the extra latency and usage. Do not run both simplification paths on one diff.
