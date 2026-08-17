@@ -40,7 +40,8 @@ fi
 alias ea='code ~/.agents/AGENTS.md'
 alias cs='code ~/.claude/settings.json'
 if command -v opencode2 >/dev/null 2>&1; then
-  alias oc='opencode2'
+  # Interactive sessions need a process-local server so tools retain cmux access.
+  alias oc='opencode2 --standalone'
 else
   alias oc='opencode'
 fi
