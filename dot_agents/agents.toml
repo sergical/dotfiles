@@ -12,6 +12,7 @@ github_orgs = [
 github_repos = [
   "ayghri/i-have-adhd",
   "dmmulroy/anti-slop",
+  "sergical/mattpocock-skills",
 ]
 git_domains = ["github.com/dmmulroy/.dotfiles"]
 
@@ -77,24 +78,25 @@ path = "skills/cmux-workspace"
 
 [[skills]]
 name = "*"
-source = "mattpocock/skills"
-ref = "8b36d4fb2635b3c21998dcd8144439c9e5ba7302"
+source = "sergical/mattpocock-skills"
+ref = "63b926cc60f4f4a853d2d68db5473da383e67881"
 path = "skills"
 exclude = [
-  "claude-handoff",
-  "git-guardrails-claude-code",
-  # improve-codebase-architecture and teach are carried as modified copies in
-  # the private skills repository (Plannotator delivery instead of browser open).
-  "improve-codebase-architecture",
-  "loop-me",
-  "migrate-to-shoehorn",
-  "scaffold-exercises",
-  "setup-pre-commit",
-  "setup-ts-deep-modules",
-  "teach",
-  "writing-beats",
-  "writing-fragments",
-  "writing-shape",
+  "matt-claude-handoff",
+  "matt-git-guardrails-claude-code",
+  # matt-improve-codebase-architecture and matt-teach are carried as modified
+  # copies in the private skills repository (Plannotator delivery instead of
+  # browser open).
+  "matt-improve-codebase-architecture",
+  "matt-loop-me",
+  "matt-migrate-to-shoehorn",
+  "matt-scaffold-exercises",
+  "matt-setup-pre-commit",
+  "matt-setup-ts-deep-modules",
+  "matt-teach",
+  "matt-writing-beats",
+  "matt-writing-fragments",
+  "matt-writing-shape",
 ]
 
 [[skills]]

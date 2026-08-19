@@ -169,7 +169,7 @@ jobs:
             test "$installed" -ge 30
             ruby "$GITHUB_WORKSPACE/scripts/normalize-opencode-user-skills.rb" \
               --check "$HOME/.agents/skills"
-            "$HOME/.local/bin/skill-inventory" matt | grep -q '^mattpocock/skills ('
+            "$HOME/.local/bin/skill-inventory" matt | grep -q '^sergical/mattpocock-skills ('
             "$HOME/.local/bin/skill-inventory" --model-visible |
               grep -q '^Model-visible skills:'
           fi
