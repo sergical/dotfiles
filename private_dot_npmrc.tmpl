@@ -1,4 +1,8 @@
+{{ if lookPath "op" -}}
 //registry.npmjs.org/:_authToken={{ onepasswordRead "op://Private/npm registry tokens/npmjs" "my.1password.com" }}
+{{ end -}}
 registry=https://sfw.security.sentry.io/npm/
+{{ if lookPath "op" -}}
 //aiforui.dev/npm/:_authToken={{ onepasswordRead "op://Private/npm registry tokens/aiforui" "my.1password.com" }}
+{{ end -}}
 @aiforui:registry=https://aiforui.dev/npm/
