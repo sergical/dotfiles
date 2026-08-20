@@ -32,6 +32,7 @@ while IFS= read -r source_path; do
     docs/agent-routing.md|docs/architecture.md|docs/context-loading.md|docs/profiles.md|docs/security.md|docs/skills.md) ;;
     scripts/capture.sh|scripts/check-agent-routing.sh|scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb) ;;
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl) ;;
+    private_dot_npmrc.tmpl) ;;
     dot_agents/AGENTS.md.tmpl|dot_agents/agents.toml) ;;
     dot_agents/skills/simplify-code/SKILL.md|dot_agents/skills/simplify-code/agents/openai.yaml) ;;
     dot_codex/AGENTS.md.tmpl) ;;
