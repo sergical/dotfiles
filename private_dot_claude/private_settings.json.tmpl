@@ -2,12 +2,10 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "skillListingBudgetFraction": 0.002,
   "permissions": {
-    "allow": [
-      "mcp__kody__execute"
-    ],
+    "allow": [],
     "defaultMode": "auto"
   },
-  "model": "opusplan",
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "{{ .chezmoi.homeDir }}/.claude/bin/ccstatusline-autocompact",
@@ -33,9 +31,10 @@
       }
     }
   },
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "autoCompactWindow": 200000,
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
-  "theme": "dark"
+  "theme": "dark",
+  "agentPushNotifEnabled": true
 }
