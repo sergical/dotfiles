@@ -34,6 +34,7 @@ while IFS= read -r source_path; do
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl) ;;
     private_dot_npmrc.tmpl) ;;
     dot_agents/AGENTS.md.tmpl|dot_agents/agents.toml) ;;
+    dot_agents/private_mcp.json.tmpl) ;;
     dot_agents/skills/simplify-code/SKILL.md|dot_agents/skills/simplify-code/agents/openai.yaml) ;;
     dot_codex/AGENTS.md.tmpl) ;;
     dot_codex/agents/architect.toml|dot_codex/agents/explorer.toml|dot_codex/agents/repair.toml|dot_codex/agents/review.toml|dot_codex/agents/simplify.toml|dot_codex/agents/verify.toml|dot_codex/agents/visual.toml|dot_codex/agents/worker.toml) ;;
