@@ -13,6 +13,7 @@ github_repos = [
   "ayghri/i-have-adhd",
   "dmmulroy/anti-slop",
   "sergical/mattpocock-skills",
+  "sergical/pstack-skills",
 ]
 git_domains = ["github.com/dmmulroy/.dotfiles"]
 
@@ -116,3 +117,15 @@ name = "install-anti-slop"
 source = "dmmulroy/anti-slop"
 ref = "9b80d9a5c317d3af94d88a577bdbde4d9a45f7be"
 path = "skills/install-anti-slop"
+
+[[skills]]
+name = "*"
+source = "sergical/pstack-skills"
+ref = "13ce892e1602ef17f0fa214700036f98b11f9cf4"
+path = "skills"
+
+[[subagents]]
+name = "pstack-comment-sicko"
+source = "sergical/pstack-skills"
+ref = "13ce892e1602ef17f0fa214700036f98b11f9cf4"
+targets = ["claude", "opencode"]
