@@ -12,6 +12,7 @@ github_orgs = [
 github_repos = [
   "ayghri/i-have-adhd",
   "dmmulroy/anti-slop",
+  "sergical/anti-slop",
   "sergical/mattpocock-skills",
   "sergical/pstack-skills",
 ]
@@ -114,8 +115,8 @@ path = "skills/agent-browser"
 
 [[skills]]
 name = "install-anti-slop"
-source = "dmmulroy/anti-slop"
-ref = "9b80d9a5c317d3af94d88a577bdbde4d9a45f7be"
+source = "sergical/anti-slop"
+ref = "913c9a82832ff6f516fa38d3b2c856dd42ea7659"
 path = "skills/install-anti-slop"
 
 [[skills]]
