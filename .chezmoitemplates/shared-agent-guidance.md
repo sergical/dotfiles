@@ -50,3 +50,7 @@ lockfile, formatting-only, and mechanical configuration changes.
 Code should be self-documenting. Comments should be additive in value.
 Not describing a decision that was made. But provide more context to the code,
 that otherwise would be hard to infer.
+
+# Repeated Corrections
+
+When the user corrects the same thing a second time, stop. Propose one line for this file or a memory entry that captures the rule. Continue only after the user answers.
