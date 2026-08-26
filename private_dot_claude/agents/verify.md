@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Run builds, tests, typechecks, and lints, then report only what failed. Use for every green-check loop so the command output stays out of the main thread. Also use to re-run a suite after a fix.
+description: Run builds, tests, typechecks, and lints, then report only what failed. Send once per batch of edits, after the last edit; a repeat send needs a new edit in between. For a change of three edits or fewer, run the scoped check inline instead.
 model: haiku
 tools: Bash, Read, Grep, Glob
 ---

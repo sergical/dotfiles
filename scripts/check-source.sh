@@ -42,7 +42,7 @@ while IFS= read -r source_path; do
     dot_plannotator/config.json) ;;
     private_dot_aws/private_config.tmpl) ;;
     private_dot_claude/private_settings.json.tmpl|private_dot_claude/CLAUDE.md) ;;
-    private_dot_claude/agents/Explore.md|private_dot_claude/agents/diagram.md|private_dot_claude/agents/digest.md|private_dot_claude/agents/implement.md|private_dot_claude/agents/simplify.md|private_dot_claude/agents/verify.md) ;;
+    private_dot_claude/agents/Explore.md|private_dot_claude/agents/diagram.md|private_dot_claude/agents/digest.md|private_dot_claude/agents/implement.md|private_dot_claude/agents/research.md|private_dot_claude/agents/simplify.md|private_dot_claude/agents/verify.md) ;;
     private_dot_claude/bin/executable_ccstatusline-autocompact) ;;
     private_dot_config/ccstatusline/settings.json) ;;
     private_dot_config/private_cmux/private_cmux.json) ;;

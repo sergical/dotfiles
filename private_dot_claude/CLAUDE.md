@@ -18,7 +18,13 @@ Delegate by default:
   `digest` and ask it the question.
 - More than 10 shell commands to answer one question: send `Explore` or
   `digest` the question. Do not run the commands here.
-- Builds, tests, typechecks, and lints: send `verify`.
+- Builds, tests, typechecks, and lints: send `verify`, once per batch of
+  edits, after the last edit. A second `verify` needs a new edit in between.
+  For a change of three edits or fewer, run the scoped check inline and skip
+  `verify` and `simplify`.
+- Web research (docs, vendor pages, npm, GitHub, prior art): send `research`.
+  `general-purpose` inherits this session's model, so it is the most expensive
+  agent; use it only when one task needs web access and repo edits together.
 - The approach is decided and the change touches more than 2 files: write the
   spec and send `implement`. Give it the exact files, the exact change, and the
   acceptance check. Review its diff here. Edit directly only for small changes
@@ -27,6 +33,9 @@ Delegate by default:
 Shell output is the largest cost after file reads. Filter every command at the
 source with `head`, `wc`, `grep`, or a field selector. Never put a raw `find`,
 `ls -R`, `git log`, or full log file into this thread.
+
+An agent's result arrives in its completion notification. The `tasks/*.output`
+file behind it is the full transcript; leave it unread.
 
 Read a file directly only when you will edit it. Do not read whole files to
 build a map of the code. Agents return conclusions. Do not ask an agent for
@@ -44,3 +53,10 @@ simplification edits and keep the previously working implementation.
 Reserve Claude Code's bundled `/simplify` skill for an explicit user request or
 for a large, cross-cutting diff where four specialized review passes justify
 the extra latency and usage. Do not run both simplification paths on one diff.
+
+# Code Review
+
+Code review runs on Opus or Codex. `/code-review` spawns its finders on the
+session model and is user-invocable only: run it when the user asks, from an
+Opus session. In a Fable session, review with `codex:adversarial-review` or
+`codex:review`. One reviewer per diff; a second reviewer needs the user's ask.

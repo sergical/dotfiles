@@ -28,6 +28,12 @@ change. For small iterative changes made while collaborating closely, prefer a
 quick implementation and let the user check it unless end-to-end, smoke, or
 visual verification is needed.
 
+Run the acceptance checks once, after the last edit of a batch. A repeat run
+needs a new edit in between; a green result stays green until the code changes.
+For a change of three edits or fewer, run the scoped check for the changed
+files (one lint or typecheck command) and skip the full suite and the
+simplification pass. Prototype and throwaway routes get the scoped check only.
+
 # Post-green Simplification
 
 After a task adds or materially changes production or test code, first make the
