@@ -8,7 +8,7 @@
     "allow": [],
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5[1m]",
+  "model": "claude-fable-5-1[1m]",
   "statusLine": {
     "type": "command",
     "command": "{{ .chezmoi.homeDir }}/.claude/bin/ccstatusline-autocompact",
@@ -33,6 +33,9 @@
         "repo": "openai/codex-plugin-cc"
       }
     }
+  },
+  "sandbox": {
+    "enabled": false
   },
   "effortLevel": "medium",
   "autoCompactWindow": 200000,
