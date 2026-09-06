@@ -26,7 +26,7 @@ while IFS= read -r source_path; do
   [ -n "$source_path" ] || continue
   [ -e "$source_path" ] || continue
   case "$source_path" in
-    .chezmoi.toml.tmpl|.chezmoiignore.tmpl|.gitignore|AGENTS.md|LICENSE|README.md|SECURITY.md|package.json|package-lock.json) ;;
+    .chezmoi.toml.tmpl|.chezmoiignore.tmpl|.gitignore|AGENTS.md|CLAUDE.md|LICENSE|README.md|SECURITY.md|package.json|package-lock.json) ;;
     .chezmoitemplates/shared-agent-guidance.md) ;;
     .github/workflows/validate.yml|.githooks/pre-commit) ;;
     docs/agent-routing.md|docs/architecture.md|docs/context-loading.md|docs/profiles.md|docs/security.md|docs/skills.md) ;;

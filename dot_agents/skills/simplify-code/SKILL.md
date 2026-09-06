@@ -13,7 +13,7 @@ The caller supplies the behavior contract, the comparison base, the changed path
 
 ## Process
 
-1. Run the supplied commands once. Continue only when every one is green. Otherwise stop and report that simplification is unsafe.
+1. Run the supplied commands once. Continue only when every one is green. Otherwise stop and report that the checks are not green, so simplification is unsafe.
 2. Inspect the diff and enough surrounding code to learn the local conventions. Stay within changed code, with one exception: an existing helper that directly replaces new duplicate logic.
 3. List every simplification candidate before editing. For each candidate that removes something, check the fence first: find the callers, the tests, and the commit that introduced it. Keep anything a caller, a test, or a documented decision depends on.
 4. Apply the candidates that passed the fence check as one small coherent pass, in this priority order:
@@ -22,7 +22,7 @@ The caller supplies the behavior contract, the comparison base, the changed path
    - flatten control flow and make names reveal intent;
    - reduce what callers must know while keeping the public surface as it is.
 5. When the diff adds or changes a module, adapter, interface, or abstraction, load `matt-codebase-design` and apply only its deletion test, depth test, and real-seam rule. Record broader architectural opportunities as follow-ups.
-6. Rerun the same commands. If one fails, revert only this pass's edits with targeted patches, rerun, and move that candidate to the skipped list with the failure as its reason.
+6. Rerun the same relevant checks. If one fails, revert only this pass's edits with targeted patches, rerun, and move that candidate to the skipped list with the failure as its reason.
 7. Report in three parts:
    - **Applied**: each changed path with the complexity removed, and the exact check results.
    - **Noticed but not applied**: each skipped candidate with one reason, such as a fence dependency, a check failure, or scope.
