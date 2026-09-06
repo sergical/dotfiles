@@ -27,19 +27,19 @@ path = "home/.agents/skills/bro"
 [[skills]]
 name = "i-have-adhd"
 source = "ayghri/i-have-adhd"
-ref = "34f746dda9664fb5ea52149be5dbab2adc6e60d3"
+ref = "58494af57962b2d7a996b4d419474380a299af5e"
 path = "skills/i-have-adhd"
 
 [[skills]]
 name = "sentry-cli"
 source = "getsentry/cli"
-ref = "96cd99d2c23d4b7db51df23f22e1507dd77da021"
-path = "plugins/sentry-cli/skills/sentry-cli"
+ref = "c0c9c827435237e761f8d05c74ce9e16fc06b98f"
+path = "packages/cli/plugins/sentry-cli/skills/sentry-cli"
 
 [[skills]]
 name = "iterate-pr"
 source = "getsentry/skills"
-ref = "c2783e84cde7e75807c6fff810c6a67fb66c2430"
+ref = "c2f99a5b04b4cd992ec3022d7c2c3e23e938d241"
 path = "skills/iterate-pr"
 
 [[skills]]
@@ -51,37 +51,37 @@ path = "skills/pr-writer"
 [[skills]]
 name = "cmux"
 source = "manaflow-ai/cmux"
-ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
 path = "skills/cmux"
 
 [[skills]]
 name = "cmux-customization"
 source = "manaflow-ai/cmux"
-ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
 path = "skills/cmux-customization"
 
 [[skills]]
 name = "cmux-diagnostics"
 source = "manaflow-ai/cmux"
-ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
 path = "skills/cmux-diagnostics"
 
 [[skills]]
 name = "cmux-markdown"
 source = "manaflow-ai/cmux"
-ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
 path = "skills/cmux-markdown"
 
 [[skills]]
 name = "cmux-workspace"
 source = "manaflow-ai/cmux"
-ref = "9112fe22f3280388c52966eb3841be66e69489fb"
+ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
 path = "skills/cmux-workspace"
 
 [[skills]]
 name = "*"
 source = "sergical/mattpocock-skills"
-ref = "63b926cc60f4f4a853d2d68db5473da383e67881"
+ref = "3cc01542ecc5db652c3592f8fb9e5b759ce73609"
 path = "skills"
 exclude = [
   "matt-claude-handoff",
@@ -89,9 +89,11 @@ exclude = [
   # matt-improve-codebase-architecture and matt-teach are carried as modified
   # copies in the private skills repository (Plannotator delivery instead of
   # browser open).
+  "matt-implement-spec",
   "matt-improve-codebase-architecture",
   "matt-loop-me",
   "matt-migrate-to-shoehorn",
+  "matt-retro",
   "matt-scaffold-exercises",
   "matt-setup-pre-commit",
   "matt-setup-ts-deep-modules",
@@ -110,23 +112,23 @@ path = "write-discoverable-code"
 [[skills]]
 name = "agent-browser"
 source = "vercel-labs/agent-browser"
-ref = "215880302a6fac217fd2741210d45685b36d6b7c"
+ref = "4726eceeb3274eef34ab082ee04d7288c54dec70"
 path = "skills/agent-browser"
 
 [[skills]]
 name = "install-anti-slop"
 source = "sergical/anti-slop"
-ref = "913c9a82832ff6f516fa38d3b2c856dd42ea7659"
+ref = "1306fc58537b68247150ebcd28cd4efd351d51bf"
 path = "skills/install-anti-slop"
 
 [[skills]]
 name = "*"
 source = "sergical/pstack-skills"
-ref = "13ce892e1602ef17f0fa214700036f98b11f9cf4"
+ref = "80a18e9eebe3045f3a9e4047727912ccb70cdfdf"
 path = "skills"
 
 [[subagents]]
 name = "pstack-comment-sicko"
 source = "sergical/pstack-skills"
-ref = "13ce892e1602ef17f0fa214700036f98b11f9cf4"
+ref = "80a18e9eebe3045f3a9e4047727912ccb70cdfdf"
 targets = ["claude", "opencode"]

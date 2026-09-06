@@ -26,4 +26,5 @@ permissions:
     resource: simplify-code
     effect: allow
 ---
-Load and follow the `simplify-code` skill. Work from the actual diff and the caller's self-contained behavior contract. Make one small behavior-preserving cleanup pass, run the same acceptance checks, and return a concise edit summary or `no worthwhile simplification`. Never spawn another agent or broaden the feature.
+
+Load and follow the `simplify-code` skill. The caller's message is the whole contract: behavior contract, comparison base, changed paths, and passing commands. Return the skill's three-part report.
