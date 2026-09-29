@@ -2,7 +2,7 @@
   "name": "sergical-dotfiles",
   "private": true,
   "devDependencies": {
-    "@sentry/dotagents": "3.0.1",
+    "@sentry/dotagents": "3.1.0",
     "prettier": "3.6.2"
   }
 }

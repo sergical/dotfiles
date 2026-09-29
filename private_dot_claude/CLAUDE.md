@@ -59,4 +59,6 @@ the extra latency and usage. Do not run both simplification paths on one diff.
 Code review runs on Opus or Codex. `/code-review` spawns its finders on the
 session model and is user-invocable only: run it when the user asks, from an
 Opus session. In a Fable session, review with `codex:adversarial-review` or
-`codex:review`. One reviewer per diff; a second reviewer needs the user's ask.
+`codex:review`. If the Skill tool blocks them, ask the user to run
+`/codex:adversarial-review` or `/codex:review`. One reviewer per diff; a second
+reviewer needs the user's ask.

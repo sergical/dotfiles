@@ -6,8 +6,8 @@
 EXTERNAL_USER_INVOKED_SKILLS = %w[
   cmux-diagnostics
   code-review
-  tdd
-  wizard
+  matt-tdd
+  matt-wizard
 ].freeze
 
 DISABLE_MODEL_INVOCATION = "disable-model-invocation: true"
