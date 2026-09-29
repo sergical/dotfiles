@@ -81,7 +81,7 @@ path = "skills/cmux-workspace"
 [[skills]]
 name = "*"
 source = "sergical/mattpocock-skills"
-ref = "3cc01542ecc5db652c3592f8fb9e5b759ce73609"
+ref = "8c87874c2e9f5f614c02e39b640d64c68f7cb611"
 path = "skills"
 exclude = [
   "matt-claude-handoff",
@@ -89,11 +89,9 @@ exclude = [
   # matt-improve-codebase-architecture and matt-teach are carried as modified
   # copies in the private skills repository (Plannotator delivery instead of
   # browser open).
-  "matt-implement-spec",
   "matt-improve-codebase-architecture",
   "matt-loop-me",
   "matt-migrate-to-shoehorn",
-  "matt-retro",
   "matt-scaffold-exercises",
   "matt-setup-pre-commit",
   "matt-setup-ts-deep-modules",

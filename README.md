@@ -37,8 +37,8 @@ chezmoi update
 ```
 
 Public external skills are commit-pinned in `~/.agents/agents.toml`, which holds
-14 declarations that currently resolve to 36 installed skills. Chezmoi also
-owns the repository-local `simplify-code` skill, for 37 portable public skills
+15 declarations that currently resolve to 61 installed skills. Chezmoi also
+owns the repository-local `simplify-code` skill, for 62 portable public skills
 in total. Shared global instructions live in `~/.agents/AGENTS.md`; complete
 Claude, Codex, OpenCode2, and Pi agent definitions are managed alongside them.
 After every dotagents update the installer runs
