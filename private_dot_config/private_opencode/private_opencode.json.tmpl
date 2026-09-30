@@ -8,14 +8,14 @@
     "subagent_depth": 1
   },
   "mcp": {
-{{ $q := joinPath .chezmoi.homeDir `.executor/server-control/polylane-auth.json` }}{{ if stat $q }}    "polylane": {
+    "polylane": {
       "type": "remote",
       "url": "https://mcp.polylane.com/mcp",
       "headers": {
-        "x-api-key": "{{ (include $q | fromJson).token }}"
+        "x-api-key": "{{ $q := joinPath .chezmoi.homeDir `.executor/server-control/polylane-auth.json` }}{{ if stat $q }}{{ (include $q | fromJson).token }}{{ end }}"
       }
     },
-{{ end }}    "executor": {
+    "executor": {
       "enabled": true,
       "headers": {
         "Authorization": "Bearer {{ $p := joinPath .chezmoi.homeDir `.executor/server-control/auth.json` }}{{ if stat $p }}{{ (include $p | fromJson).token }}{{ end }}"
