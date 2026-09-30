@@ -1,5 +1,4 @@
 ---
-model: openai/gpt-5.6-luna#high
 description: One higher-effort retry after the default implementer fails with concrete evidence.
 mode: subagent
 steps: 35

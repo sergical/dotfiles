@@ -1,33 +1,56 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "openai/gpt-5.6-sol#medium",
+  "compaction": {
+    "auto": true
+  },
   "default_agent": "build",
+  "experimental": {
+    "subagent_depth": 1
+  },
+  "mcp": {
+{{ $q := joinPath .chezmoi.homeDir `.executor/server-control/polylane-auth.json` }}{{ if stat $q }}    "polylane": {
+      "type": "remote",
+      "url": "https://mcp.polylane.com/mcp",
+      "headers": {
+        "x-api-key": "{{ (include $q | fromJson).token }}"
+      }
+    },
+{{ end }}    "executor": {
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {{ $p := joinPath .chezmoi.homeDir `.executor/server-control/auth.json` }}{{ if stat $p }}{{ (include $p | fromJson).token }}{{ end }}"
+      },
+      "type": "remote",
+      "url": "http://127.0.0.1:4789/mcp"
+    }
+  },
+  "model": "openai/gpt-5.6-sol#medium",
   "permissions": [
     {
       "action": "external_directory",
-      "resource": "~/.agents/skills/*",
-      "effect": "allow"
+      "effect": "allow",
+      "resource": "~/.agents/skills/*"
     },
     {
       "action": "read",
-      "resource": "~/.agents/skills/*",
-      "effect": "allow"
+      "effect": "allow",
+      "resource": "~/.agents/skills/*"
     },
     {
       "action": "edit",
-      "resource": "~/.agents/skills/*",
-      "effect": "deny"
+      "effect": "deny",
+      "resource": "~/.agents/skills/*"
     }
   ],
   "plugins": [
     {
-      "package": "@plannotator/opencode@latest",
       "options": {
-        "workflow": "plan-agent",
         "planningAgents": [
           "plan"
-        ]
-      }
+        ],
+        "workflow": "plan-agent"
+      },
+      "package": "@plannotator/opencode@latest"
     }
   ],
   "providers": {
@@ -51,24 +74,8 @@
     }
   },
   "tool_output": {
-    "max_lines": 800,
-    "max_bytes": 20000
-  },
-  "compaction": {
-    "auto": true
-  },
-  "experimental": {
-    "subagent_depth": 1
-  },
-  "mcp": {
-    "executor": {
-      "type": "remote",
-      "enabled": true,
-      "url": "http://127.0.0.1:4789/mcp",
-      "headers": {
-        "Authorization": "Bearer {{ $p := joinPath .chezmoi.homeDir `.executor/server-control/auth.json` }}{{ if stat $p }}{{ (include $p | fromJson).token }}{{ end }}"
-      }
-    }
+    "max_bytes": 20000,
+    "max_lines": 800
   },
   "websearch": {
     "provider": "exa"

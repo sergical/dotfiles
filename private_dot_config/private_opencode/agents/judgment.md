@@ -1,5 +1,4 @@
 ---
-model: openai/gpt-5.6-terra#medium
 description: Writer for bounded work that needs more architectural judgment than the default implementer.
 mode: subagent
 steps: 35

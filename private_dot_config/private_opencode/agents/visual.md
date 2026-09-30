@@ -1,8 +1,8 @@
 ---
-model: openrouter/google/gemini-3.7-flash#medium
+model: openrouter/google/gemini-3.8-flash#medium
 description: Multimodal and visually sensitive frontend specialist for images, screenshots, PDFs, and UI work.
 mode: subagent
-steps: 35
+steps: 50
 permissions:
   - action: subagent
     resource: "*"

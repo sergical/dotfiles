@@ -1,5 +1,4 @@
 ---
-model: openai/gpt-5.6-luna#medium
 description: Default writer for a well-specified bounded implementation with clear acceptance criteria.
 mode: subagent
 steps: 30

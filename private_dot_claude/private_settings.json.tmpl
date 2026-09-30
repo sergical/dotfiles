@@ -1,14 +1,19 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "skillListingBudgetFraction": 0.002,
-  "skillOverrides": {
-    "code-review": "user-invocable-only"
+  "attribution": {
+    "commit": "Co-authored-by: Claude <claude@anthropic.com>",
+    "pr": "Created with Claude Code",
+    "sessionUrl": false
   },
   "permissions": {
     "allow": [],
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5-1[1m]",
+  "model": "opus",
+  "skillOverrides": {
+    "code-review": "user-invocable-only"
+  },
   "statusLine": {
     "type": "command",
     "command": "{{ .chezmoi.homeDir }}/.claude/bin/ccstatusline-autocompact",
@@ -38,15 +43,22 @@
     "enabled": false
   },
   "effortLevel": "medium",
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "high"
+    },
+    "claude-opus-5": {
+      "effortLevel": "xhigh"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  },
   "autoCompactWindow": 200000,
   "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true,
-  "attribution": {
-    "commit": "Co-authored-by: Claude <claude@anthropic.com>",
-    "pr": "Created with Claude Code",
-    "sessionUrl": false
-  }
+  "agentPushNotifEnabled": true
 }
