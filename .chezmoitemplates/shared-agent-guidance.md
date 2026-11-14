@@ -1,78 +1,103 @@
 # Communication
 - Always follow ISO 24495-1 and ASD-STE100 Simplified Technical English
 
-# cmux Scope
+# Rex
 
-Apply cmux instructions and load cmux skills only when the agent was launched
-inside a cmux terminal. Use the session context and caller-provided
-`CMUX_WORKSPACE_ID` / `CMUX_SURFACE_ID` as evidence. An installed or open cmux
-app is not evidence that the agent runs inside it.
+Use Rex in one of two modes. Load the `rex` skill before the first `rex`
+command.
 
-In Codex desktop/GUI or any session outside a cmux terminal, skip cmux
-instructions, skills, discovery, socket access, and pane operations. Shell
-tools and tool-created PTYs do not make a GUI session a cmux terminal session.
-Do not fall back to the focused cmux workspace or ask the user to start cmux.
+- **Inside Rex:** `REX_SESSION` and `REX_BLOCK` are set. Scope work to that
+  session. Never send input to `REX_BLOCK`: your agent runs there.
+- **Outside Rex:** `REX_SESSION` is not set, but `rex whoami --json` succeeds.
+  This is the case in T3 Code. Never send keys to, focus, or kill a session
+  that you did not create, except to clean up a session whose worktree is
+  gone or whose PR is merged.
+
+If neither is true, do not use Rex. Do not ask the user to start Rex.
 
 # Dev Servers
 
-Never start dev servers as background processes on localhost ports. Orphaned
-children occupy ports and cannot be seen or managed. Instead, run dev servers
-through `portless` for stable named `.localhost` URLs without port conflicts.
-Inside a cmux terminal, run them in a separate pane in the current workspace:
-load the `cmux` and `cmux-workspace` skills first, create the pane additively,
-and never steal focus.
-Outside cmux, use the current environment's managed terminal or process
-session so the server remains visible and can be stopped. Do not block server
-startup or verification on cmux access.
+Never run a dev server as a background shell command. Claude Code stops
+background commands after 30 minutes by default and 2 hours at most, and the
+user cannot see their output. Run the server through `portless` for a named
+`.localhost` URL, in a Rex terminal. Keep the session ID and block ID that the
+command returns.
 
-# No Embedded cmux Browser
+- **Inside Rex:** open a new tab in the current session, and do not steal
+  focus:
+  `rex window new -s "$REX_SESSION" Server -c "$PWD" --keep-open --focus=false --json -- <cmd>`.
+- **Outside Rex:** create one session for the worktree:
+  `rex new "<repo>-<branch>" -c "$PWD" --keep-open --json -- <cmd>`.
+  Reuse that session for a restart:
+  `rex run -s <session> -c "$PWD" --keep-open --focus=false --json -- <cmd>`.
+  When you hand back, leave the server running and tell the user the session
+  name. Kill the session when the user asks, when you remove its worktree,
+  or when its PR is merged.
+- **In both modes:** read logs with
+  `rex capture -s <session> -b <block> --trim | tail -n 200`. Stop the server
+  with `rex send-key -s <session> -b <block> ctrl+c`.
+- **No Rex:** ask the user to start the server in the T3 Code thread terminal.
+  Read its output from `~/.t3/userdata/logs/terminals/`.
 
-The cmux embedded browser is disabled in settings and must never be used.
-Never create browser panes or surfaces (`cmux new-pane --type browser`,
-`cmux new-surface --type browser`): cmux won't create an embedded pane — it
-silently opens the URL in the system default browser and reports OK, so
-retrying just opens duplicate tabs. To show the user a URL, print it once in
-the response and let them open it. (`agent-browser` for automated QA is
-separate and still fine.)
+# Executor
 
-# Verification Loops
+The `executor` MCP server holds the user's connected accounts: Cloudflare,
+Sentry, Vercel, Linear, Notion, Google Docs and Sheets, Mobbin, Excalidraw,
+Ahrefs, Profound, Plausible, Motion, and Kody. Before you use a CLI, ask for a
+login, or say that you cannot access one of these services, run
+`tools.executor.coreTools.connections.list({})` in `execute`. Use a CLI only
+when Executor does not have the operation. Pick the connection that matches the
+account the user names.
+
+# Verification
 
 Verify with the cheapest proof that can go red: a test, `curl`, or a typecheck.
-Use `agent-browser` when the proof exists only in a rendered page: layout at
-set widths, focus and keyboard flow, computed styles, console errors, media
-playback, charts, or a multi-step UI flow. For a refactor, one page load with a
-clean console is the proof. Read docs with web fetch; use the user's Chrome for
-sites that need their login. While the user iterates with you on a page they
-have open, let them check it.
+Use `agent-browser` only when the proof exists only in a rendered page: layout,
+focus flow, computed styles, console errors, media, or a multi-step UI flow. For
+a refactor, one page load with a clean console is the proof. Read a known doc
+page with web fetch; use the user's Chrome for sites that need their login. When
+the user iterates with you on an open page, let them check it.
 
-Run each browser check as a probe with one question:
-- Name the session, and write down what you need to see before the first `open`.
-- Take one snapshot or screenshot per question. After a fix, re-check only what
-  the fix changed.
-- When a call hangs, the browser cannot start, the dev server is down, or the
-  sandbox blocks the socket, stop and report the blocker.
-- Close the session (`agent-browser --session <name> close`) before you report.
-  The check is done when `agent-browser session list` no longer shows it.
+For each browser check, write down its one question first and take one snapshot
+per question. Stop and report when the browser or dev server is blocked. Close
+the session before you report.
 
-Run the acceptance checks once, after the last edit of a batch. A repeat run
-needs a new edit in between; a green result stays green until the code changes.
-For a change of three edits or fewer, run the scoped check for the changed
-files (one lint or typecheck command) and skip the full suite and the
-simplification pass. Prototype and throwaway routes get the scoped check only.
+Run the acceptance checks once, after the last edit of a batch. Do not rerun a
+green check without a new edit. For a change of three edits or fewer, or a
+prototype, run only the scoped check for the changed files.
+
+Chain the checks of one run into one command, for example
+`cargo fmt --all && cargo clippy --workspace -- -D warnings && cargo test`, and
+filter its output. Use the check script of the repo when it has one. Do not use
+a separate tool call for each check.
+
+# Helper Agents
+
+Use a helper agent only for:
+
+- Parallel read-only search across several unknown areas, one helper per area,
+  all in one message.
+- Open-ended web research across several sources.
+- A summary of a large log, test run, or file.
+- A fresh-context review of a finished diff. Give the reviewer the request and
+  the diff, not your reasoning.
+
+Check a helper's claims against the real diff and command output.
+
+Filter shell output at the source with `head`, `wc`, `grep`, or a field
+selector.
 
 # Post-green Simplification
 
-After a task adds or materially changes production or test code, first make the
-acceptance checks green. Then run one fresh-context simplification pass before
-the final independent review. Give the simplifier the request, comparison base,
-changed paths, and exact passing commands; do not give it the implementer's
-reasoning. Use the `simplify-code` skill, rerun the same checks after its edits,
-and accept a no-op when the diff is already simple. Keep one writer active at a
-time. Skip this stage for documentation-only, generated, vendored, snapshot,
-lockfile, formatting-only, and mechanical configuration changes.
+After a task materially changes production or test code and the checks are
+green, run the `simplify-code` skill once on the diff. If the harness has not
+loaded it, read `~/.agents/skills/simplify-code/SKILL.md`. Rerun the same
+checks, accept a no-op, and revert only the simplification edits if a check
+regresses. Then run the final review. Skip this for changes of three edits or
+fewer, and for documentation, generated, vendored, snapshot, lockfile,
+formatting, and configuration-only changes.
 
 # Comments
 
-Code should be self-documenting. Comments should be additive in value.
-Not describing a decision that was made. But provide more context to the code,
-that otherwise would be hard to infer.
+Write self-documenting code. Add a comment only for context the code cannot
+show. Do not use comments to describe a decision.

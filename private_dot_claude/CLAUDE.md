@@ -1,64 +1,25 @@
 @~/.agents/AGENTS.md
 
-# Context Budget and Delegation
+# Claude Code
 
-The auto-compact window is 200000 tokens. Compaction starts near 156000. The
-system prompt uses about 37000 tokens before work starts. One work cycle
-therefore has about 115000 tokens of room.
-
-You have standing permission to use the Agent tool for read-only work. Do not
-ask first. This grants the request that the agent tool waits for. Workflows and
-`/deep-research` still need an explicit request each time.
-
-Delegate by default:
-
-- More than 5 files to read for orientation: send one `Explore` for each area.
-  Send them in parallel, in one message.
-- A file of more than 500 lines, or command output of more than 100 lines: send
-  `digest` and ask it the question.
-- More than 10 shell commands to answer one question: send `Explore` or
-  `digest` the question. Do not run the commands here.
-- Builds, tests, typechecks, and lints: send `verify`, once per batch of
-  edits, after the last edit. A second `verify` needs a new edit in between.
-  For a change of three edits or fewer, run the scoped check inline and skip
-  `verify` and `simplify`.
-- Web research (docs, vendor pages, npm, GitHub, prior art): send `research`.
-  `general-purpose` inherits this session's model, so it is the most expensive
-  agent; use it only when one task needs web access and repo edits together.
-- The approach is decided and the change touches more than 2 files: write the
-  spec and send `implement`. Give it the exact files, the exact change, and the
-  acceptance check. Review its diff here. Edit directly only for small changes
-  the user iterates on with you.
-
-Shell output is the largest cost after file reads. Filter every command at the
-source with `head`, `wc`, `grep`, or a field selector. Never put a raw `find`,
-`ls -R`, `git log`, or full log file into this thread.
-
-An agent's result arrives in its completion notification. The `tasks/*.output`
-file behind it is the full transcript; leave it unread.
-
-Read a file directly only when you will edit it. Do not read whole files to
-build a map of the code. Agents return conclusions. Do not ask an agent for
-file contents.
-
-# Claude Post-green Simplification
-
-For the routine post-green simplification stage from the shared instructions,
-spawn the custom `simplify` agent exactly once with a self-contained contract.
-It is a fresh Sonnet-medium writer with the shared `simplify-code` skill. After
-it returns, send the same acceptance commands to `verify`, then perform the
-separate final correctness review. If verification regresses, restore only the
-simplification edits and keep the previously working implementation.
-
-Reserve Claude Code's bundled `/simplify` skill for an explicit user request or
-for a large, cross-cutting diff where four specialized review passes justify
-the extra latency and usage. Do not run both simplification paths on one diff.
+`general-purpose` runs on the session model, so it is the most expensive
+helper. Use it only when one task needs web access and repo edits together.
 
 # Code Review
 
-Code review runs on Opus or Codex. `/code-review` spawns its finders on the
-session model and is user-invocable only: run it when the user asks, from an
-Opus session. In a Fable session, review with `codex:adversarial-review` or
-`codex:review`. If the Skill tool blocks them, ask the user to run
-`/codex:adversarial-review` or `/codex:review`. One reviewer per diff; a second
-reviewer needs the user's ask.
+Review with a Codex session through `delegate_task` (provider `codex`), in the
+branch worktree, against `origin/main`. For risky changes, ask it for an
+adversarial review. Give the reviewer the request and the diff, not your
+reasoning. Run `/code-review` only when the user asks, from an Opus session.
+One reviewer per diff; a second reviewer needs the user's ask.
+
+Do at most two review rounds for one diff: the first review, then one re-check
+of the fixes. If findings stay open after the re-check, stop and give them to
+the user.
+
+# Implementation Helpers
+
+Give a delegated implementation task to a Codex session through
+`delegate_task` (provider `codex`, model `gpt-6.1-sol`). Use a Claude model
+only when the user asks for one. Before you delegate a ticket, make sure that
+no other thread or open PR has it.
