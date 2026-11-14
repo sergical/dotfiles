@@ -22,5 +22,4 @@ brew "yt-dlp"
 brew "oven-sh/bun/bun"
 # 1Password Environments requires the beta CLI channel.
 cask "1password-cli@beta"
-cask "chromedriver"
 cask "ngrok"

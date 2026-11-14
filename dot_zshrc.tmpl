@@ -30,7 +30,10 @@ if command -v brew >/dev/null 2>&1; then
 fi
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && command -v kiro >/dev/null 2>&1 && . "$(kiro --locate-shell-integration-path zsh)"
-[[ -s "$HOME/.vite-plus/env" ]] && . "$HOME/.vite-plus/env"
+for vp_env in "$HOME/.config/vite-plus/env" "$HOME/.vite-plus/env"; do
+  [[ -s "$vp_env" ]] && { . "$vp_env"; break; }
+done
+unset vp_env
 [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
 [[ -d "$HOME/.opencode/bin" ]] && path=("$HOME/.opencode/bin" $path)
 

@@ -55,7 +55,7 @@ Verify with the cheapest proof that can go red: a test, `curl`, or a typecheck.
 Use `agent-browser` only when the proof exists only in a rendered page: layout,
 focus flow, computed styles, console errors, media, or a multi-step UI flow. For
 a refactor, one page load with a clean console is the proof. Read a known doc
-page with web fetch; use the user's Chrome for sites that need their login. When
+page with web fetch; use the user's Helium browser for sites that need their login. When
 the user iterates with you on an open page, let them check it.
 
 For each browser check, write down its one question first and take one snapshot
