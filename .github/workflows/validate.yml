@@ -23,8 +23,6 @@ jobs:
           ruby -c scripts/normalize-opencode-user-skills.rb
           git diff --check
           jq empty private_dot_claude/private_settings.json.tmpl
-          jq empty private_dot_pi/agent/settings.json
-          jq empty private_dot_pi/agent/subagents.json
           jq empty private_dot_config/private_opencode/private_opencode.json.tmpl
           jq empty dot_agents/private_mcp.json.tmpl
           jq empty private_dot_config/private_cmux/private_cmux.json
