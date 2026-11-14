@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "skillListingBudgetFraction": 0.002,
+  "skillListingBudgetFraction": 0.003,
   "attribution": {
     "commit": "Co-authored-by: Claude <claude@anthropic.com>",
     "pr": "Created with Claude Code",
@@ -23,7 +23,10 @@
   "enabledPlugins": {
     "sentry@claude-plugins-official": true,
     "plannotator@plannotator": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "cc-plugin-you-should-know@builtin": true,
+    "image-diet@sergical": true,
+    "handoffs@sergical": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {
@@ -36,6 +39,12 @@
       "source": {
         "source": "github",
         "repo": "openai/codex-plugin-cc"
+      }
+    },
+    "sergical": {
+      "source": {
+        "source": "github",
+        "repo": "sergical/claude-plugins"
       }
     }
   },
@@ -60,5 +69,18 @@
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh -c 'rex __internal session-start --agent claude 2>/dev/null || true'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
 }
