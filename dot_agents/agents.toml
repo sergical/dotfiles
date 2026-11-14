@@ -15,13 +15,14 @@ github_repos = [
   "sergical/anti-slop",
   "sergical/mattpocock-skills",
   "sergical/pstack-skills",
+  "sergical/skills",
 ]
 git_domains = ["github.com/dmmulroy/.dotfiles"]
 
 [[skills]]
 name = "bro"
 source = "git:https://github.com/dmmulroy/.dotfiles.git"
-ref = "112aa522ff6695870f94177edc51f672ecb04026"
+ref = "cdba491f1f9c952979af37f15e4c3efb26f625df"
 path = "home/.agents/skills/bro"
 
 [[skills]]
@@ -37,46 +38,10 @@ ref = "c0c9c827435237e761f8d05c74ce9e16fc06b98f"
 path = "packages/cli/plugins/sentry-cli/skills/sentry-cli"
 
 [[skills]]
-name = "iterate-pr"
-source = "getsentry/skills"
-ref = "c2f99a5b04b4cd992ec3022d7c2c3e23e938d241"
-path = "skills/iterate-pr"
-
-[[skills]]
 name = "pr-writer"
 source = "getsentry/skills"
-ref = "c2783e84cde7e75807c6fff810c6a67fb66c2430"
+ref = "412f2368ee3ec90ce042826b57533f080d531aaf"
 path = "skills/pr-writer"
-
-[[skills]]
-name = "cmux"
-source = "manaflow-ai/cmux"
-ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
-path = "skills/cmux"
-
-[[skills]]
-name = "cmux-customization"
-source = "manaflow-ai/cmux"
-ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
-path = "skills/cmux-customization"
-
-[[skills]]
-name = "cmux-diagnostics"
-source = "manaflow-ai/cmux"
-ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
-path = "skills/cmux-diagnostics"
-
-[[skills]]
-name = "cmux-markdown"
-source = "manaflow-ai/cmux"
-ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
-path = "skills/cmux-markdown"
-
-[[skills]]
-name = "cmux-workspace"
-source = "manaflow-ai/cmux"
-ref = "167bfea3354682570dbb012ff77e9dc1697f12b2"
-path = "skills/cmux-workspace"
 
 [[skills]]
 name = "*"
@@ -110,7 +75,7 @@ path = "write-discoverable-code"
 [[skills]]
 name = "agent-browser"
 source = "vercel-labs/agent-browser"
-ref = "4726eceeb3274eef34ab082ee04d7288c54dec70"
+ref = "021d9255e543d2f1ab66b87f338d85c3d7a910be"
 path = "skills/agent-browser"
 
 [[skills]]
@@ -130,3 +95,9 @@ name = "pstack-comment-sicko"
 source = "sergical/pstack-skills"
 ref = "80a18e9eebe3045f3a9e4047727912ccb70cdfdf"
 targets = ["claude", "opencode"]
+
+[[skills]]
+name = "*"
+source = "sergical/skills"
+ref = "689d66777af38c28f38b16ca39241076695c6a43"
+path = "skills"

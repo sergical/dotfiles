@@ -1,0 +1,16 @@
+{{- $settings := joinPath .chezmoi.homeDir ".pi/agent/settings.json" -}}
+{{- $deviceId := "" -}}
+{{- if stat $settings -}}{{- $deviceId = (include $settings | fromJson).deviceId | default "" -}}{{- end -}}
+{
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6.1-sol",
+  "lastChangelogVersion": "1.3.0",
+  "defaultThinkingLevel": "medium",
+  "enabledModels": [
+    "openai/gpt-6.1-sol",
+    "openrouter/x-ai/grok-4.6",
+    "openrouter/google/gemini-3.7-flash"
+  ],
+  "theme": "dark"{{ with $deviceId }},
+  "deviceId": {{ . | quote }}{{ end }}
+}

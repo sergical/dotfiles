@@ -16,9 +16,14 @@
     "hostsToOpenInEmbeddedBrowser": [],
     "openTerminalLinksInCmuxBrowser": false,
     "interceptTerminalOpenCommandInCmuxBrowser": false,
-    "urlsToAlwaysOpenExternally": ["*"]
+    "urlsToAlwaysOpenExternally": [
+      "*"
+    ]
   },
   "sidebar": {
     "showPorts": false
+  },
+  "automation": {
+    "socketControlMode": "automation"
   }
 }

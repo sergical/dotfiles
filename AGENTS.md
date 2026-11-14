@@ -21,8 +21,7 @@ caches, generated databases, or private repository topology.
 ## Update Agent Routing
 
 Read `docs/agent-routing.md` before changing a shared instruction, custom agent,
-model route, permission, or the `simplify-code` skill. Keep the OpenCode2 and Pi
-rosters coherent with their coordinator allowlists. Run
+model route, permission, or the `simplify-code` skill. Run
 `scripts/check-agent-routing.sh` before applying or committing the change.
 
 ## Update Skill Inventory

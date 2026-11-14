@@ -11,14 +11,15 @@ outside the repository.
 | --- | --- | --- |
 | `~/.agents/AGENTS.md` | `dot_agents/AGENTS.md.tmpl` | Shared behavior rendered from the common template |
 | `~/.agents/skills/simplify-code/` | `dot_agents/skills/simplify-code/` | Shared post-green cleanup contract |
-| `~/.claude/` | `private_dot_claude/` | Claude delegation policy and agents |
-| `~/.codex/` | `dot_codex/` | Codex global gate and custom agents |
-| `~/.config/opencode/` | `private_dot_config/private_opencode/` | OpenCode2 policy and complete roster |
-| `~/.pi/agent/` | `private_dot_pi/agent/` | Pi policy, extension settings, and complete roster |
+| `~/.claude/` | `private_dot_claude/` | Claude instructions and settings |
+| `~/.codex/` | `dot_codex/` | Link to the shared instructions, and hooks |
+| `~/.config/opencode/` | `private_dot_config/private_opencode/` | OpenCode2 settings and the `plan` agent |
+| `~/.pi/agent/` | `private_dot_pi/agent/` | Pi settings and the link to the shared instructions |
 
-The OpenCode2 and Pi rosters are atomic configuration sets. When a role is
-added, renamed, or removed, update the coordinator allowlist, policy text,
-agent file, and validation expectations in the same change.
+The source does not hold custom helper-agent sets for Claude, Codex, OpenCode2
+or Pi. Each harness uses its built-in agents. If you add a custom agent again,
+add its file to `scripts/check-source.sh` and its rules to
+`scripts/check-agent-routing.sh` in the same change.
 
 Context files are not portable by filename alone. See
 [agent context loading](context-loading.md) for the supported global path,

@@ -36,13 +36,11 @@ while IFS= read -r source_path; do
     dot_agents/AGENTS.md.tmpl|dot_agents/agents.toml) ;;
     dot_agents/private_mcp.json.tmpl) ;;
     dot_agents/skills/simplify-code/SKILL.md|dot_agents/skills/simplify-code/agents/openai.yaml) ;;
-    dot_codex/AGENTS.md.tmpl) ;;
-    dot_codex/agents/architect.toml|dot_codex/agents/explorer.toml|dot_codex/agents/repair.toml|dot_codex/agents/review.toml|dot_codex/agents/simplify.toml|dot_codex/agents/verify.toml|dot_codex/agents/visual.toml|dot_codex/agents/worker.toml) ;;
+    dot_codex/symlink_AGENTS.md|dot_codex/hooks.json.tmpl) ;;
     private_dot_local/private_bin/executable_skill-inventory) ;;
     dot_plannotator/config.json) ;;
     private_dot_aws/private_config.tmpl) ;;
     private_dot_claude/private_settings.json.tmpl|private_dot_claude/CLAUDE.md) ;;
-    private_dot_claude/agents/Explore.md|private_dot_claude/agents/diagram.md|private_dot_claude/agents/digest.md|private_dot_claude/agents/implement.md|private_dot_claude/agents/research.md|private_dot_claude/agents/simplify.md|private_dot_claude/agents/verify.md) ;;
     private_dot_claude/bin/executable_ccstatusline-autocompact) ;;
     private_dot_config/ccstatusline/settings.json) ;;
     private_dot_config/private_cmux/private_cmux.json) ;;
@@ -51,10 +49,8 @@ while IFS= read -r source_path; do
     private_dot_config/private_git/ignore) ;;
     private_dot_config/private_opencode/symlink_AGENTS.md) ;;
     private_dot_config/private_opencode/private_opencode.json.tmpl|private_dot_config/private_opencode/private_cli.json) ;;
-    private_dot_config/private_opencode/agents/architect.md|private_dot_config/private_opencode/agents/build.md|private_dot_config/private_opencode/agents/explore.md|private_dot_config/private_opencode/agents/implement-retry.md|private_dot_config/private_opencode/agents/implement.md|private_dot_config/private_opencode/agents/independent.md|private_dot_config/private_opencode/agents/judgment.md|private_dot_config/private_opencode/agents/plan.md|private_dot_config/private_opencode/agents/review.md|private_dot_config/private_opencode/agents/simplify.md|private_dot_config/private_opencode/agents/verify.md|private_dot_config/private_opencode/agents/visual.md) ;;
-    private_dot_pi/agent/settings.json|private_dot_pi/agent/subagents.json|private_dot_pi/agent/symlink_AGENTS.md) ;;
-    private_dot_pi/agent/agent-tool-description.md) ;;
-    private_dot_pi/agent/agents/architect.md|private_dot_pi/agent/agents/explore.md|private_dot_pi/agent/agents/implement-retry.md|private_dot_pi/agent/agents/implement.md|private_dot_pi/agent/agents/independent.md|private_dot_pi/agent/agents/judgment.md|private_dot_pi/agent/agents/review.md|private_dot_pi/agent/agents/simplify.md|private_dot_pi/agent/agents/verify.md|private_dot_pi/agent/agents/visual.md) ;;
+    private_dot_config/private_opencode/agents/plan.md) ;;
+    private_dot_pi/agent/settings.json.tmpl|private_dot_pi/agent/symlink_AGENTS.md) ;;
     private_Library/private_Application\ Support/private_Cursor/private_User/keybindings.json) ;;
     private_Library/private_Application\ Support/private_Cursor/private_User/settings.json) ;;
     *) rejected_paths="${rejected_paths}${rejected_paths:+
