@@ -3,8 +3,8 @@
 
 # Where Things Live
 
-- Machine config: `sergical/dotfiles` (chezmoi). Edit the source, then run
-  `chezmoi apply`.
+- Machine config: `sergical/dotfiles` (chezmoi). Before you change a managed
+  file, read `~/.local/share/chezmoi/AGENTS.md`.
 - Agent rules, skills, hooks and proofs: `~/.agents`, written from the
   dotfiles source.
 - Machines, servers, routes and access: `sergical/fleet` (`~/src/fleet`).

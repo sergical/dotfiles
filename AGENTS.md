@@ -28,10 +28,6 @@ Before a change, identify the system that owns each value:
 | Other machines | Their own render of the same source | A shared template change applies to every machine. Render the template with the data that other machines have today. A missing key must give their current result. |
 | Local Chezmoi config | Profile flags and machine data | A new prompt needs a default that keeps other machines unchanged, a flag in `.github/workflows/validate.yml`, and a row in `docs/profiles.md`. |
 | Live targets | Drift from apps and installers | Read `chezmoi diff` before `chezmoi apply`. Capture an intended change by named path. Otherwise, apply the source. |
-| Local includes | Machine-only values | Put them in `~/.zshrc.local` or `~/.gitconfig.local`, not in a template. |
-| Applications | Auth, sessions and runtime state | Use the app's login and credential store, or 1Password. Never put these in a template. |
-| Dotagents and Homebrew | External skills and packages | Change the manifest, then run its installer. |
-| GitHub Actions | Proof that the source renders | Wait for the Linux and macOS jobs to pass before you report a push as done. |
 
 ## Update Agent Routing
 
@@ -123,4 +119,5 @@ chezmoi status
 chezmoi diff
 ```
 
-After pushing, verify both Linux and macOS jobs in `.github/workflows/validate.yml`.
+A push is done when the Linux and macOS jobs in
+`.github/workflows/validate.yml` pass on its commit.
