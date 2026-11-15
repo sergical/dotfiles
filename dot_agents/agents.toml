@@ -12,6 +12,7 @@ github_orgs = [
 github_repos = [
   "ayghri/i-have-adhd",
   "dmmulroy/anti-slop",
+  "remotion-dev/skills",
   "sergical/anti-slop",
   "sergical/mattpocock-skills",
   "sergical/pstack-skills",
@@ -99,4 +100,10 @@ targets = ["claude", "opencode"]
 name = "*"
 source = "sergical/skills"
 ref = "689d66777af38c28f38b16ca39241076695c6a43"
+path = "skills"
+
+[[skills]]
+name = "*"
+source = "remotion-dev/skills"
+ref = "7e541aa4d7361dfaca0780a565a47307eb7bdfbb"
 path = "skills"
