@@ -1,7 +1,7 @@
 #!/bin/bash
 # Keeps "T3 Code (Fork)" on the newest upstream T3 Code nightly plus the fork's commits.
-#   t3-fork-sync          rebase onto the newest nightly, check, build, install when the app is closed
-#   t3-fork-sync install  install a staged build now (quit the fork app first)
+# Rebases onto the newest nightly, checks, builds, and publishes a GitHub prerelease.
+# The installed app finds that release and updates itself, like the official nightly.
 set -euo pipefail
 
 export PATH="$HOME/.vite-plus/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
@@ -9,9 +9,8 @@ export PATH="$HOME/.vite-plus/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/usr/bin:/b
 repo="${T3_FORK_REPO:-$HOME/src/t3code-fork}"
 branch="fork-nightly"
 app_name="T3 Code (Fork)"
-app="/Applications/$app_name.app"
+release_repo="${T3_FORK_RELEASE_REPO:-sergical/t3code}"
 state="$HOME/.t3-fork/sync"
-staged="$state/staged.dmg"
 mkdir -p "$state"
 
 log() { echo "$(date '+%F %T') $*"; }
@@ -33,36 +32,6 @@ fi
 echo $$ >"$lock/pid"
 trap 'rm -rf "$lock"' EXIT
 
-app_running() {
-  [ "$(osascript -e 'application id "com.t3tools.t3code.fork" is running' 2>/dev/null)" = true ]
-}
-
-install_staged() {
-  [ -f "$staged" ] || return 0
-  if app_running; then
-    log "staged $(cat "$state/staged") waits for $app_name to quit"
-    notify "Update $(cat "$state/staged") is ready. Quit the app and run t3-fork-sync install."
-    return 0
-  fi
-  local mount
-  mount="$(mktemp -d)"
-  hdiutil attach -quiet -nobrowse -readonly -mountpoint "$mount" "$staged"
-  rm -rf "$app.incoming"
-  ditto "$mount/$app_name.app" "$app.incoming"
-  hdiutil detach -quiet "$mount"
-  rm -rf "$app"
-  mv "$app.incoming" "$app"
-  mv "$state/staged" "$state/installed"
-  rm -f "$staged"
-  log "installed $(cat "$state/installed")"
-  notify "Updated to $(cat "$state/installed")"
-}
-
-if [ "${1-}" = "install" ]; then
-  install_staged
-  exit 0
-fi
-
 cd "$repo"
 [ "$(git branch --show-current)" = "$branch" ] || fail "$repo is not on $branch"
 git diff --quiet && git diff --cached --quiet || fail "$repo has uncommitted changes"
@@ -80,11 +49,8 @@ if [ "$tag" != "$base" ]; then
 fi
 
 want="$tag+$(git rev-parse --short HEAD)"
-for done_file in installed staged failed; do
-  if [ "$(cat "$state/$done_file" 2>/dev/null)" = "$want" ]; then
-    [ "$done_file" = staged ] && install_staged
-    exit 0
-  fi
+for done_file in published failed; do
+  [ "$(cat "$state/$done_file" 2>/dev/null)" != "$want" ] || exit 0
 done
 
 log "building $want"
@@ -97,17 +63,38 @@ set -a
 . ./.env.example
 [ ! -f "$state/notary.env" ] || . "$state/notary.env"
 set +a
-unset GITHUB_REPOSITORY T3CODE_DESKTOP_UPDATE_REPOSITORY
+unset GITHUB_REPOSITORY
+export T3CODE_DESKTOP_UPDATE_REPOSITORY="$release_repo"
 out="$state/build"
 rm -rf "$out"
 node scripts/build-desktop-artifact.ts --platform mac --target dmg --arch arm64 \
   --build-version "${tag#v}" --signed --output-dir "$out" ||
   { echo "$want" >"$state/failed"; fail "Build failed for $want"; }
 
-dmg="$(find "$out" -maxdepth 1 -name '*.dmg' | head -1)"
-[ -n "$dmg" ] || { echo "$want" >"$state/failed"; fail "Build made no DMG for $want"; }
-mv "$dmg" "$staged"
-echo "$want" >"$state/staged"
+assets=()
+while IFS= read -r file; do assets+=("$file"); done < <(
+  find "$out" -maxdepth 1 \( -name '*.dmg' -o -name '*.zip' -o -name '*.blockmap' -o -name 'nightly-mac.yml' \)
+)
+[ "${#assets[@]}" -eq 5 ] || { echo "$want" >"$state/failed"; fail "Build made ${#assets[@]} of 5 release files for $want"; }
+
+publish() {
+  git -c credential.helper= -c credential.helper='!gh auth git-credential' \
+    push --quiet --force "https://github.com/$release_repo.git" "HEAD:refs/heads/$branch" || return
+  if gh release view "$tag" --repo "$release_repo" >/dev/null 2>&1; then
+    gh release upload "$tag" "${assets[@]}" --repo "$release_repo" --clobber
+  else
+    gh release create "$tag" "${assets[@]}" --repo "$release_repo" --target "$(git rev-parse HEAD)" \
+      --prerelease --latest=false --title "$app_name ${tag#v}" \
+      --notes "Upstream $tag plus the fork commits:"$'\n'"$(git log --reverse --format='- %s' "$tag..HEAD")"
+  fi
+}
+publish || { echo "$want" >"$state/failed"; fail "Publish failed for $want"; }
+echo "$want" >"$state/published"
 rm -rf "$out"
-log "staged $want"
-install_staged
+log "published $want to $release_repo"
+
+gh release list --repo "$release_repo" --limit 100 --json tagName,createdAt \
+  --jq 'sort_by(.createdAt) | reverse | .[5:][].tagName' |
+  while IFS= read -r old; do
+    gh release delete "$old" --repo "$release_repo" --yes --cleanup-tag && log "deleted old release $old"
+  done
