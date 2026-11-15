@@ -1,4 +1,6 @@
 {{ if lookPath "op" -}}
-//registry.npmjs.org/:_authToken={{ output "op" "read" "--no-newline" "--account" "my.1password.com" "op://Agents/npm registry tokens/npmjs" }}
+{{- $ref := "op://Agents/npm registry tokens/npmjs" -}}
+{{- $tokenFile := joinPath .chezmoi.homeDir ".config/op/agents-service-account-token" -}}
+//registry.npmjs.org/:_authToken={{ if stat $tokenFile }}{{ output "sh" "-c" "OP_SERVICE_ACCOUNT_TOKEN=\"$(cat \"$1\")\" op read --no-newline \"$2\"" "sh" $tokenFile $ref }}{{ else }}{{ output "op" "read" "--no-newline" "--account" "my.1password.com" $ref }}{{ end }}
 {{ end -}}
 registry=https://sfw.security.sentry.io/npm/
