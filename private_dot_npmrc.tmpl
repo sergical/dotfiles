@@ -1,4 +1,4 @@
 {{ if lookPath "op" -}}
-//registry.npmjs.org/:_authToken={{ onepasswordRead "op://Private/npm registry tokens/npmjs" "my.1password.com" }}
+//registry.npmjs.org/:_authToken={{ output "op" "read" "--no-newline" "--account" "my.1password.com" "op://Agents/npm registry tokens/npmjs" }}
 {{ end -}}
 registry=https://sfw.security.sentry.io/npm/
