@@ -17,8 +17,8 @@ style. For a risky change, ask for an adversarial review.
 Check each finding against the code before you fix it: about one finding in
 four is wrong. Use one reviewer and at most two rounds per diff: the review,
 then one re-check of the fixes. A second reviewer needs the user's ask. If
-a high or critical finding stays open after the re-check, give it to the user.
-Handle a medium or low finding as the shared guidance says.
+a finding that blocks the merge stays open after the re-check, give it to the
+user.
 
 ## Delegate
 
