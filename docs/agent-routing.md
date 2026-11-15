@@ -1,7 +1,7 @@
 # Agent Routing
 
 Chezmoi owns the portable routing policy, deterministic agent definitions, and
-the repository-owned `simplify-code` skill. Provider authentication, OAuth
+the repository-owned skills. Provider authentication, OAuth
 state, API keys, sessions, transcripts, caches, and application databases stay
 outside the repository.
 

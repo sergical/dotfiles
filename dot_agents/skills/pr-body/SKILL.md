@@ -16,11 +16,12 @@ Based on `show-me` by Dex Horthy (HumanLayer) and `pr` by Matt Pocock.
 1. Read the whole diff against the base branch, the intent or issue, and the
    review findings. Write the body new from the current diff each time.
 2. Write the title in the style of `git log --oneline -20`.
-3. Write the body in the shape below. A one-idea PR gets one paragraph and
-   Evidence.
-4. Publish with `gh pr create --body-file` or `gh pr edit --body-file`. In a
-   repo with `scripts/gate/gate`, then run `gate card`; it appends the gate
-   record.
+3. Write the body in the shape below. A one-idea PR gets one paragraph,
+   Evidence, one line of merge danger, and the Writer line.
+4. When the task is to open or update the PR, publish with
+   `gh pr create --body-file` or `gh pr edit --body-file`; otherwise give the
+   text in your reply. In a repo with `scripts/gate/gate`, run `gate card`
+   after you publish; it appends the gate record.
 5. Done when each claim traces to the diff, a test or a command output, and a
    reviewer can answer from the body alone: why, what changed, how do we know,
    and what can break.
