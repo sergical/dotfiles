@@ -95,6 +95,7 @@ fi
 
 set -a
 . ./.env.example
+[ ! -f "$state/notary.env" ] || . "$state/notary.env"
 set +a
 unset GITHUB_REPOSITORY T3CODE_DESKTOP_UPDATE_REPOSITORY
 out="$state/build"
