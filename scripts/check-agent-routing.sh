@@ -43,6 +43,16 @@ shared = 'template "shared-agent-guidance.md"'
 if shared not in (root / "dot_agents/AGENTS.md.tmpl").read_text():
     raise SystemExit("~/.agents/AGENTS.md must render the shared guidance template")
 
+# Every session of every harness loads this file, so each line costs context.
+max_shared_lines = 120
+shared_lines = len((root / ".chezmoitemplates/shared-agent-guidance.md").read_text().splitlines())
+if shared_lines > max_shared_lines:
+    raise SystemExit(
+        f".chezmoitemplates/shared-agent-guidance.md has {shared_lines} lines; the limit is {max_shared_lines}. "
+        "Move procedures into a skill that loads on demand, or delete rules that a check already enforces. "
+        "Do not raise the limit or compress lines to pass."
+    )
+
 for link in (
     "dot_codex/symlink_AGENTS.md",
     "private_dot_config/private_opencode/symlink_AGENTS.md",
