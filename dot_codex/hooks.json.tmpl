@@ -1,18 +1,5 @@
 {
   "hooks": {
-{{- if dig "profile_personal" false . }}
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "{{ .chezmoi.homeDir }}/.local/bin/plannotator",
-            "timeout": 345600
-          }
-        ]
-      }
-    ],
-{{- end }}
     "SessionStart": [
       {
         "hooks": [

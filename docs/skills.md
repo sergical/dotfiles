@@ -12,7 +12,6 @@ skill-inventory
 skill-inventory matt
 skill-inventory --model-visible
 skill-inventory --manual-only matt
-skill-inventory plannotator
 skill-inventory private
 ```
 
@@ -25,8 +24,7 @@ The command reconciles four local sources:
 - `~/.agents/agents.lock` for commit-pinned dotagents skills;
 - `~/.agents/.agent-skills-private` for the owner-only private installer;
 - `~/.agents/.agent-skill-sources-private.json` for private upstream families;
-- `~/.agents/.skill-lock.json` for installer-managed skills such as
-  Plannotator;
+- `~/.agents/.skill-lock.json` for installer-managed skills;
 - repository-owned or otherwise unmanaged installed directories.
 
 Private ownership wins when two installers use the same ID. The report marks
@@ -36,8 +34,8 @@ frontmatter `name` differ.
 ## Naming Policy
 
 Use a source prefix for a new skill when the source owns the ID and the prefix
-improves discovery. Existing `emil-*`, `uish-*`, `plannotator-*`, and `cmux-*`
-families follow this pattern.
+improves discovery. Existing `emil-*`, `uish-*`, and `cmux-*` families follow
+this pattern.
 
 Preserve a third-party canonical ID when an installer owns the directory. Add a
 prefix only after the installer and every consuming harness support aliases, or

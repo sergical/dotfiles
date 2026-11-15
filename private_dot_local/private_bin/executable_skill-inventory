@@ -75,10 +75,6 @@ for skill_id, record in dotagents.items():
 for skill_id, record in skill_lock.items():
     source_by_skill.setdefault(skill_id, record.get("source", "skills installer"))
 
-for skill_id in installed:
-    if skill_id.startswith("plannotator-"):
-        source_by_skill.setdefault(skill_id, "backnotprop/plannotator")
-
 if "simplify-code" in installed:
     source_by_skill["simplify-code"] = "sergical/dotfiles"
 
