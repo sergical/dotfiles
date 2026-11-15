@@ -36,7 +36,7 @@ Prove each change before you call it done. Use a number where one exists (test r
 
 For a PR, done means that the required checks pass on the head commit and the PR body shows the proof for that commit. Green CI alone is not proof, because CI tests only what it already covers. When the repo has a risk gate, follow it: its scripts decide the tier, and AI review and your evidence only add input.
 
-On a stop-tier PR, add the `gate:approved` label yourself when the head commit has a passing `gate/review` with `0 open` from a reviewer of a different provider, each CI job except `risk` passes, and the proof card shows that head. Do not wait for the user. Add the label after the last push.
+On a stop-tier PR, add the `gate:approved` label yourself when the head commit has a passing `gate/review` with `0 open` from a reviewer of a different provider, each CI job except `risk` passes, and the proof card shows that head. Do not wait for the user. Add the label after the last push. Fix each high or critical finding. Fix each medium or low finding, or list it under Limits in the PR body with its reason and a follow-up issue, then mark it resolved.
 
 Verify with the cheapest proof that can go red: a test, `curl`, or a typecheck.
 Use `agent-browser` only when the proof exists only in a rendered page: layout,
