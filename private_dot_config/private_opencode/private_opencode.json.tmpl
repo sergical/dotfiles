@@ -14,15 +14,18 @@
       "headers": {
         "x-api-key": "{{ $q := joinPath .chezmoi.homeDir `.executor/server-control/polylane-auth.json` }}{{ if stat $q }}{{ (include $q | fromJson).token }}{{ end }}"
       }
-    },
+    }
+{{- $p := joinPath .chezmoi.homeDir `.executor/server-control/auth.json` }}
+{{- if stat $p }},
     "executor": {
       "enabled": true,
       "headers": {
-        "Authorization": "Bearer {{ $p := joinPath .chezmoi.homeDir `.executor/server-control/auth.json` }}{{ if stat $p }}{{ (include $p | fromJson).token }}{{ end }}"
+        "Authorization": "Bearer {{ (include $p | fromJson).token }}"
       },
       "type": "remote",
       "url": "http://127.0.0.1:4789/mcp"
     }
+{{- end }}
   },
   "model": "openai/gpt-5.6-sol#medium",
   "permissions": [
