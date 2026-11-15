@@ -95,8 +95,9 @@ formula. Do not disable Homebrew tap-trust checks or trust unrelated taps.
 - Review `chezmoi diff` before applying.
 - Run `scripts/check-source.sh` before committing.
 - Keep identities, signing keys, work aliases, secrets, and auth state in local
-  includes such as `~/.gitconfig.local` and `~/.zshrc.local`, or in
-  application-owned credential stores.
+  includes such as `~/.gitconfig.local`, `~/.zshrc.local`, `~/.npmrc.local`
+  and `~/.config/opencode/opencode.jsonc`, or in application-owned credential
+  stores.
 
 See [architecture](docs/architecture.md), [profiles](docs/profiles.md),
 [agent routing](docs/agent-routing.md), [context loading](docs/context-loading.md),

@@ -1,3 +1,4 @@
+{{/* Sentry security firewall: a 403 "Blocked by Security Policy" means the version is too new. Retry with `npm i --before=<date about 10 days ago>`. Do not change the registry. */ -}}
 registry=https://sfw.security.sentry.io/npm/
 {{- $local := joinPath .chezmoi.homeDir ".npmrc.local" }}
 {{- if stat $local }}

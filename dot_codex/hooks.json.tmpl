@@ -1,5 +1,6 @@
 {
   "hooks": {
+{{- if dig "profile_personal" false . }}
     "Stop": [
       {
         "hooks": [
@@ -11,6 +12,7 @@
         ]
       }
     ],
+{{- end }}
     "SessionStart": [
       {
         "hooks": [

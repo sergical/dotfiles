@@ -44,3 +44,9 @@ Library/Application Support/Cursor/**
 Library/Application Support/Cursor
 Library/Application Support/Cursor/**
 {{- end }}
+
+{{- if or (dig "profile_personal" false .) (ne .chezmoi.os "darwin") }}
+.local/bin/t3-fork-sync
+Library/LaunchAgents
+Library/LaunchAgents/**
+{{- end }}
