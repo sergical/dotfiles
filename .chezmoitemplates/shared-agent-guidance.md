@@ -1,5 +1,6 @@
 # Communication
 - Always follow ISO 24495-1 and ASD-STE100 Simplified Technical English
+- Decide and act. When a choice is not truly the user's, pick the best option, do it, and report why. Do not hand back option menus.
 
 # Where Things Live
 
@@ -11,43 +12,13 @@
   Change cloud resources only in `fleet/cloud`, with `pnpm deploy`.
 - Each line in fleet has a check. Run it before you say that something works.
 
-# Rex
+# Rex and Dev Servers
 
-Use Rex in one of two modes. Load the `rex` skill before the first `rex`
-command.
-
-- **Inside Rex:** `REX_SESSION` and `REX_BLOCK` are set. Scope work to that
-  session. Never send input to `REX_BLOCK`: your agent runs there.
-- **Outside Rex:** `REX_SESSION` is not set, but `rex whoami --json` succeeds.
-  This is the case in T3 Code. Never send keys to, focus, or kill a session
-  that you did not create, except to clean up a session whose worktree is
-  gone or whose PR is merged.
-
-If neither is true, do not use Rex. Do not ask the user to start Rex.
-
-# Dev Servers
-
-Never run a dev server as a background shell command. Claude Code stops
-background commands after 30 minutes by default and 2 hours at most, and the
-user cannot see their output. Run the server through `portless` for a named
-`.localhost` URL, in a Rex terminal. Keep the session ID and block ID that the
-command returns.
-
-- **Inside Rex:** open a new tab in the current session, and do not steal
-  focus:
-  `rex window new -s "$REX_SESSION" Server -c "$PWD" --keep-open --focus=false --json -- <cmd>`.
-- **Outside Rex:** create one session for the worktree:
-  `rex new "<repo>-<branch>" -c "$PWD" --keep-open --json -- <cmd>`.
-  Reuse that session for a restart:
-  `rex run -s <session> -c "$PWD" --keep-open --focus=false --json -- <cmd>`.
-  When you hand back, leave the server running and tell the user the session
-  name. Kill the session when the user asks, when you remove its worktree,
-  or when its PR is merged.
-- **In both modes:** read logs with
-  `rex capture -s <session> -b <block> --trim | tail -n 200`. Stop the server
-  with `rex send-key -s <session> -b <block> ctrl+c`.
-- **No Rex:** ask the user to start the server in the T3 Code thread terminal.
-  Read its output from `~/.t3/userdata/logs/terminals/`.
+Never send input to `REX_BLOCK`, and never send keys to, focus, or kill a Rex
+session that you did not create, unless its worktree is gone or its PR is
+merged. Never run a dev server as a background shell command. Before you start a dev server or run any `rex` command, load the
+`dev-servers` skill. If the harness has not loaded it, read
+`~/.agents/skills/dev-servers/SKILL.md`.
 
 # Executor
 
@@ -60,6 +31,10 @@ when Executor does not have the operation. Pick the connection that matches the
 account the user names.
 
 # Verification
+
+Prove each change before you call it done. Use a number where one exists (test result, count, timing, before and after) and a direct observation where one does not (command output, screenshot, transcript). If you cannot get proof, the work is not done: say what blocks the proof and what would give it.
+
+For a PR, done means that the required checks pass on the head commit and the PR body shows the proof for that commit. Green CI alone is not proof, because CI tests only what it already covers. When the repo has a risk gate, follow it: its scripts decide the tier, and AI review and your evidence only add input.
 
 Verify with the cheapest proof that can go red: a test, `curl`, or a typecheck.
 Use `agent-browser` only when the proof exists only in a rendered page: layout,
@@ -81,21 +56,27 @@ Chain the checks of one run into one command, for example
 filter its output. Use the check script of the repo when it has one. Do not use
 a separate tool call for each check.
 
-# Helper Agents
+Filter shell output at the source with `head`, `wc`, `grep`, or a field
+selector.
 
-Use a helper agent only for:
+# Helpers and Review
+
+Use a helper only for:
 
 - Parallel read-only search across several unknown areas, one helper per area,
   all in one message.
 - Open-ended web research across several sources.
 - A summary of a large log, test run, or file.
-- A fresh-context review of a finished diff. Give the reviewer the request and
-  the diff, not your reasoning.
+- A review of a finished diff.
+
+For search, research, and summaries, give the helper a cheaper model than your
+own when the tool lets you set one.
+
+Before you review a finished diff or delegate an implementation task, load the
+`diff-review` skill. If the harness has not loaded it, read
+`~/.agents/skills/diff-review/SKILL.md`.
 
 Check a helper's claims against the real diff and command output.
-
-Filter shell output at the source with `head`, `wc`, `grep`, or a field
-selector.
 
 # Post-green Simplification
 

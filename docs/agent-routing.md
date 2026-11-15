@@ -11,6 +11,8 @@ outside the repository.
 | --- | --- | --- |
 | `~/.agents/AGENTS.md` | `dot_agents/AGENTS.md.tmpl` | Shared behavior rendered from the common template |
 | `~/.agents/skills/simplify-code/` | `dot_agents/skills/simplify-code/` | Shared post-green cleanup contract |
+| `~/.agents/skills/dev-servers/` | `dot_agents/skills/dev-servers/` | Rex and dev server procedure, loaded on demand |
+| `~/.agents/skills/diff-review/` | `dot_agents/skills/diff-review/` | Cross-provider review and delegation procedure, loaded on demand |
 | `~/.claude/` | `private_dot_claude/` | Claude instructions and settings |
 | `~/.codex/` | `dot_codex/` | Link to the shared instructions, and hooks |
 | `~/.config/opencode/` | `private_dot_config/private_opencode/` | OpenCode2 settings and the `plan` agent |
