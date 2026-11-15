@@ -51,9 +51,8 @@ path = "skills"
 exclude = [
   "matt-claude-handoff",
   "matt-git-guardrails-claude-code",
-  # matt-improve-codebase-architecture and matt-teach are carried as modified
-  # copies in the private skills repository (Plannotator delivery instead of
-  # browser open).
+  # matt-improve-codebase-architecture and matt-teach are carried as user-only
+  # copies in the private skills repository.
   "matt-improve-codebase-architecture",
   "matt-loop-me",
   "matt-migrate-to-shoehorn",
