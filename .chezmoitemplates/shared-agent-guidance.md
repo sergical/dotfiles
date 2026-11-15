@@ -1,6 +1,16 @@
 # Communication
 - Always follow ISO 24495-1 and ASD-STE100 Simplified Technical English
 
+# Where Things Live
+
+- Machine config: `sergical/dotfiles` (chezmoi). Edit the source, then run
+  `chezmoi apply`.
+- Agent rules, skills, hooks and proofs: `~/.agents`, written from the
+  dotfiles source.
+- Machines, servers, routes and access: `sergical/fleet` (`~/src/fleet`).
+  Change cloud resources only in `fleet/cloud`, with `pnpm deploy`.
+- Each line in fleet has a check. Run it before you say that something works.
+
 # Rex
 
 Use Rex in one of two modes. Load the `rex` skill before the first `rex`
