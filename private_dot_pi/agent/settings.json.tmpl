@@ -2,7 +2,7 @@
 {{- $deviceId := "" -}}
 {{- if stat $settings -}}{{- $current := include $settings | fromJson -}}{{- if hasKey $current "deviceId" -}}{{- $deviceId = $current.deviceId -}}{{- end -}}{{- end -}}
 {
-{{- if dig "profile_work" false . }}
+{{- if not (dig "profile_personal" false .) }}
   "defaultProvider": "openai",
   "defaultModel": "gpt-6.1-sol",
 {{- else }}
@@ -12,7 +12,7 @@
   "lastChangelogVersion": "1.3.0",
   "defaultThinkingLevel": "medium",
   "enabledModels": [
-{{- if dig "profile_work" false . }}
+{{- if not (dig "profile_personal" false .) }}
     "openai/gpt-6.1-sol",
     "openrouter/x-ai/grok-4.6",
     "openrouter/google/gemini-3.7-flash"

@@ -3,7 +3,7 @@
 {{- $profileAI := promptBoolOnce . "profile_ai" "Install AI configuration" true -}}
 {{- $profileEditor := promptBoolOnce . "profile_editor" "Install editor configuration" true -}}
 {{- $profileAWS := promptBoolOnce . "profile_aws" "Install AWS SSO configuration" false -}}
-{{- $profileWork := promptBoolOnce . "profile_work" "Work machine" false -}}
+{{- $profilePersonal := promptBoolOnce . "profile_personal" "Personal machine" false -}}
 {{- $awsProfile := "" -}}
 {{- $awsSession := "" -}}
 {{- $awsAccountID := "" -}}
@@ -23,7 +23,7 @@
     profile_ai = {{ $profileAI }}
     profile_editor = {{ $profileEditor }}
     profile_aws = {{ $profileAWS }}
-    profile_work = {{ $profileWork }}
+    profile_personal = {{ $profilePersonal }}
 {{- if $profileAWS }}
     aws_profile = {{ $awsProfile | quote }}
     aws_sso_session = {{ $awsSession | quote }}
