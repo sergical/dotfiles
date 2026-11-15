@@ -46,13 +46,14 @@ Keep the session ID, window ID, and block ID that each command returns.
 
 ## Stop and restart
 
-`--keep-open` keeps a tab after its program exits, so you can read a crash.
-Thus each stop must also close the tab.
+`--keep-open` keeps a block after its program exits, so you can read a crash.
+Thus each stop must also close the block.
 
 1. `rex send-key -s <session> -b <block> ctrl+c`
 2. `rex block call -s <session> -b <block> process` shows `last_exit` when the
    program has stopped. Read the logs first if you need them.
-3. `rex window close -s <session> <window>`
+3. `rex block close -s <session> <block>`. When the block is the only one in
+   its tab, the tab closes too. Other panes in the tab stay open.
 
 To restart, do the stop steps, then open a new tab with the same name. Each
 server has one tab.
@@ -71,13 +72,14 @@ is gone. A merged PR is not enough, because one thread can open many PRs.
 1. List the blocks and what they run:
 
    ```sh
-   for s in $(rex ls --json | jq -r '.sessions[].label'); do
-     rex block ls -s "$s" --json | jq -r '.blocks[] | "\(.block_id) \(.window_id)"' |
-       while read -r b w; do
-         echo "$s $w $(rex block call -s "$s" -b "$b" process |
-           jq -c '{exit: .last_exit.exit_code, cwd: .foreground.cwd}')"
-       done
-   done
+   rex ls --json | jq -r '.sessions[] | "\(.session_id) \(.label)"' |
+     while read -r s label; do
+       rex block ls -s "$s" --json | jq -r '.blocks[] | "\(.block_id) \(.window_id)"' |
+         while read -r b w; do
+           echo "$label $w $b $(rex block call -s "$s" -b "$b" process |
+             jq -c '{exit: .last_exit.exit_code, cwd: .foreground.cwd}')"
+         done
+     done
    ```
 
    A block with `exit` set is stopped. Rex does not keep the folder of a
@@ -87,8 +89,9 @@ is gone. A merged PR is not enough, because one thread can open many PRs.
    agent scratchpad, holds a folder name that ends with the last 8 hex
    characters of its thread ID. `t3_thread_read` shows `settled` and
    `archived`.
-3. Close stopped tabs with `rex window close`. Kill the session with
-   `rex kill <session>` when the owner thread is done.
+3. Close stopped blocks with `rex block close`. Kill the session with
+   `rex kill <session>` when the owner thread is done and no block in it
+   belongs to other work, such as a pane that the user opened.
 4. Never remove a worktree when you kill its session. Run
    `git -C <worktree> status --short` and tell the user about work that is not
    committed.

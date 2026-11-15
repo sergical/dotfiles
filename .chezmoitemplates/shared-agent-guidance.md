@@ -14,9 +14,9 @@
 
 # Rex and Dev Servers
 
-Never send input to `REX_BLOCK`. Never send keys to, focus, or kill a Rex
-session that you did not create, unless its owner T3 thread is settled or
-archived, or its worktree is gone. A merged PR is not enough. Never run a dev server as a background shell command. Before you start a dev server or run any `rex` command, load the
+Never send input to `REX_BLOCK`. Never send keys to, focus, close, or kill a
+Rex block or session that you did not create, unless its owner T3 thread is
+settled or archived, or its worktree is gone. A merged PR is not enough. Never run a dev server as a background shell command. Before you start a dev server or run any `rex` command, load the
 `dev-servers` skill. If the harness has not loaded it, read
 `~/.agents/skills/dev-servers/SKILL.md`.
 
