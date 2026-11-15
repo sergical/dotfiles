@@ -8,6 +8,7 @@ Initialization stores profile choices in the machine-local Chezmoi config.
 | AI | Shared instructions, Claude/Codex/OpenCode2/Pi routing, one repository-owned skill, and 14 public dotagents pins |
 | Editor | Cursor preferences, cmux shortcuts, cspell dictionary |
 | AWS | Locally rendered SSO profiles from prompted account metadata |
+| Personal | Pi models for personal subscriptions, Bedrock and Workers AI. Off by default, so a machine without the flag keeps the default Pi models |
 
 The macOS-only Brewfile, Cursor paths, and cmux configuration are ignored on
 other operating systems.
