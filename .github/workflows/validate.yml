@@ -108,6 +108,7 @@ jobs:
             --promptBool "Install editor configuration=${{ matrix.editor }}" \
             --promptBool "Install AWS SSO configuration=${{ matrix.aws }}" \
             --promptBool "Personal machine=false" \
+            --promptString "Hosted Executor MCP URL (empty for none)=https://executor.example.invalid/mcp" \
             --promptString "AWS profile name=test" \
             --promptString "AWS SSO session name=test-session" \
             --promptString "AWS account ID=000000000000" \
@@ -126,7 +127,8 @@ jobs:
           zsh -n "$HOME/.zshrc"
           jq empty "$HOME/.claude/settings.json"
           jq empty "$HOME/.config/opencode/opencode.json"
-          jq empty "$HOME/.agents/mcp.json"
+          jq -e '.mcpServers.executor.url == "https://executor.example.invalid/mcp"' "$HOME/.agents/mcp.json"
+          jq -e '.mcp.executor.url == "https://executor.example.invalid/mcp"' "$HOME/.config/opencode/opencode.json"
           test -f "$HOME/.agents/skills/simplify-code/SKILL.md"
           cmp "$HOME/.agents/AGENTS.md" "$GITHUB_WORKSPACE/.chezmoitemplates/shared-agent-guidance.md"
           test -L "$HOME/.codex/AGENTS.md"
