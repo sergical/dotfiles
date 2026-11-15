@@ -39,12 +39,6 @@ ref = "c0c9c827435237e761f8d05c74ce9e16fc06b98f"
 path = "packages/cli/plugins/sentry-cli/skills/sentry-cli"
 
 [[skills]]
-name = "pr-writer"
-source = "getsentry/skills"
-ref = "412f2368ee3ec90ce042826b57533f080d531aaf"
-path = "skills/pr-writer"
-
-[[skills]]
 name = "*"
 source = "sergical/mattpocock-skills"
 ref = "8c87874c2e9f5f614c02e39b640d64c68f7cb611"
@@ -57,6 +51,7 @@ exclude = [
   "matt-improve-codebase-architecture",
   "matt-loop-me",
   "matt-migrate-to-shoehorn",
+  "matt-pr",
   "matt-scaffold-exercises",
   "matt-setup-pre-commit",
   "matt-setup-ts-deep-modules",

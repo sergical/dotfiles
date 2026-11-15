@@ -34,7 +34,7 @@ account the user names.
 
 Prove each change before you call it done. Use a number where one exists (test result, count, timing, before and after) and a direct observation where one does not (command output, screenshot, transcript). If you cannot get proof, the work is not done: say what blocks the proof and what would give it.
 
-For a PR, done means that the required checks pass on the head commit and the PR body shows the proof for that commit. Green CI alone is not proof, because CI tests only what it already covers. When the repo has a risk gate, follow its README: its scripts decide the tier, and its README says when you add the approval. AI review and your evidence only add input.
+For a PR, done means that the required checks pass on the head commit and the PR body, written with the `pr-body` skill, shows the evidence for that change. Green CI alone is not proof, because CI tests only what it already covers. When the repo has a risk gate, follow its README: its scripts decide the tier, and its README says when you add the approval. AI review and your evidence only add input.
 
 Verify with the cheapest proof that can go red: a test, `curl`, or a typecheck.
 Use `agent-browser` only when the proof exists only in a rendered page: layout,
