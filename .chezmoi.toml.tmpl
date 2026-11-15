@@ -4,6 +4,7 @@
 {{- $profileEditor := promptBoolOnce . "profile_editor" "Install editor configuration" true -}}
 {{- $profileAWS := promptBoolOnce . "profile_aws" "Install AWS SSO configuration" false -}}
 {{- $profilePersonal := promptBoolOnce . "profile_personal" "Personal machine" false -}}
+{{- $executorURL := promptStringOnce . "executor_url" "Hosted Executor MCP URL (empty for none)" "" -}}
 {{- $awsProfile := "" -}}
 {{- $awsSession := "" -}}
 {{- $awsAccountID := "" -}}
@@ -24,6 +25,7 @@
     profile_editor = {{ $profileEditor }}
     profile_aws = {{ $profileAWS }}
     profile_personal = {{ $profilePersonal }}
+    executor_url = {{ $executorURL | quote }}
 {{- if $profileAWS }}
     aws_profile = {{ $awsProfile | quote }}
     aws_sso_session = {{ $awsSession | quote }}

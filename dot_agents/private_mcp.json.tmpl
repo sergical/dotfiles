@@ -1,12 +1,8 @@
 {
   "mcpServers": {
-{{- $p := joinPath .chezmoi.homeDir `.executor/server-control/auth.json` }}
-{{- if stat $p }}
+{{- with dig "executor_url" "" . }}
     "executor": {
-      "url": "http://127.0.0.1:4789/mcp",
-      "headers": {
-        "Authorization": "Bearer {{ (include $p | fromJson).token }}"
-      }
+      "url": {{ . | quote }}
     }
 {{- end }}
   }
