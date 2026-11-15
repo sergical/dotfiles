@@ -110,6 +110,7 @@ jobs:
             --promptBool "Install AI configuration=true" \
             --promptBool "Install editor configuration=${{ matrix.editor }}" \
             --promptBool "Install AWS SSO configuration=${{ matrix.aws }}" \
+            --promptBool "Personal machine=false" \
             --promptString "AWS profile name=test" \
             --promptString "AWS SSO session name=test-session" \
             --promptString "AWS account ID=000000000000" \
