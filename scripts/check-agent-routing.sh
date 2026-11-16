@@ -20,6 +20,7 @@ required = [
     "dot_agents/skills/dev-servers/SKILL.md",
     "dot_agents/skills/diff-review/SKILL.md",
     "dot_agents/skills/pr-body/SKILL.md",
+    "dot_agents/skills/video-context/SKILL.md",
     "dot_codex/symlink_AGENTS.md",
     "dot_codex/hooks.json.tmpl",
     "private_dot_claude/CLAUDE.md",

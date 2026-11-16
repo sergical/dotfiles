@@ -14,6 +14,7 @@ outside the repository.
 | `~/.agents/skills/dev-servers/` | `dot_agents/skills/dev-servers/` | Rex and dev server procedure, loaded on demand |
 | `~/.agents/skills/diff-review/` | `dot_agents/skills/diff-review/` | Cross-provider review and delegation procedure, loaded on demand |
 | `~/.agents/skills/pr-body/` | `dot_agents/skills/pr-body/` | Pull request title and body, loaded on demand |
+| `~/.agents/skills/video-context/` | `dot_agents/skills/video-context/` | Video transcript and frames through `summarize`, loaded on demand |
 | `~/.claude/` | `private_dot_claude/` | Claude instructions and settings |
 | `~/.codex/` | `dot_codex/` | Link to the shared instructions, and hooks |
 | `~/.config/opencode/` | `private_dot_config/private_opencode/` | OpenCode2 settings and the `plan` agent |
