@@ -21,18 +21,22 @@ Write the result to a file in your scratch directory, then read it. A one-hour
 talk is about 10,000 words, which is too much to print into the conversation.
 
 ```sh
-summarize "$URL" --extract --timestamps --json \
-  | jq -Rrs '(fromjson? | .extracted | "# \(.title)\n\(.transcriptMetadata.durationSeconds // "?")s · \(.transcriptSource)\n\n\(.content)") // .' \
-  > "$SCRATCH/video.txt"
-wc -w "$SCRATCH/video.txt"
+summarize "$URL" --extract --timestamps --json > "$SCRATCH/raw.json" &&
+  jq -Rrs '(fromjson? | .extracted | "# \(.title)\n\(.transcriptMetadata.durationSeconds // "?")s · \(if .transcriptionProvider then "speech-to-text (\(.transcriptionProvider))" else "captions via \(.transcriptSource)" end)\n\n\(.content)") // .' \
+  "$SCRATCH/raw.json" > "$SCRATCH/video.txt" &&
+  wc -w "$SCRATCH/video.txt"
 ```
+
+If `summarize` exits non-zero, read its error and see "Failures". Do not parse
+the output of a failed run.
 
 - `$URL` can be a YouTube URL, a direct media URL, or a local file path. For a
   local file, `summarize` ignores `--json` and prints plain text; the jq filter
   passes that text through unchanged.
-- For a URL, the first lines give the title, the length in seconds and the
-  transcript source. `captionTracks` means real captions. Any other source,
-  and every local file, means speech-to-text: expect spelling errors in names.
+- For a URL, the first lines give the title, the length in seconds and where
+  the text came from. Captions can be automatic, and speech-to-text output and
+  every local file come from a transcription model, so expect spelling errors
+  in names.
 - Caption lines start with `[m:ss]`. Quote the time when you cite the video, so
   the user can jump to it.
 - For more than about 3,000 words, read the file in parts, or `grep -n` for the
@@ -53,14 +57,16 @@ must search the text on the slides (it needs `tesseract`).
 
 Scene changes can be far apart: in a two-minute sketch, six slides covered the
 whole video, and the nearest slide to an event at 0:13 was from 0:01. When the
-question names a moment ("when he asks for X", "at the end"), find its time in
-the transcript and take one frame at that second. Do not open the full stream
-URL from `yt-dlp -g` in ffmpeg; YouTube returns 403 for it.
+question names a moment ("when they ask for X", "at the end"), find its time
+in the transcript and take one frame at that second. Download only that second:
+YouTube can return 403 when ffmpeg opens the stream URL from `yt-dlp -g`.
+yt-dlp prints the real file path, because the container can be MP4 or WebM.
 
 ```sh
-yt-dlp -q -f "bv*[height<=720]" --download-sections "*16-17" \
-  --force-overwrites -o "$SCRATCH/at16.%(ext)s" "$URL"
-ffmpeg -loglevel error -y -i "$SCRATCH/at16.mp4" -frames:v 1 "$SCRATCH/at16.png"
+clip=$(yt-dlp -q -f "bv*[height<=720]" --download-sections "*16-17" \
+  --force-overwrites -o "$SCRATCH/at16.%(ext)s" \
+  --print after_move:filepath "$URL") &&
+  ffmpeg -loglevel error -y -i "$clip" -frames:v 1 "$SCRATCH/at16.png"
 ```
 
 For the end of a video, use the length from the transcript header and take a
