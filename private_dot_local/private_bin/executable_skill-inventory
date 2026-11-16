@@ -75,7 +75,7 @@ for skill_id, record in dotagents.items():
 for skill_id, record in skill_lock.items():
     source_by_skill.setdefault(skill_id, record.get("source", "skills installer"))
 
-for owned in ("dev-servers", "diff-review", "pr-body", "simplify-code"):
+for owned in ("dev-servers", "diff-review", "pr-body", "simplify-code", "video-context"):
     if owned in installed:
         source_by_skill[owned] = "sergical/dotfiles"
 

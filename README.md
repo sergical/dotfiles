@@ -38,8 +38,8 @@ chezmoi update
 
 Public external skills are commit-pinned in `~/.agents/agents.toml`, which holds
 10 declarations that currently resolve to 67 installed skills. Chezmoi also
-owns 4 repository-local skills (`dev-servers`, `diff-review`, `pr-body` and
-`simplify-code`), for 71 portable skills in total. Shared global instructions live in `~/.agents/AGENTS.md`. Codex, Pi
+owns 5 repository-local skills (`dev-servers`, `diff-review`, `pr-body`,
+`simplify-code` and `video-context`), for 72 portable skills in total. Shared global instructions live in `~/.agents/AGENTS.md`. Codex, Pi
 and OpenCode2 link to that file.
 After every dotagents update the installer runs
 `scripts/normalize-opencode-user-skills.rb`, which restores the user-only
