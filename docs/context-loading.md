@@ -7,13 +7,14 @@ harness reaches that guidance through its own supported context path.
 
 | Harness | Global context target | How shared guidance arrives |
 | --- | --- | --- |
-| Claude Code | `~/.claude/CLAUDE.md` | Explicit `@~/.agents/AGENTS.md` import, followed by Claude-only policy |
-| Codex | `~/.codex/AGENTS.md` | Chezmoi renders the shared template, then appends Codex-only delegation policy |
+| Claude Code | `~/.claude/CLAUDE.md` | Explicit `@~/.agents/AGENTS.md` import |
+| Codex | `~/.codex/AGENTS.md` | Symlink to `~/.agents/AGENTS.md` |
 | OpenCode2 | `~/.config/opencode/AGENTS.md` | Symlink to `~/.agents/AGENTS.md` |
+| Cursor | `~/.cursor/rules/shared-agent-guidance.mdc` | Always-applied user rule rendered from the shared template |
 | Pi | `~/.pi/agent/AGENTS.md` | Symlink to `~/.agents/AGENTS.md` |
 
 Nothing discovers `~/.agents/AGENTS.md` by that path. The import, rendered
-copy, and symlinks are the compatibility layer.
+rule, and symlinks are the compatibility layer.
 
 ## Primary-session Order
 
@@ -40,6 +41,14 @@ the working directory and chooses at most one file per directory:
 Nearer project files appear later. Codex custom agent TOML files configure a
 spawned child; their full bodies are not primary-session project guidance.
 
+### Cursor
+
+Cursor supports machine-local user rule files in `~/.cursor/rules`; see
+[Cursor rule storage](https://prod.cursor.com/help/customization/rules#where-are-rules-stored).
+The always-applied rule renders the shared template instead of importing it.
+The local file and rendering are verified. The CLI runtime canary currently
+requires authentication, so runtime loading is not yet verified here.
+
 ### OpenCode2 V2
 
 OpenCode2 loads `~/.config/opencode/AGENTS.md`, then every literal `AGENTS.md`
@@ -49,9 +58,8 @@ read in that descendant and is recorded once in the session.
 
 The V2 schema accepts an `instructions` array, but the current beta does not
 resolve those entries into model context. The local configuration therefore
-does not use that field. The complete routing policy lives directly in the
-primary `~/.config/opencode/agents/build.md` profile, where V2 loads it as the
-coordinator's system prompt.
+does not use that field. Shared guidance arrives through the global
+`~/.config/opencode/AGENTS.md` symlink.
 
 ### Pi
 

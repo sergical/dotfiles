@@ -21,6 +21,7 @@ required = [
     "dot_agents/skills/diff-review/SKILL.md",
     "dot_agents/skills/pr-body/SKILL.md",
     "dot_agents/skills/video-context/SKILL.md",
+    "private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl",
     "dot_codex/symlink_AGENTS.md",
     "dot_codex/hooks.json.tmpl",
     "private_dot_claude/CLAUDE.md",
@@ -44,6 +45,10 @@ for phrase in ("checks are not green", "same relevant checks", "no worthwhile si
 shared = 'template "shared-agent-guidance.md"'
 if shared not in (root / "dot_agents/AGENTS.md.tmpl").read_text():
     raise SystemExit("~/.agents/AGENTS.md must render the shared guidance template")
+
+cursor = (root / "private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl").read_text()
+if shared not in cursor or "alwaysApply: true" not in cursor:
+    raise SystemExit("Cursor must always load the shared guidance template")
 
 # Every session of every harness loads this file, so each line costs context.
 max_shared_lines = 120
