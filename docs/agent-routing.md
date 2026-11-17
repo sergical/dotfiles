@@ -12,9 +12,10 @@ outside the repository.
 | `~/.agents/AGENTS.md` | `dot_agents/AGENTS.md.tmpl` | Shared behavior rendered from the common template |
 | `~/.agents/skills/simplify-code/` | `dot_agents/skills/simplify-code/` | Shared post-green cleanup contract |
 | `~/.agents/skills/dev-servers/` | `dot_agents/skills/dev-servers/` | Rex and dev server procedure, loaded on demand |
-| `~/.agents/skills/diff-review/` | `dot_agents/skills/diff-review/` | Cross-provider review and delegation procedure, loaded on demand |
+| `~/.agents/skills/diff-review/` | `dot_agents/skills/diff-review/` | Cross-provider diff review procedure, loaded on demand |
 | `~/.agents/skills/pr-body/` | `dot_agents/skills/pr-body/` | Pull request title and body, loaded on demand |
 | `~/.agents/skills/video-context/` | `dot_agents/skills/video-context/` | Video transcript and frames through `summarize`, loaded on demand |
+| `~/.cursor/rules/shared-agent-guidance.mdc` | `private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl` | Always-applied rule rendered from the common template |
 | `~/.claude/` | `private_dot_claude/` | Claude instructions and settings |
 | `~/.codex/` | `dot_codex/` | Link to the shared instructions, and hooks |
 | `~/.config/opencode/` | `private_dot_config/private_opencode/` | OpenCode2 settings and the `plan` agent |
@@ -79,3 +80,17 @@ Commit and push only after the source checks, target diff, and canaries pass.
 On another machine, use `chezmoi update`, then run
 `scripts/install-public-skills.sh` explicitly to reconcile externally pinned
 skills.
+
+## Shared Instruction Budget
+
+Keep personal preferences, machine ownership, Rex ownership constraints and
+pointers to local workflows in the shared template. Executor supplies its own
+MCP instructions; do not copy its tool discovery procedure or account inventory
+into global instructions. The same applies to generic coding advice and the
+steps already owned by a referenced skill.
+
+Audit rules against the current harness instructions and observed mistakes,
+not against the previous file as a required baseline. Use
+[Codex best practices](https://learn.chatgpt.com/docs/learn/best-practices) and
+[Claude Code best practices](https://code.claude.com/docs/en/best-practices).
+A context-loading check proves delivery, not that a rule improves task success.

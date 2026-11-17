@@ -5,53 +5,25 @@ description: Write a pull request title and body. Use when you open a PR, when a
 
 # PR Body
 
-The reader is a reviewer who has not seen the work. Give them what the diff
-cannot: why, the shape of the change, the evidence, and the risk. GitHub shows
-checks, commits and review threads live, so the body links to them.
+Write for a maintainer who has not read the conversation. Follow the repository's
+PR template and scale the description to the change.
 
-Based on `show-me` by Dex Horthy (HumanLayer) and `pr` by Matt Pocock.
+1. Read the complete diff against the intended PR base, the request, repository
+   PR guidance, and any unresolved review findings.
+2. Lead with the concrete bug or need and the resulting behavior. Use a title
+   that matches the repository's recent history.
+3. For a small fix, write one short paragraph and the evidence needed to assess
+   it. Add sections only when the repository requires them or the change needs
+   more explanation.
+4. Report a before-and-after observation or a regression test result. Name checks
+   that were blocked or not run. Explain material compatibility or operational
+   risks when they exist. Avoid repeating implementation details visible in the
+   diff, generic rollback claims, AI approval claims, and writer-model labels.
+5. When updating a PR, rewrite the body from the current diff. When asked to
+   open or update it, use `gh pr create --body-file` or
+   `gh pr edit --body-file` with the exact text in a file. Otherwise return the
+   proposed description without publishing it. In a repo with `scripts/gate/gate`,
+   follow its README and run `gate card` after publishing.
 
-## Steps
-
-1. Read the whole diff against the base branch, the intent or issue, and the
-   review findings. Write the body new from the current diff each time.
-2. Write the title in the style of `git log --oneline -20`.
-3. Write the body in the shape below. A one-idea PR gets one paragraph,
-   Evidence, one line of merge danger, and the Writer line.
-4. When the task is to open or update the PR, publish with
-   `gh pr create --body-file` or `gh pr edit --body-file`; otherwise give the
-   text in your reply. In a repo with `scripts/gate/gate`, run `gate card`
-   after you publish; it appends the gate record.
-5. Done when each claim traces to the diff, a test or a command output, and a
-   reviewer can answer from the body alone: why, what changed, how do we know,
-   and what can break.
-
-## Shape
-
-```markdown
-<One or two sentences: what was wrong before this PR, and what is true after.>
-
-## What changed
-
-<The smallest sketch that shows the change: before-and-after text, a short diff
-excerpt, pseudocode, or a mermaid diagram. Link the files. For a PR across
-several subsystems, add a mermaid map and say where to start reading.>
-
-## Evidence
-
-<Before and after: a named test that fails on the base and passes here, a
-number with the command that made it, a screenshot, or a transcript. Name what
-you did not check.>
-
-## Merge danger
-
-**Door:** one-way or two-way, and how to undo it.
-**Blast radius:** what breaks, and for whom, if this is wrong.
-
-## Attention
-
-<One to three items for the reviewer: an open or deferred review finding, the
-riskiest file, an assumption. Link each one.>
-
-Writer: <model>
-```
+Done when a maintainer can tell what changes, why it matters, what proves it,
+and which material questions remain. Every factual claim needs evidence.
