@@ -1,0 +1,11 @@
+#!/bin/sh
+# Chezmoi owns only the Codex reasoning effort. Codex writes the rest of this
+# file (model, project trust, plugins, MCP servers, app state), so keep it as is.
+exec awk '
+function put() { print "model_reasoning_effort = \"xhigh\""; done = 1 }
+/^\[/ && !done { put() }
+!in_table && /^[ \t]*model_reasoning_effort[ \t]*=/ { if (!done) put(); next }
+/^\[/ { in_table = 1 }
+{ print }
+END { if (!done) put() }
+'

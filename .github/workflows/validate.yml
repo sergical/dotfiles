@@ -144,6 +144,7 @@ jobs:
           test -L "$HOME/.codex/AGENTS.md"
           cmp "$HOME/.codex/AGENTS.md" "$HOME/.agents/AGENTS.md"
           jq empty "$HOME/.codex/hooks.json"
+          grep -qx 'model_reasoning_effort = "xhigh"' "$HOME/.codex/config.toml"
           jq empty "$HOME/.pi/agent/settings.json"
           test -f "$HOME/.config/opencode/agents/plan.md"
           test ! -e "$HOME/.claude/agents"

@@ -24,6 +24,7 @@ required = [
     "private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl",
     "dot_codex/symlink_AGENTS.md",
     "dot_codex/hooks.json.tmpl",
+    "dot_codex/modify_private_config.toml",
     "private_dot_claude/CLAUDE.md",
     "private_dot_claude/private_settings.json.tmpl",
     "private_dot_config/private_opencode/agents/plan.md",

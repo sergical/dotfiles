@@ -37,7 +37,7 @@ while IFS= read -r source_path; do
     dot_agents/private_mcp.json.tmpl) ;;
     dot_agents/skills/simplify-code/SKILL.md|dot_agents/skills/simplify-code/agents/openai.yaml) ;;
     dot_agents/skills/dev-servers/SKILL.md|dot_agents/skills/diff-review/SKILL.md|dot_agents/skills/pr-body/SKILL.md|dot_agents/skills/video-context/SKILL.md) ;;
-    dot_codex/symlink_AGENTS.md|dot_codex/hooks.json.tmpl) ;;
+    dot_codex/symlink_AGENTS.md|dot_codex/hooks.json.tmpl|dot_codex/modify_private_config.toml) ;;
     private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl) ;;
     private_dot_local/private_bin/executable_skill-inventory|private_dot_local/private_bin/executable_t3-fork-sync) ;;
     private_Library/LaunchAgents/local.t3-fork-sync.plist.tmpl) ;;
