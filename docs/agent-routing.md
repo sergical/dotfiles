@@ -17,7 +17,7 @@ outside the repository.
 | `~/.agents/skills/video-context/` | `dot_agents/skills/video-context/` | Video transcript and frames through `summarize`, loaded on demand |
 | `~/.cursor/rules/shared-agent-guidance.mdc` | `private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl` | Always-applied rule rendered from the common template |
 | `~/.claude/` | `private_dot_claude/` | Claude instructions and settings |
-| `~/.codex/` | `dot_codex/` | Link to the shared instructions, and hooks |
+| `~/.codex/` | `dot_codex/` | Link to the shared instructions, hooks, and the model, effort and `features.hooks` keys in `config.toml`. Codex owns the rest of that file. |
 | `~/.config/opencode/` | `private_dot_config/private_opencode/` | OpenCode2 settings and the `plan` agent |
 | `~/.pi/agent/` | `private_dot_pi/agent/` | Pi settings and the link to the shared instructions |
 
