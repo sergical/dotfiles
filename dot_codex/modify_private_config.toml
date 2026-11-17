@@ -1,46 +1,11 @@
 #!/bin/sh
-# Chezmoi owns only the portable Codex keys below. Codex writes the rest of
-# this file (project trust, plugins, MCP servers, app state), so keep it as is.
+# Chezmoi owns only the Codex reasoning effort. Codex writes the rest of this
+# file (model, project trust, plugins, MCP servers, app state), so keep it as is.
 exec awk '
-BEGIN {
-  ntop = split("model model_reasoning_effort", top_keys, " ")
-  top["model"] = "\"gpt-6-astra\""
-  top["model_reasoning_effort"] = "\"xhigh\""
-  nfeat = split("hooks", feat_keys, " ")
-  feat["hooks"] = "true"
-}
-function flush_top(  i) {
-  for (i = 1; i <= ntop; i++) if (!(top_keys[i] in seen_top)) print top_keys[i] " = " top[top_keys[i]]
-  top_done = 1
-}
-function flush_feat(  i) {
-  for (i = 1; i <= nfeat; i++) if (!(feat_keys[i] in seen_feat)) print feat_keys[i] " = " feat[feat_keys[i]]
-  feat_done = 1
-}
-/^\[/ {
-  if (!top_done) flush_top()
-  if (section == "features" && !feat_done) flush_feat()
-  section = $0
-  sub(/^\[+[ \t]*/, "", section)
-  sub(/[ \t]*\]+[ \t]*(#.*)?$/, "", section)
-  if (section == "features") has_feat = 1
-  print
-  next
-}
-{
-  key = $0
-  sub(/^[ \t]+/, "", key)
-  sub(/[ \t]*=.*/, "", key)
-  if (section == "" && (key in top)) { print key " = " top[key]; seen_top[key] = 1; next }
-  if (section == "features" && (key in feat)) { print key " = " feat[key]; seen_feat[key] = 1; next }
-  print
-}
-END {
-  if (!top_done) flush_top()
-  if (section == "features" && !feat_done) flush_feat()
-  if (!has_feat) {
-    print ""
-    print "[features]"
-    for (i = 1; i <= nfeat; i++) print feat_keys[i] " = " feat[feat_keys[i]]
-  }
-}'
+function put() { print "model_reasoning_effort = \"xhigh\""; done = 1 }
+/^\[/ && !done { put() }
+!in_table && /^[ \t]*model_reasoning_effort[ \t]*=/ { if (!done) put(); next }
+/^\[/ { in_table = 1 }
+{ print }
+END { if (!done) put() }
+'
