@@ -82,13 +82,19 @@ path = "skills/install-anti-slop"
 [[skills]]
 name = "*"
 source = "sergical/pstack-skills"
-ref = "80a18e9eebe3045f3a9e4047727912ccb70cdfdf"
+ref = "dd839d3de2bae4805b7ecef09b6584633293dfd5"
 path = "skills"
 
 [[subagents]]
 name = "pstack-comment-sicko"
 source = "sergical/pstack-skills"
-ref = "80a18e9eebe3045f3a9e4047727912ccb70cdfdf"
+ref = "dd839d3de2bae4805b7ecef09b6584633293dfd5"
+targets = ["claude", "opencode"]
+
+[[subagents]]
+name = "pstack-poteto-agent"
+source = "sergical/pstack-skills"
+ref = "dd839d3de2bae4805b7ecef09b6584633293dfd5"
 targets = ["claude", "opencode"]
 
 [[skills]]
