@@ -3,12 +3,17 @@
 
 # Skills we do not own and cannot mark at source. Everything else is derived
 # from `disable-model-invocation: true` in the skill's own frontmatter.
+# Codex ignores that field. It hides a skill from the model only when
+# agents/openai.yaml sets `policy.allow_implicit_invocation: false`, so this
+# script writes that file for every user-only skill too.
 EXTERNAL_USER_INVOKED_SKILLS = %w[
   cmux-diagnostics
   code-review
   matt-tdd
   matt-wizard
 ].freeze
+
+require "yaml"
 
 DISABLE_MODEL_INVOCATION = "disable-model-invocation: true"
 
@@ -22,6 +27,44 @@ def read_document(skill_path)
   [lines, frontmatter_end]
 end
 
+# Codex parses frontmatter strictly and skips a skill whose top-level keys repeat.
+def repeated_keys(lines, frontmatter_end)
+  keys = lines[1...frontmatter_end].map { |line| line[/\A([A-Za-z][\w-]*):/, 1] }.compact
+  keys.group_by(&:itself).select { |_key, copies| copies.size > 1 }.keys
+end
+
+def codex_policy_path(skill_path)
+  File.join(File.dirname(skill_path), "agents", "openai.yaml")
+end
+
+def read_codex_settings(skill_path)
+  path = codex_policy_path(skill_path)
+  return {} unless File.file?(path)
+
+  settings = YAML.safe_load(File.read(path))
+  settings = {} if settings.nil?
+  abort "agents/openai.yaml is not a mapping: #{path}" unless settings.is_a?(Hash)
+  settings
+rescue Psych::Exception => error
+  abort "Invalid YAML in #{path}: #{error.message}"
+end
+
+def codex_policy_set?(skill_path)
+  policy = read_codex_settings(skill_path)["policy"]
+  policy.is_a?(Hash) && policy["allow_implicit_invocation"] == false
+end
+
+def write_codex_policy(skill_path)
+  return if codex_policy_set?(skill_path)
+
+  settings = read_codex_settings(skill_path)
+  settings["policy"] = {} unless settings["policy"].is_a?(Hash)
+  settings["policy"]["allow_implicit_invocation"] = false
+  path = codex_policy_path(skill_path)
+  Dir.mkdir(File.dirname(path)) unless File.directory?(File.dirname(path))
+  File.write(path, YAML.dump(settings))
+end
+
 documents = []
 
 Dir.glob(File.join(skills_root, "*", "SKILL.md")).sort.each do |skill_path|
@@ -31,7 +74,19 @@ Dir.glob(File.join(skills_root, "*", "SKILL.md")).sort.each do |skill_path|
 
   model_invoked = !frontmatter.include?(DISABLE_MODEL_INVOCATION)
   external = EXTERNAL_USER_INVOKED_SKILLS.include?(skill_id)
-  next if model_invoked && !external
+  repeated = repeated_keys(lines, frontmatter_end)
+  begin
+    YAML.safe_load(lines[1...frontmatter_end].join)
+  rescue Psych::Exception => error
+    # Codex repairs some of these, other hosts may not. Quote the value.
+    warn "Frontmatter of #{skill_path} did not load as plain YAML: #{error.message}"
+  end
+  if model_invoked && !external
+    # Not ours to normalize: report it, but do not stop the install.
+    warn "Codex will skip #{skill_path}: repeated frontmatter key #{repeated.join(", ")}" unless repeated.empty?
+    next
+  end
+  abort "Repeated frontmatter key #{repeated.join(", ")}: #{skill_path}" unless repeated.empty?
 
   documents << [skill_path, lines, frontmatter_end, model_invoked]
 end
@@ -47,6 +102,7 @@ if check_only
     unless frontmatter.include?("opencode/autoinvoke: false") && frontmatter.include?("opencode/slash: true")
       abort "Incorrect OpenCode user-only metadata: #{skill_path}"
     end
+    abort "Missing Codex policy in agents/openai.yaml: #{skill_path}" unless codex_policy_set?(skill_path)
   end
 
   missing = EXTERNAL_USER_INVOKED_SKILLS.reject { |id| File.file?(File.join(skills_root, id, "SKILL.md")) }
@@ -55,6 +111,7 @@ if check_only
 end
 
 documents.each do |skill_path, lines, frontmatter_end, model_invoked|
+  write_codex_policy(skill_path)
   lines.insert(frontmatter_end, "#{DISABLE_MODEL_INVOCATION}\n") if model_invoked
   frontmatter_end += 1 if model_invoked
 

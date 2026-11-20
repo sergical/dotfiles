@@ -10,6 +10,18 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh -c 'f=$HOME/.agents/hooks/ui-review-reminder.py; [ -f \"$f\" ] && python3 -I \"$f\" || true'",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }
