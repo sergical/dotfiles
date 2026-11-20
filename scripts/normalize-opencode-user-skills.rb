@@ -41,10 +41,11 @@ def read_codex_settings(skill_path)
   path = codex_policy_path(skill_path)
   return {} unless File.file?(path)
 
-  settings = YAML.safe_load(File.read(path)) || {}
+  settings = YAML.safe_load(File.read(path))
+  settings = {} if settings.nil?
   abort "agents/openai.yaml is not a mapping: #{path}" unless settings.is_a?(Hash)
   settings
-rescue Psych::SyntaxError => error
+rescue Psych::Exception => error
   abort "Invalid YAML in #{path}: #{error.message}"
 end
 
@@ -76,9 +77,9 @@ Dir.glob(File.join(skills_root, "*", "SKILL.md")).sort.each do |skill_path|
   repeated = repeated_keys(lines, frontmatter_end)
   begin
     YAML.safe_load(lines[1...frontmatter_end].join)
-  rescue Psych::SyntaxError => error
+  rescue Psych::Exception => error
     # Codex repairs some of these, other hosts may not. Quote the value.
-    warn "Frontmatter is not strict YAML in #{skill_path}: #{error.message}"
+    warn "Frontmatter of #{skill_path} did not load as plain YAML: #{error.message}"
   end
   if model_invoked && !external
     # Not ours to normalize: report it, but do not stop the install.
