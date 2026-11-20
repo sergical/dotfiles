@@ -16,6 +16,10 @@ comparison base and changed paths. Keep the implementer's reasoning out so its
 read is independent. Ask for correctness findings, not style; for a risky
 change, ask for an adversarial review.
 
+When the diff changes UI files (`.tsx`, `.jsx`, `.css`, `.vue`, `.svelte`) and the
+`emil-ui-review` skill is installed, also run it on those files. Read
+`~/.agents/skills/emil-review-animations/SKILL.md` too when motion changed.
+
 Ask whether the diff adds a workaround that later code would copy. Check each
 finding against the actual code and command output before accepting it.
 

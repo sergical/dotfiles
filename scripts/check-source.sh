@@ -35,6 +35,7 @@ while IFS= read -r source_path; do
     private_dot_npmrc.tmpl) ;;
     dot_agents/AGENTS.md.tmpl|dot_agents/agents.toml) ;;
     dot_agents/private_mcp.json.tmpl) ;;
+    dot_agents/hooks/executable_ui-review-reminder.py) ;;
     dot_agents/skills/simplify-code/SKILL.md|dot_agents/skills/simplify-code/agents/openai.yaml) ;;
     dot_agents/skills/dev-servers/SKILL.md|dot_agents/skills/diff-review/SKILL.md|dot_agents/skills/pr-body/SKILL.md|dot_agents/skills/video-context/SKILL.md) ;;
     dot_codex/symlink_AGENTS.md|dot_codex/hooks.json.tmpl|dot_codex/modify_private_config.toml) ;;
