@@ -5,6 +5,10 @@
 set -euo pipefail
 
 export PATH="$HOME/.vite-plus/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+# macOS gives TMPDIR as /var/..., a link to /private/var/.... Tests that compare a temp path
+# with what Git prints (the real path) fail unless TMPDIR is already the real path.
+TMPDIR="$(cd "${TMPDIR:-/tmp}" && pwd -P)/"
+export TMPDIR
 
 repo="${T3_FORK_REPO:-$HOME/src/t3code-fork}"
 branch="fork-nightly"
