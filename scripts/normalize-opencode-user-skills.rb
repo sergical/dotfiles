@@ -13,6 +13,8 @@ EXTERNAL_USER_INVOKED_SKILLS = %w[
   matt-wizard
 ].freeze
 
+require "yaml"
+
 DISABLE_MODEL_INVOCATION = "disable-model-invocation: true"
 
 check_only = ARGV.delete("--check")
@@ -22,41 +24,44 @@ def read_document(skill_path)
   lines = File.readlines(skill_path)
   frontmatter_end = lines.each_index.drop(1).find { |index| lines[index].strip == "---" }
   abort "Invalid frontmatter: #{skill_path}" unless lines.first&.strip == "---" && frontmatter_end
-  keys = lines[1...frontmatter_end].map { |line| line[/\A([A-Za-z][\w-]*):/, 1] }.compact
-  repeated = keys.group_by(&:itself).select { |_key, copies| copies.size > 1 }.keys
-  # Codex parses frontmatter strictly and skips a skill whose keys repeat.
-  abort "Repeated frontmatter key #{repeated.join(", ")}: #{skill_path}" unless repeated.empty?
   [lines, frontmatter_end]
 end
 
-CODEX_POLICY_LINE = "  allow_implicit_invocation: false\n"
+# Codex parses frontmatter strictly and skips a skill whose top-level keys repeat.
+def repeated_keys(lines, frontmatter_end)
+  keys = lines[1...frontmatter_end].map { |line| line[/\A([A-Za-z][\w-]*):/, 1] }.compact
+  keys.group_by(&:itself).select { |_key, copies| copies.size > 1 }.keys
+end
 
 def codex_policy_path(skill_path)
   File.join(File.dirname(skill_path), "agents", "openai.yaml")
 end
 
-def codex_policy_set?(skill_path)
+def read_codex_settings(skill_path)
   path = codex_policy_path(skill_path)
-  File.file?(path) && File.read(path).match?(/^policy:\n(?:[ \t]+.*\n)*?[ \t]+allow_implicit_invocation: false[ \t]*$/)
+  return {} unless File.file?(path)
+
+  settings = YAML.safe_load(File.read(path)) || {}
+  abort "agents/openai.yaml is not a mapping: #{path}" unless settings.is_a?(Hash)
+  settings
+rescue Psych::SyntaxError => error
+  abort "Invalid YAML in #{path}: #{error.message}"
+end
+
+def codex_policy_set?(skill_path)
+  policy = read_codex_settings(skill_path)["policy"]
+  policy.is_a?(Hash) && policy["allow_implicit_invocation"] == false
 end
 
 def write_codex_policy(skill_path)
   return if codex_policy_set?(skill_path)
 
+  settings = read_codex_settings(skill_path)
+  settings["policy"] = {} unless settings["policy"].is_a?(Hash)
+  settings["policy"]["allow_implicit_invocation"] = false
   path = codex_policy_path(skill_path)
-  lines = File.file?(path) ? File.readlines(path) : []
-  lines[-1] += "\n" if lines.any? && !lines[-1].end_with?("\n")
-  setting_index = lines.index { |line| line.match?(/\A[ \t]+allow_implicit_invocation:/) }
-  policy_index = lines.index { |line| line.rstrip == "policy:" }
-  if setting_index
-    lines[setting_index] = CODEX_POLICY_LINE
-  elsif policy_index
-    lines.insert(policy_index + 1, CODEX_POLICY_LINE)
-  else
-    lines.push("policy:\n", CODEX_POLICY_LINE)
-  end
   Dir.mkdir(File.dirname(path)) unless File.directory?(File.dirname(path))
-  File.write(path, lines.join)
+  File.write(path, YAML.dump(settings))
 end
 
 documents = []
@@ -68,7 +73,19 @@ Dir.glob(File.join(skills_root, "*", "SKILL.md")).sort.each do |skill_path|
 
   model_invoked = !frontmatter.include?(DISABLE_MODEL_INVOCATION)
   external = EXTERNAL_USER_INVOKED_SKILLS.include?(skill_id)
-  next if model_invoked && !external
+  repeated = repeated_keys(lines, frontmatter_end)
+  begin
+    YAML.safe_load(lines[1...frontmatter_end].join)
+  rescue Psych::SyntaxError => error
+    # Codex repairs some of these, other hosts may not. Quote the value.
+    warn "Frontmatter is not strict YAML in #{skill_path}: #{error.message}"
+  end
+  if model_invoked && !external
+    # Not ours to normalize: report it, but do not stop the install.
+    warn "Codex will skip #{skill_path}: repeated frontmatter key #{repeated.join(", ")}" unless repeated.empty?
+    next
+  end
+  abort "Repeated frontmatter key #{repeated.join(", ")}: #{skill_path}" unless repeated.empty?
 
   documents << [skill_path, lines, frontmatter_end, model_invoked]
 end
