@@ -85,7 +85,11 @@ metadata:
 ```
 
 Claude and Pi honor `disable-model-invocation`. OpenCode honors the two metadata
-keys. If an upstream public skill has the Claude field but cannot be edited to
+keys. Codex ignores all three and hides a skill only when `agents/openai.yaml`
+sets `policy.allow_implicit_invocation: false`;
+`scripts/normalize-opencode-user-skills.rb` writes that file for every user-only
+skill. It also stops on a repeated frontmatter key, because Codex skips a skill
+whose frontmatter repeats a key. If an upstream public skill has the Claude field but cannot be edited to
 add OpenCode metadata, add its ID to `USER_INVOKED_SKILLS` in
 `scripts/normalize-opencode-user-skills.rb`. That list is strict: every listed
 skill must be installed, remain user-only upstream, and pass `--check` after
