@@ -1,0 +1,6 @@
+policy:
+  allow_implicit_invocation: false
+interface:
+  display_name: "Test Audit"
+  short_description: "Delete junk tests, add the high-value ones, stop junk coming back"
+  default_prompt: "Use $test-audit on this repository."

@@ -15,6 +15,8 @@ outside the repository.
 | `~/.agents/skills/diff-review/` | `dot_agents/skills/diff-review/` | Cross-provider diff review procedure, loaded on demand |
 | `~/.agents/skills/pr-body/` | `dot_agents/skills/pr-body/` | Pull request title and body, loaded on demand |
 | `~/.agents/skills/video-context/` | `dot_agents/skills/video-context/` | Video transcript and frames through `summarize`, loaded on demand |
+| `~/.agents/skills/testing/` | `dot_agents/skills/testing/` | Which tests to write, skip and run, loaded on demand |
+| `~/.agents/skills/test-audit/` | `dot_agents/skills/test-audit/` | User-invoked audit that deletes junk tests and adds missing ones |
 | `~/.cursor/rules/shared-agent-guidance.mdc` | `private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl` | Always-applied rule rendered from the common template |
 | `~/.claude/` | `private_dot_claude/` | Claude instructions and settings |
 | `~/.codex/` | `dot_codex/` | Link to the shared instructions, hooks, and `model_reasoning_effort` in `config.toml`. Codex owns the rest of that file. |
