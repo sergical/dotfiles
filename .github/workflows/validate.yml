@@ -140,8 +140,10 @@ jobs:
             --promptString "AWS region=us-east-1" \
             --apply
 
+          # init --apply does not record run_onchange scripts as run; the
+          # status check after the next apply covers them.
           status_output=$(chezmoi --config "$RUNNER_TEMP/chezmoi.toml" \
-            --source "$GITHUB_WORKSPACE" --destination "$HOME" status)
+            --source "$GITHUB_WORKSPACE" --destination "$HOME" status --exclude=scripts)
           test -z "$status_output"
           chezmoi --config "$RUNNER_TEMP/chezmoi.toml" \
             --source "$GITHUB_WORKSPACE" --destination "$HOME" apply
