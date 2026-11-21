@@ -10,7 +10,7 @@ outside the repository.
 | Target | Chezmoi source | Purpose |
 | --- | --- | --- |
 | `~/.agents/AGENTS.md` | `dot_agents/AGENTS.md.tmpl` | Shared behavior rendered from the common template |
-| `~/.agents/skills/simplify-code/` | `dot_agents/skills/simplify-code/` | Shared post-green cleanup contract |
+| `~/.agents/skills/simplify-code/` | `dot_agents/skills/simplify-code/` | Cleanup of a passing change; runs when the user asks or a review flags unneeded code |
 | `~/.agents/skills/dev-servers/` | `dot_agents/skills/dev-servers/` | Rex and dev server procedure, loaded on demand |
 | `~/.agents/skills/diff-review/` | `dot_agents/skills/diff-review/` | Cross-provider diff review procedure, loaded on demand |
 | `~/.agents/skills/pr-body/` | `dot_agents/skills/pr-body/` | Pull request title and body, loaded on demand |
@@ -50,8 +50,7 @@ An agent-routing experiment may need to run from the target path first. After
 the canary passes, capture only the named files:
 
 ```sh
-chezmoi re-add ~/.config/opencode/agents/build.md
-chezmoi re-add ~/.config/opencode/agents/simplify.md
+chezmoi re-add ~/.config/opencode/agents/plan.md
 ```
 
 Use `chezmoi add` once for a new target. Never capture a whole application
@@ -73,8 +72,8 @@ chezmoi diff
 Review every diff before `chezmoi apply`. For a model, permission, or routing
 change, run one disposable canary in the affected harness. For a shared policy
 or skill change, run one canary in each affected harness. Require the expected
-agent/model/effort, a persisted child transcript, the same acceptance checks
-before and after simplification, and a separate final review.
+agent/model/effort, a persisted child transcript, passing acceptance checks,
+and a separate final review.
 
 Commit and push only after the source checks, target diff, and canaries pass.
 On another machine, use `chezmoi update`, then run

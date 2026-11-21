@@ -1,0 +1,104 @@
+{{/* Each rule has a "why" note. chezmoi removes the notes, so agents never
+read them. Based on Theo's sol-loop (github.com/t3dotgg/tstack, read
+2026-11-18), with review in both directions between providers.
+Description: 119 of 200 Codex reviewers opened the old skill without being
+told, because its description ("Use before reviewing a finished diff")
+matched their own task. Check after a week: if reviewers still open it, add a
+"reviewers stop here" line. */ -}}
+---
+name: diff-review
+description: Use when your finished code needs a review by a model from the other provider. Not for the reviewer.
+---
+
+# Diff Review
+
+{{/* why: one same-model plus one other-model review caught 56.7% of planted
+errors, two same-model reviews 42.7% (Song, arXiv 2610.01471, 2026-10-06).
+Greptile routes review to the other lab for the same reason (2026-07-21).
+Theo's sol-loop and council use another provider. The user asked "did codex
+review this?" in 4 sessions. */ -}}
+## Reviewer
+
+Use one reviewer from the other provider: Codex `gpt-6.1-sol` for code that
+Claude wrote, Claude Opus for code that Codex wrote. If that provider is not
+available, say that the review is not done. Do not use a different model, and
+do not start a second reviewer unless the user asks.
+
+{{/* why: every source agrees the reviewer must not see the writer's
+reasoning (Anthropic, Theo, Matt Pocock, poteto). Severity levels and "flag
+code the request does not need" are from sol-loop; the second also covers
+over-built code, the job of the simplify-code skill. "No findings is a
+valid result" is from poteto's interrogate skill and the Codex adversarial
+prompt. */ -}}
+## Brief
+
+Give the reviewer the request, the base commit, the diff command and the check
+results. Do not give it your reasoning. Ask it to:
+
+- Find bugs, broken callers, and places where the code does not do what was
+  asked. Skip style unless it hides a bug.
+- Flag code, tests or guards that the request does not need.
+{{/* why: the user's test audit list (2026-11-19) cut to what one diff can
+show. The two-edit test is Lauren Tan's (poteto) "test behavior, not
+implementation" principle, installed as
+pstack-principle-test-behavior-not-implementation. */ -}}
+- Flag tests that still pass when the behavior breaks, or fail when only the
+  internals change. For example: tests that mirror their mocks, check text,
+  styling or page structure, test a library instead of our code, repeat
+  another test, are skipped, or need retries to pass.
+- Flag missing tests. A bug fix needs a test that fails without the fix. A
+  data migration needs a test of old data against new code. Code that must
+  give the same result after a round trip or a second run needs a property
+  test. A changed main user flow needs an end-to-end test, if the repository
+  has them.
+{{/* why: the core of poteto's Comment Sicko (pstack-no-comments), which
+the user runs by hand. Its keep list is shortened here. Rated nit so that
+comments get fixed but never add a review round. */ -}}
+- Flag comments that repeat the code, commented-out code, and comments that
+  excuse a workaround. Keep licence headers, public API docs, and notes on
+  behavior forced by something outside our code. Rate these `nit`.
+- Rate each finding: `blocker` (the asked-for case is wrong), `should` (a real
+  bug that users will hit, or a missing test from the list above), or `nit`
+  (the rest).
+- Say "no findings" when there are none.
+
+{{/* why: #16 (2026-11-20) added a UI review hook and this step, because
+cross-provider code review does not check spacing, motion or focus. */ -}}
+When the diff changes UI files (`.tsx`, `.jsx`, `.css`, `.vue`, `.svelte`) and
+the `emil-ui-review` skill is installed, also run it on those files. Read
+`~/.agents/skills/emil-review-animations/SKILL.md` too when motion changed.
+
+{{/* why: about one finding in four from a second-provider reviewer was
+wrong (paddo.dev, 2026-10-27). "Do not agree just to end the review" is from
+sol-loop. */ -}}
+## Findings
+
+Check each finding against the code before you fix it. Fix the real ones with
+the smallest change. Reply to wrong ones with the reason. Do not agree with a
+finding just to end the review.
+
+{{/* why: the user does not read code, so something must remove code nobody
+needs. The old automatic simplify pass ran on every change: 36 of 64 clear
+runs changed code, 28 found nothing, about 11.5 minutes each (upper bound).
+Running it only when the reviewer flags unneeded code skips the empty runs.
+simplify-code checks callers and tests before it deletes, and reruns the
+checks (user decision, 2026-11-19). */ -}}
+If the reviewer flags code that the request does not need, read
+`~/.agents/skills/simplify-code/SKILL.md` and run it on the diff before the
+next round.
+
+{{/* why: the old limit was two rounds. No source uses two. Anthropic's Claude
+Code team and sol-loop use three; before Anthropic's cap, one PR went through
+more than 50 rounds and later rounds "found a few more old ones each round"
+(claude.dev, 2026-10-15). Here, before any limit, 24 of 139 changes had 3+
+reviews and one had 21. Five rounds for risky areas and "out of rounds is not
+approval" are from sol-loop. */ -}}
+## When to stop
+
+- Stop when a round has no `blocker` or `should` findings.
+- Otherwise stop after 3 rounds, or 5 for security, access, money, data loss
+  or concurrency. After round 1, the reviewer checks only the changed code and
+  the open findings.
+- A push that only merges the base branch is not a new round.
+- If findings are still open at the end, give them to the user. Running out of
+  rounds is not approval.

@@ -19,7 +19,7 @@ jobs:
       - name: Check source
         run: |
           ./scripts/check-source.sh paths
-          sh -n scripts/check-agent-routing.sh scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit
+          sh -n scripts/check-agent-routing.sh scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit .githooks/prepare-commit-msg
           ./scripts/check-agent-routing.sh
           ruby -c scripts/normalize-opencode-user-skills.rb
           git diff --check
@@ -33,6 +33,20 @@ jobs:
           npx --no-install prettier --check \
             "private_Library/private_Application Support/private_Cursor/private_User/settings.json" \
             "private_Library/private_Application Support/private_Cursor/private_User/keybindings.json"
+
+      - name: Check that each commit names its machine profile
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          missing=$(git log --format='%h %(trailers:key=Machine-Profile,valueonly,separator=%x2C)' "$BASE_SHA..$HEAD_SHA" |
+            awk 'NF < 2 { print $1 }')
+          if [ -n "$missing" ]; then
+            echo "These commits have no Machine-Profile trailer. Commit from a machine where Chezmoi set core.hooksPath:" >&2
+            echo "$missing" >&2
+            exit 1
+          fi
 
       - name: Lint workflows
         uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd # v0.8.1

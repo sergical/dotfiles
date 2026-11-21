@@ -28,7 +28,8 @@ while IFS= read -r source_path; do
   case "$source_path" in
     .chezmoi.toml.tmpl|.chezmoiexternal.toml|.chezmoiignore.tmpl|.gitignore|AGENTS.md|CLAUDE.md|LICENSE|README.md|SECURITY.md|package.json|package-lock.json) ;;
     .chezmoitemplates/shared-agent-guidance.md) ;;
-    .github/workflows/validate.yml|.githooks/pre-commit) ;;
+    .github/workflows/validate.yml|.githooks/pre-commit|.githooks/prepare-commit-msg) ;;
+    run_onchange_after_set-git-hooks.sh.tmpl) ;;
     docs/agent-routing.md|docs/architecture.md|docs/context-loading.md|docs/profiles.md|docs/security.md|docs/skills.md) ;;
     scripts/capture.sh|scripts/check-agent-routing.sh|scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb) ;;
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl) ;;
@@ -37,7 +38,7 @@ while IFS= read -r source_path; do
     dot_agents/private_mcp.json.tmpl) ;;
     dot_agents/hooks/executable_ui-review-reminder.py) ;;
     dot_agents/skills/simplify-code/SKILL.md|dot_agents/skills/simplify-code/agents/openai.yaml) ;;
-    dot_agents/skills/dev-servers/SKILL.md|dot_agents/skills/diff-review/SKILL.md|dot_agents/skills/pr-body/SKILL.md|dot_agents/skills/video-context/SKILL.md) ;;
+    dot_agents/skills/dev-servers/SKILL.md|dot_agents/skills/dev-servers/executable_list-blocks.sh|dot_agents/skills/diff-review/SKILL.md.tmpl|dot_agents/skills/pr-body/SKILL.md.tmpl|dot_agents/skills/video-context/SKILL.md) ;;
     dot_codex/symlink_AGENTS.md|dot_codex/hooks.json.tmpl|dot_codex/modify_private_config.toml) ;;
     private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl) ;;
     private_dot_local/private_bin/executable_skill-inventory|private_dot_local/private_bin/executable_t3-fork-sync) ;;

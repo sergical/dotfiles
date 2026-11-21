@@ -1,0 +1,148 @@
+{{/* Each rule has a "why" note. chezmoi removes the notes, so agents never
+read them. Sources, each read in full on 2026-11-18 (copies in the thread
+scratchpad, src/pr-skills/):
+- Warp, write-pr-description, warpdotdev/common-skills (2026-08-24), with evals
+- Sentry, pr-writer and its SPEC, getsentry/skills (2026-07-15)
+- Dex Horthy, describe-pr and show-me, humanlayer/humanlayer (2026-10-22)
+- Matt Pocock, pr and its docs page, mattpocock/skills (2026-09-24)
+- Theo, file-pr, t3dotgg/tstack (2026-10-24)
+User quotes: sessions from 2026-10-19 to 2026-11-18. */ -}}
+---
+name: pr-body
+description: Write a pull request title and description. Use when you open a PR, when a push changes what a PR does, or when asked to describe a PR.
+---
+
+# PR Body
+
+{{/* why: Warp's first line: "give the reviewer what the diff cannot".
+Sentry: "a cover note for reviewers, not a changelog". The owner does not read
+diffs: "i dont read diffs like that" (Codex, 2026-11-16). */ -}}
+The description gives the reader what the diff cannot: why the change exists,
+what it affects, which decisions were made, and where to look. Write for
+someone who has not seen the conversation and does not read diffs.
+
+## Before you write
+
+{{/* why: Warp: commit messages often claim things about code that are
+wrong, so check before you repeat them. The user's rule "check things
+yourself". */ -}}
+1. Read the whole diff against the base branch, the request, and the commit
+   messages. Check each claim in a commit message against the code before you
+   repeat it.
+{{/* why: Warp: "the template's own instructions outrank this skill". Sentry
+ignores templates and Matt leaves it to the repo; Warp's rule is the safer
+default because a template is what that repo's reviewers asked for. */ -}}
+2. If the repository has a PR template, fill it in. Its instructions come
+   before this skill.
+
+## Title
+
+{{/* why: Theo's file-pr: the title usually becomes the commit message, with
+this BAD/GOOD pair. Sentry also bans vague titles ("update", "cleanup"). */ -}}
+3. Follow the repository's recent titles. Say what changes for the user, not
+   how the code does it: "cut websocket frame size by 70%", not "negotiate
+   permessage-deflate".
+{{/* why: skill-studio #678 and sentry-devex #128 (2026-11-19) each did four
+things under a title that named one. Matt splits large work into a stack
+("Stack 6/9") with one change per PR. */ -}}
+4. A PR does one thing. If it does more, split it into a stack of PRs, or
+   name each change in the title and in the opening sentences.
+
+## Body
+
+{{/* why: Matt opens a migration PR with "ONE-WAY door ... Matt merges it",
+and Kent's template has a `Door: two-way | one-way` field under the intent.
+Dex: "Merging this does not fix npm. A new CLI release has to go out after
+it lands." In sentry-devex #128 the step after the merge (make gate/risk a
+required check) was hidden in a stray paragraph (2026-11-19). */ -}}
+5. Start the body with up to three bold lines, each only when it applies:
+   `Door: one-way` when the change is hard to undo (stored data, a public
+   contract, deleted data), who merges it if not the agent and why, and what
+   must happen after the merge.
+{{/* why: Theo, Dex ("exactly one sentence") and Warp all open with the
+problem. Warp: the first paragraph tells a reader whether the PR is theirs.
+Issue link: Warp ("never invent a plausible ticket ID"), Sentry ("only when
+verified") and Dex (ticket link on the first line). Added 2026-11-19 after
+the side-by-side comparison. */ -}}
+6. Then one to three plain sentences: what was wrong or missing, and what is
+   true now. A reader of only this paragraph knows whether the PR concerns
+   them. For a change to a process, a check or a rule, say what changes for
+   whom and how often. If an issue exists, link it once. Never guess an issue
+   number.
+{{/* why: Matt's migration PR gives the size, the 4,117 generated lines,
+and a reading order before the summary. The owner does not read diffs, so
+the order matters most when a PR is large. */ -}}
+7. When the diff is over about 300 lines, give its size, how much of it is
+   generated, and the order to read the files in.
+{{/* why: Dex's describe-pr and Matt's pr both build the outline from
+show-me ("the smallest view that makes the key point clear"). It lets the
+owner see the shape of the change without reading the diff. The HTML option
+in show-me is for chat, not for a Markdown PR body. */ -}}
+8. Show the shape of the change with the smallest view from the `show-me`
+   skill (`~/.agents/skills/show-me/SKILL.md`): pseudo-code, a call tree, a
+   component tree, a file tree, a Mermaid diagram, or a before and after. Use
+   one view, sometimes two, each next to the sentence it supports. Do not
+   write an HTML file. When the change is text a person reads, such as a bot
+   comment or a CLI message, paste the real output instead.
+{{/* why: Warp: decisions with their rejected alternatives are "the
+highest-value content in most descriptions and it cannot be recovered from
+the diff". Dex lists "surprising decisions". */ -}}
+9. Name each decision that had a real alternative, and why the alternative
+   lost. Do not invent one.
+{{/* why: Matt's Evidence section (screenshot first, then the test that
+failed and now passes). Warp's honest validation: never write intent as a
+result. 4 sessions of complaints that descriptions copied the check list. */ -}}
+10. Prove it: a screenshot for a UI change, otherwise the test that failed
+    before and passes now, or the command output that changed. If something
+    did not run, say so once and name what should run. Never write an
+    intention as a result. Do not list passing checks, because GitHub shows
+    them.
+{{/* why: Dex's "special things to note" (1 to 3, or none), Matt's "merge
+danger" (one-way door, blast radius) and Warp's focus areas ("where you are
+unsure" is "the single most valuable line"). The Nov 16 trim removed this
+section without a reason. Renamed to Dex's heading on 2026-11-19, with
+Matt's "Left out on purpose". */ -}}
+11. Only when it applies, add one to three items under `Special things to
+    note`: what can break beyond the changed files and for whom, what was
+    left out on purpose, or the part you are least sure of. Name the file or
+    the decision.
+{{/* why: Theo ends every PR this way and Dex links the agent session. It
+lets the owner compare which model writes code that needs fewer fixes.
+Warp disagrees ("Co-Authored-By belongs in the commit"), but that is about
+commit trailers, and Codex commits here carry none. */ -}}
+12. End with `Created with <model> in <harness>.` Name every model that wrote
+    part of the change.
+
+## Cut
+
+{{/* why: Warp's cut pass, word for word in intent: "name the decision it
+helps the reviewer make. If you cannot name one, delete it." The list of
+things to delete is Warp's anti-patterns plus Sentry's and Theo's bans. Size
+anchors are Warp's. The user complained about long, dense text in 5
+sessions. */ -}}
+13. For each paragraph, name what it helps the reader decide. If you cannot,
+    delete it. Delete file lists, a restated diff, the history of the branch,
+    words such as "robust", "comprehensive" or "clean", and advice on how to
+    review. A small change needs one paragraph. A focused fix or feature needs
+    no more than about 400 words.
+
+## Publish
+
+{{/* why: Warp, Sentry and Matt all warn about stale descriptions. Warp: do
+not append a revision log; describe the branch as it is now. Numbers: the
+devex #128 trial run ("46 would stop") was measured before a later push let
+migrations ship; the current gate gave 42 (2026-11-19). */ -}}
+14. After a push that changes what the PR does, write the description again
+    from the current diff. Run every number again, or delete it. Do not add a
+    change log.
+{{/* why: `gh pr create --body "..."` breaks Markdown that holds backticks or
+quotes. Sentry and Dex both write a file first. */ -}}
+15. When asked to open or update the PR, publish with
+    `gh pr create --body-file` or `gh pr edit --body-file`. Otherwise give the
+    text in your reply.
+{{/* why: Sentry ("never include customer or organization names, user
+emails... secrets, or PII") and Theo ("check the title, description, quotes,
+and attachments for secrets and private details"). PR bodies are public in
+public repos. Added 2026-11-19. */ -}}
+16. Before you publish, check the title, body and screenshots for secrets,
+    emails, customer names and other private details. Remove them.

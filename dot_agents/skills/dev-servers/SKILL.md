@@ -69,21 +69,11 @@ has no more use, stop it and close its tab.
 Kill a session when its owner thread is settled or archived, or its worktree
 is gone. A merged PR is not enough, because one thread can open many PRs.
 
-1. List the blocks and what they run:
-
-   ```sh
-   rex ls --json | jq -r '.sessions[] | "\(.session_id) \(.label)"' |
-     while read -r s label; do
-       rex block ls -s "$s" --json | jq -r '.blocks[] | "\(.block_id) \(.window_id)"' |
-         while read -r b w; do
-           echo "$label $w $b $(rex block call -s "$s" -b "$b" process |
-             jq -c '{exit: .last_exit.exit_code, cwd: .foreground.cwd}')"
-         done
-     done
-   ```
-
-   A block with `exit` set is stopped. Rex does not keep the folder of a
-   stopped block, so read its first lines with `rex capture`.
+1. List the blocks and what they run with
+   `~/.agents/skills/dev-servers/list-blocks.sh`. Each line shows the session,
+   window, block, exit code and folder. A block with `exit` set is stopped.
+   Rex does not keep the folder of a stopped block, so read its first lines
+   with `rex capture`.
 2. Find the owner thread with the T3 MCP tools. A worktree folder matches the
    `worktreePath` of a thread. A scratch path, in `~/.t3/scratch` or in an
    agent scratchpad, holds a folder name that ends with the last 8 hex

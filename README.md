@@ -12,7 +12,6 @@ Install Chezmoi, initialize without applying, inspect the diff, then apply:
 ```sh
 brew install chezmoi
 chezmoi init sergical
-git -C "$(chezmoi source-path)" config core.hooksPath .githooks
 chezmoi diff
 chezmoi apply
 brew tap oven-sh/bun

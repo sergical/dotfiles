@@ -1,6 +1,10 @@
 ---
 name: simplify-code
-description: Simplify a working implementation after its acceptance checks pass. Use for a fresh post-green cleanup of changed production or test code before final review, especially after an agent adds modules, abstractions, branching, helpers, or defensive logic. Preserve behavior and rerun the same checks.
+description: Simplify a change whose checks pass, without changing what it does. Run when the user asks, or when a diff-review reviewer flags code the request does not need.
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: false
+  opencode/slash: true
 ---
 
 # Simplify Code
@@ -9,7 +13,7 @@ Improve the maintainability of an already-working change without changing what i
 
 ## Inputs
 
-The caller supplies the behavior contract, comparison base, changed paths, exact check commands and output, and the code state those checks covered (commit plus any uncommitted diff). Work from those and the repository only. The implementer's reasoning stays out of scope.
+The caller supplies the behavior contract, comparison base, changed paths, exact check commands and output, and the code state those checks covered (commit plus any uncommitted diff). When the user runs this skill directly, collect these from the task and the repository yourself. Work from those and the repository only. The implementer's reasoning stays out of scope.
 
 ## Process
 

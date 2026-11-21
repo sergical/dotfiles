@@ -12,6 +12,7 @@ github_orgs = [
 github_repos = [
   "ayghri/i-have-adhd",
   "dmmulroy/anti-slop",
+  "humanlayer/skills",
   "remotion-dev/skills",
   "sergical/anti-slop",
   "sergical/mattpocock-skills",
@@ -25,6 +26,14 @@ name = "bro"
 source = "git:https://github.com/dmmulroy/.dotfiles.git"
 ref = "cdba491f1f9c952979af37f15e4c3efb26f625df"
 path = "home/.agents/skills/bro"
+
+# Dex Horthy's "smallest view" sketches. The pr-body skill reads it for the
+# change outline. MIT licence.
+[[skills]]
+name = "show-me"
+source = "humanlayer/skills"
+ref = "bba9d13ab34f0a87f1cc33df4dd196372393ddfc"
+path = "plugins/show-me/skills/show-me"
 
 [[skills]]
 name = "i-have-adhd"
