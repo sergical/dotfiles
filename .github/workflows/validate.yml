@@ -154,7 +154,14 @@ jobs:
           jq -e '.mcpServers.executor.url == "https://executor.example.invalid/mcp"' "$HOME/.agents/mcp.json"
           jq -e '.mcp.executor.url == "https://executor.example.invalid/mcp"' "$HOME/.config/opencode/opencode.json"
           test -f "$HOME/.agents/skills/simplify-code/SKILL.md"
-          cmp "$HOME/.agents/AGENTS.md" "$GITHUB_WORKSPACE/.chezmoitemplates/shared-agent-guidance.md"
+          chezmoi --config "$RUNNER_TEMP/chezmoi.toml" --source "$GITHUB_WORKSPACE" \
+            execute-template <"$GITHUB_WORKSPACE/.chezmoitemplates/shared-agent-guidance.md" |
+            cmp - "$HOME/.agents/AGENTS.md"
+          if grep -n -E '\{\{|why:' "$HOME/.agents/AGENTS.md" \
+            "$HOME/.agents/skills/diff-review/SKILL.md" "$HOME/.agents/skills/pr-body/SKILL.md"; then
+            echo "A template note reached a rendered agent file." >&2
+            exit 1
+          fi
           test -L "$HOME/.codex/AGENTS.md"
           cmp "$HOME/.codex/AGENTS.md" "$HOME/.agents/AGENTS.md"
           jq empty "$HOME/.codex/hooks.json"
@@ -183,7 +190,7 @@ jobs:
             "$GITHUB_WORKSPACE/scripts/install-public-skills.sh"
             installed=$(find "$HOME/.agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)
             pinned=$(grep -c '^\[skills\.' "$HOME/.agents/agents.lock")
-            repository_owned=$(find "$GITHUB_WORKSPACE/dot_agents/skills" -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l)
+            repository_owned=$(find "$GITHUB_WORKSPACE/dot_agents/skills" -mindepth 2 -maxdepth 2 \( -name SKILL.md -o -name SKILL.md.tmpl \) | wc -l)
             test "$installed" -eq "$((pinned + repository_owned))"
             test "$installed" -ge 30
             ruby "$GITHUB_WORKSPACE/scripts/normalize-opencode-user-skills.rb" \

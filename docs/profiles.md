@@ -5,7 +5,7 @@ Initialization stores profile choices in the machine-local Chezmoi config.
 | Profile | Contents |
 | --- | --- |
 | Base | Zsh, Git, GitHub CLI behavior, Homebrew intent |
-| AI | Shared instructions, Claude/Codex/Cursor/OpenCode2/Pi routing, 5 repository-owned skills, and 10 public dotagents declarations |
+| AI | Shared instructions, Claude/Codex/Cursor/OpenCode2/Pi routing, 5 repository-owned skills, and 11 public dotagents declarations |
 | Editor | Cursor preferences, cmux shortcuts, cspell dictionary |
 | AWS | Locally rendered SSO profiles from prompted account metadata |
 | Personal | Pi models for personal subscriptions, Bedrock and Workers AI; the Sentry and Codex Claude plugins; Claude auto memory. Off by default, so a machine without the flag keeps the default Pi models, has those plugins and auto memory off, and on macOS gets the hourly `t3-fork-sync` LaunchAgent |
