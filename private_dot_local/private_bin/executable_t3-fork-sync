@@ -1,7 +1,7 @@
 #!/bin/bash
-# Keeps "T3 Code (Fork)" on the newest upstream T3 Code nightly plus the fork's commits.
-# Rebases onto the newest nightly, checks, builds, and publishes a GitHub prerelease.
-# The installed app finds that release and updates itself, like the official nightly.
+# Keeps "T3 fork" on the newest upstream T3 Code nightly plus the fork's commits.
+# Rebases onto the newest nightly, checks, builds, and installs the app in /Applications.
+# T3 fork has no update feed: while it runs, the build waits and installs after you quit it.
 set -euo pipefail
 
 export PATH="$HOME/.vite-plus/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
@@ -11,10 +11,11 @@ TMPDIR="$(cd "${TMPDIR:-/tmp}" && pwd -P)/"
 export TMPDIR
 
 repo="${T3_FORK_REPO:-$HOME/src/t3code-fork}"
-branch="fork-nightly"
-app_name="T3 Code (Fork)"
-release_repo="${T3_FORK_RELEASE_REPO:-sergical/t3code}"
-state="$HOME/.t3-fork/sync"
+branch="t3-fork"
+app_name="T3 fork"
+app="/Applications/$app_name.app"
+state="$HOME/.t3-fork-lab/sync"
+pending="$state/pending"
 mkdir -p "$state"
 
 log() { echo "$(date '+%F %T') $*"; }
@@ -35,6 +36,31 @@ if ! mkdir "$lock" 2>/dev/null; then
 fi
 echo $$ >"$lock/pid"
 trap 'rm -rf "$lock"' EXIT
+
+app_running() { pgrep -qf "^$app/Contents/MacOS/" 2>/dev/null; }
+
+install_pending() {
+  [ -d "$pending/$app_name.app" ] || return 0
+  if app_running; then
+    log "$(cat "$pending/version") is ready; quit $app_name to install it"
+    return 0
+  fi
+  rm -rf "$app.previous"
+  [ ! -d "$app" ] || mv "$app" "$app.previous"
+  if ditto "$pending/$app_name.app" "$app"; then
+    rm -rf "$app.previous"
+    log "installed $(cat "$pending/version")"
+    notify "Updated to $(cat "$pending/version")"
+    cat "$pending/version" >"$state/installed"
+    rm -rf "$pending"
+  else
+    rm -rf "$app"
+    [ ! -d "$app.previous" ] || mv "$app.previous" "$app"
+    fail "Could not install $(cat "$pending/version")"
+  fi
+}
+
+install_pending
 
 cd "$repo"
 [ "$(git branch --show-current)" = "$branch" ] || fail "$repo is not on $branch"
@@ -70,9 +96,10 @@ if [ "$tag" != "$base" ]; then
 fi
 
 want="$tag+$(git rev-parse --short HEAD)"
-for done_file in published failed; do
+for done_file in installed failed; do
   [ "$(cat "$state/$done_file" 2>/dev/null)" != "$want" ] || exit 0
 done
+[ "$(cat "$pending/version" 2>/dev/null)" != "$want" ] || exit 0
 
 log "building $want"
 vp install --frozen-lockfile >/dev/null || { echo "$want" >"$state/failed"; fail "Install failed for $want"; }
@@ -84,38 +111,23 @@ set -a
 . ./.env.example
 [ ! -f "$state/notary.env" ] || . "$state/notary.env"
 set +a
-unset GITHUB_REPOSITORY
-export T3CODE_DESKTOP_UPDATE_REPOSITORY="$release_repo"
+# No update repository: the app gets no update feed, so it never fetches upstream builds.
+unset GITHUB_REPOSITORY T3CODE_DESKTOP_UPDATE_REPOSITORY
+# A -nightly version would brand the app "T3 fork (Nightly)" with the nightly icon.
+version="$(echo "${tag#v}" | sed 's/-nightly\./-fork./')"
 out="$state/build"
 rm -rf "$out"
-node scripts/build-desktop-artifact.ts --platform mac --target dmg --arch arm64 \
-  --build-version "${tag#v}" --signed --output-dir "$out" ||
+node scripts/build-desktop-artifact.ts --platform mac --target zip --arch arm64 \
+  --build-version "$version" --signed --output-dir "$out" ||
   { echo "$want" >"$state/failed"; fail "Build failed for $want"; }
 
-assets=()
-while IFS= read -r file; do assets+=("$file"); done < <(
-  find "$out" -maxdepth 1 \( -name '*.dmg' -o -name '*.zip' -o -name '*.blockmap' -o -name 'nightly-mac.yml' \)
-)
-[ "${#assets[@]}" -eq 5 ] || { echo "$want" >"$state/failed"; fail "Build made ${#assets[@]} of 5 release files for $want"; }
-
-publish() {
-  git -c credential.helper= -c credential.helper='!gh auth git-credential' \
-    push --quiet --force "https://github.com/$release_repo.git" "HEAD:refs/heads/$branch" || return
-  if gh release view "$tag" --repo "$release_repo" >/dev/null 2>&1; then
-    gh release upload "$tag" "${assets[@]}" --repo "$release_repo" --clobber
-  else
-    gh release create "$tag" "${assets[@]}" --repo "$release_repo" --target "$(git rev-parse HEAD)" \
-      --prerelease --latest=false --title "$app_name ${tag#v}" \
-      --notes "Upstream $tag plus the fork commits:"$'\n'"$(git log --reverse --format='- %s' "$tag..HEAD")"
-  fi
-}
-publish || { echo "$want" >"$state/failed"; fail "Publish failed for $want"; }
-echo "$want" >"$state/published"
+zip="$(find "$out" -maxdepth 1 -name '*.zip' | head -1)"
+[ -n "$zip" ] || { echo "$want" >"$state/failed"; fail "Build made no app for $want"; }
+rm -rf "$pending" && mkdir -p "$pending"
+ditto -x -k "$zip" "$pending" || { echo "$want" >"$state/failed"; fail "Could not unpack $want"; }
+[ -d "$pending/$app_name.app" ] || { echo "$want" >"$state/failed"; fail "The build for $want has no $app_name.app"; }
+echo "$want" >"$pending/version"
 rm -rf "$out"
-log "published $want to $release_repo"
+log "built $want"
 
-gh release list --repo "$release_repo" --limit 100 --json tagName,createdAt \
-  --jq 'sort_by(.createdAt) | reverse | .[5:][].tagName' |
-  while IFS= read -r old; do
-    gh release delete "$old" --repo "$release_repo" --yes --cleanup-tag && log "deleted old release $old"
-  done
+install_pending
