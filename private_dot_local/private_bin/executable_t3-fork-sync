@@ -44,9 +44,26 @@ git fetch origin --tags --quiet
 tag="$(git tag -l 'v*-nightly.*' | awk -F. '{print $NF" "$0}' | sort -n | tail -1 | cut -d' ' -f2)"
 base="$(git describe --tags --abbrev=0 --match 'v*-nightly.*' HEAD)"
 
+# Fork commits that add dependencies touch pnpm-lock.yaml, which upstream changes often. When it
+# is the only conflict, take the upstream lockfile and let pnpm add the fork's dependencies back.
+resolve_lockfile() {
+  [ "$(git diff --name-only --diff-filter=U)" = "pnpm-lock.yaml" ] || return 1
+  git checkout --ours pnpm-lock.yaml &&
+    vp install --lockfile-only >/dev/null &&
+    git add pnpm-lock.yaml
+}
+
+rebase_onto_tag() {
+  git rebase --quiet --onto "$tag" "$base" "$branch" && return 0
+  while resolve_lockfile; do
+    GIT_EDITOR=true git rebase --continue >/dev/null 2>&1 && return 0
+  done
+  return 1
+}
+
 if [ "$tag" != "$base" ]; then
   log "rebasing $branch from $base onto $tag"
-  if ! git rebase --quiet --onto "$tag" "$base" "$branch"; then
+  if ! rebase_onto_tag; then
     git rebase --abort
     fail "Fork commits conflict with $tag. The fork stays on $base."
   fi
