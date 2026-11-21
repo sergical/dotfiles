@@ -1,0 +1,17 @@
+#!/bin/sh
+# Adds a Machine-Profile trailer, so `git log` shows whether a change was
+# committed on a personal or a work machine. The value comes from the
+# machine-local Chezmoi config; no hostname enters the public history.
+set -eu
+
+message_file=$1
+
+profile=unknown
+if command -v chezmoi >/dev/null 2>&1; then
+  profile=$(chezmoi execute-template \
+    '{{ if hasKey . "profile_personal" }}{{ if .profile_personal }}personal{{ else }}work{{ end }}{{ else }}unknown{{ end }}' \
+    2>/dev/null) || profile=unknown
+fi
+
+git interpret-trailers --in-place --if-exists addIfDifferent \
+  --trailer "Machine-Profile: $profile" "$message_file"

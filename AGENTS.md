@@ -29,6 +29,21 @@ Before a change, identify the system that owns each value:
 | Local Chezmoi config | Profile flags and machine data | A new prompt needs a default that keeps other machines unchanged, a flag in `.github/workflows/validate.yml`, and a row in `docs/profiles.md`. |
 | Live targets | Drift from apps and installers | Read `chezmoi diff` before `chezmoi apply`. Capture an intended change by named path. Otherwise, apply the source. |
 
+## Trace A Change To Its Machine
+
+Each commit has a `Machine-Profile: personal`, `work` or `unknown` trailer.
+`.githooks/prepare-commit-msg` adds it from the local Chezmoi config, and CI
+fails a pull request with a commit that has none. To find where a rendered line
+came from:
+
+```sh
+git log --format='%h %ad %(trailers:key=Machine-Profile,valueonly) %s' \
+  --date=short -S'<text of the line>' -- .chezmoitemplates/
+```
+
+Commit a change on the machine where it was made. An uncommitted edit that
+another machine commits gets the wrong profile.
+
 ## Update Agent Routing
 
 Read `docs/agent-routing.md` before changing a shared instruction, custom agent,
@@ -111,7 +126,7 @@ Run from the repository root:
 ```sh
 ./scripts/check-source.sh
 git diff --check
-sh -n scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit
+sh -n scripts/check-source.sh scripts/install-public-skills.sh .githooks/pre-commit .githooks/prepare-commit-msg
 ./scripts/check-agent-routing.sh
 ruby -c scripts/normalize-opencode-user-skills.rb
 npm ci --ignore-scripts

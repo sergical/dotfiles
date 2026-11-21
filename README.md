@@ -12,7 +12,6 @@ Install Chezmoi, initialize without applying, inspect the diff, then apply:
 ```sh
 brew install chezmoi
 chezmoi init sergical
-git -C "$(chezmoi source-path)" config core.hooksPath .githooks
 chezmoi diff
 chezmoi apply
 brew tap oven-sh/bun
@@ -37,9 +36,9 @@ chezmoi update
 ```
 
 Public external skills are commit-pinned in `~/.agents/agents.toml`, which holds
-10 declarations that currently resolve to 102 installed skills. Chezmoi also
+11 declarations that currently resolve to 103 installed skills. Chezmoi also
 owns 5 repository-local skills (`dev-servers`, `diff-review`, `pr-body`,
-`simplify-code` and `video-context`), for 107 portable skills in total. Shared global instructions live in `~/.agents/AGENTS.md`. Codex, Pi
+`simplify-code` and `video-context`), for 108 portable skills in total. Shared global instructions live in `~/.agents/AGENTS.md`. Codex, Pi
 and OpenCode2 link to that file.
 After every dotagents update the installer runs
 `scripts/normalize-opencode-user-skills.rb`, which restores the user-only

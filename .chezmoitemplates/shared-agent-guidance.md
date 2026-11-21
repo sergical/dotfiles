@@ -1,49 +1,70 @@
-# Communication
+{{/* Each rule has a "why" note. The notes stay in this source file only;
+chezmoi removes them, so agents never read them. Keep a rule only if it
+fixes a mistake that happened more than once, or a real incident. Evidence:
+30 days of sessions, 2026-10-19 to 2026-11-18. */ -}}
+# Talking to me
 
-- Follow ISO 24495-1 and ASD-STE100 Simplified Technical English.
-- Make routine choices and report why. Do not hand back option menus.
+{{/* why: 63 sessions where the user asked for a plain restatement (the "bro"
+skill ran 108 times). Complaints name bare IDs and invented terms, for example
+"what is devex 830? what is this adr?". The old ISO/STE line did not stop it. */ -}}
+- Write for someone who has not seen the work. Use plain words. Explain any
+  name you made up, such as a rule ID or a nickname, or do not use it.
+{{/* why: 6 sessions, for example "what the fuck are you showing me PR numbers
+for without links". */ -}}
+- Name and link every PR, issue, commit, thread or file you mention. Never give
+  a bare number.
+{{/* why: 5 sessions, for example "too information dense right now, too much
+prose". */ -}}
+- Start with the answer. Keep it short.
 
-# Machine Ownership
+# Working
 
-- Machine config is in `sergical/dotfiles` (chezmoi). Before changing a managed
-  file, read `~/.local/share/chezmoi/AGENTS.md` and edit its source there.
-- Agent rules, skills, hooks and proofs live in `~/.agents`, written from dotfiles.
-- Machines, servers, routes and access belong in `sergical/fleet` (`~/src/fleet`).
-  Change cloud resources only in `fleet/cloud`, with `pnpm deploy`. Run fleet's
-  checks before reporting that a change works.
+{{/* why: 11 sessions, for example "why do you keep asking me if you should do
+the obvious?". */ -}}
+- Decide anything you can check or undo yourself, then say what you chose and
+  why. Ask me only for what only I know or must decide.
+{{/* why: the user reads the whole reply first, then wants to see why the
+agent asked, to change the rule or habit that asks too often (this thread,
+2026-11-18). Replaces "start the reply with Needs you:". On 2026-11-19 the
+user found "which rule made me ask" redundant: it quoted the same rule every
+time. What the agent tried first shows whether it asked too early, and a
+pick lets the user answer with one word. Later the same day: the section
+must work without the rest of the reply, because "say yes to the brief"
+forced the user to hunt for the brief. */ -}}
+- When I must act, end the reply with a section `Needed from you and why`
+  that I can act on without reading the rest. Give the decision in one line,
+  show the exact text or change it is about, say only the checks that bear
+  on it, and give your pick and why.
+{{/* why: 9 sessions, for example "Why are you telling me what hasn't been
+examined instead of spending the time to examine these things?". Anthropic and
+Theo both name false "done" as the most common failure of every model. */ -}}
+- Check things yourself. Do not hand back a list of what you did not check.
+  Do not say "done" without a number or something you saw that proves it.
+{{/* why: 5 sessions, for example "why did you stop watching them?". */ -}}
+- Finish the task. Do not stop to report progress or to wait for something
+  you can check yourself.
+{{/* why: the agent used Helium, which is not signed in, for sites that
+need the user's login (uncommitted edit in the chezmoi source, 2026-11-20). */ -}}
+- For a site that needs my login, use my default browser, in the window or
+  profile signed in to the right account, work or personal.
 
-# Rex and Dev Servers
+# Skills
 
-Never send input to `REX_BLOCK`. Only control Rex blocks and sessions you
-created, unless their owner T3 thread is settled or archived, or their worktree
-is gone. A merged PR is not enough.
+{{/* why: written when Claude listed most skills by name only
+(skillListingBudgetFraction 0.003). At 0.025 (#16) every description fits,
+but Codex and OpenCode still need these triggers, and these three skills
+decide the review and PR flow. */ -}}
+- Before you start or stop a dev server or run `rex`, read the `dev-servers` skill.
+- When the code is finished, read the `diff-review` skill.
+- Before you open or update a PR, read the `pr-body` skill.
 
-Before starting or stopping a dev server, reading its logs, or running `rex`,
-load `~/.agents/skills/dev-servers/SKILL.md`. Run dev servers through that
-workflow, not as background shell commands.
+# Safety
 
-# Verification
-
-Do not call a change done without a number or direct observation that proves it.
-For PRs, required checks must pass on the head commit; use
-`~/.agents/skills/pr-body/SKILL.md` to record the evidence.
-
-Run the repository's required checks after the last edit. Use scoped checks for
-small changes when the repository permits them. Do not rerun a green check
-without a new edit. Batch checks in one command and filter output at the source.
-
-Use `agent-browser` only for proof that requires a rendered page. Use Helium
-for sites that need the user's login. Close browser sessions you created when
-the check is complete; leave pages the user is actively checking to them.
-
-# Helpers and Review
-
-Delegate only parallel read-only searches across unknown areas, open-ended web
-research, large-log or file summaries, or a finished diff review. Use a cheaper
-model for searches, research and summaries when available.
-
-For a finished diff review, load `~/.agents/skills/diff-review/SKILL.md`.
-For production or test changes with green checks, use
-`~/.agents/skills/simplify-code/SKILL.md` before final review. Skip simplification
-for changes of three edits or fewer, and for documentation, generated, vendored,
-snapshot, lockfile, formatting and configuration-only changes.
+{{/* why: incident in August, an agent typed into another session's terminal.
+No correction since, so the rule may be working. The detail is in the
+dev-servers skill. */ -}}
+- Never type into a Rex block or terminal that you did not start.
+{{/* why: a machine file edited in place is overwritten by the next chezmoi
+apply, and the change is lost without an error. */ -}}
+- Change machine config only in the dotfiles source. Read
+  `~/.local/share/chezmoi/AGENTS.md` first.

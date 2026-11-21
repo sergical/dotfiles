@@ -1,0 +1,6 @@
+#!/bin/sh
+# Turn on the repository hooks in the Chezmoi source: pre-commit checks
+# public paths, and prepare-commit-msg records the machine profile.
+# Hooks hash: {{ include ".githooks/pre-commit" | sha256sum }} {{ include ".githooks/prepare-commit-msg" | sha256sum }}
+set -eu
+git -C {{ .chezmoi.sourceDir | quote }} config core.hooksPath .githooks
