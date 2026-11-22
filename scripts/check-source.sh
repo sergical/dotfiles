@@ -31,6 +31,7 @@ while IFS= read -r source_path; do
     .github/workflows/validate.yml|.githooks/pre-commit|.githooks/prepare-commit-msg) ;;
     run_onchange_after_set-git-hooks.sh.tmpl) ;;
     docs/agent-routing.md|docs/architecture.md|docs/context-loading.md|docs/profiles.md|docs/security.md|docs/skills.md) ;;
+    scripts/test-t3-fork-sync-retry.sh) ;;
     scripts/capture.sh|scripts/check-agent-routing.sh|scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb|scripts/test-t3-fork-install-pending.sh) ;;
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl) ;;
     private_dot_npmrc.tmpl) ;;
