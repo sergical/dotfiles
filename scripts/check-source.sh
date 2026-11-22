@@ -31,7 +31,7 @@ while IFS= read -r source_path; do
     .github/workflows/validate.yml|.githooks/pre-commit|.githooks/prepare-commit-msg) ;;
     run_onchange_after_set-git-hooks.sh.tmpl) ;;
     docs/agent-routing.md|docs/architecture.md|docs/context-loading.md|docs/profiles.md|docs/security.md|docs/skills.md) ;;
-    scripts/capture.sh|scripts/check-agent-routing.sh|scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb) ;;
+    scripts/capture.sh|scripts/check-agent-routing.sh|scripts/check-source.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb|scripts/test-t3-fork-install-pending.sh) ;;
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl) ;;
     private_dot_npmrc.tmpl) ;;
     dot_agents/AGENTS.md.tmpl|dot_agents/agents.toml) ;;
@@ -42,7 +42,7 @@ while IFS= read -r source_path; do
     dot_codex/symlink_AGENTS.md|dot_codex/hooks.json.tmpl|dot_codex/modify_private_config.toml) ;;
     private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl) ;;
     private_dot_local/private_bin/executable_skill-inventory|private_dot_local/private_bin/executable_t3-fork-sync) ;;
-    private_Library/LaunchAgents/local.t3-fork-sync.plist.tmpl) ;;
+    private_dot_local/private_bin/executable_t3-fork-install-pending|private_Library/LaunchAgents/local.t3-fork-sync.plist.tmpl) ;;
     private_dot_aws/private_config.tmpl) ;;
     private_dot_claude/private_settings.json.tmpl|private_dot_claude/CLAUDE.md) ;;
     private_dot_claude/bin/executable_ccstatusline-autocompact) ;;
