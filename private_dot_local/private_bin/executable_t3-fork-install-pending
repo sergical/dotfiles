@@ -3,10 +3,15 @@
 set -euo pipefail
 
 state="${T3_FORK_SYNC_STATE_DIR:-$HOME/.t3-fork-lab/sync}"
-app="${T3_FORK_SYNC_APP_PATH:-/Applications/T3 fork.app}"
+default_app="/Applications/T3 fork.app"
+app="${T3_FORK_SYNC_APP_PATH:-$default_app}"
 pending="$state/pending"
 
 log() { echo "$(date '+%F %T') $*"; }
+notify() {
+  [ "$app" = "$default_app" ] || return 0
+  /usr/bin/osascript -e "display notification \"$1\" with title \"T3 fork\"" >/dev/null 2>&1 || true
+}
 
 app_running() {
   local app_pattern
@@ -18,15 +23,23 @@ install_pending() {
   local requested="$1" version installed
   version="$(cat "$pending/version" 2>/dev/null || true)"
   installed="$(cat "$state/installed" 2>/dev/null || true)"
-  if [ -z "$version" ] || [ "$version" = "$installed" ] || [ ! -d "$pending/T3 fork.app" ]; then
+  if [ -n "$requested" ] && [ "$requested" = "$installed" ]; then
     return 0
   fi
   if [ -n "$requested" ] && [ "$version" != "$requested" ]; then
-    log "Skipped $requested because $version is now pending"
+    log "Skipped $requested because it is no longer pending"
+    return 1
+  fi
+  if [ -z "$version" ] || [ "$version" = "$installed" ]; then
     return 0
+  fi
+  if [ ! -d "$pending/T3 fork.app" ]; then
+    log "FAIL: Missing pending bundle for $version"
+    return 1
   fi
   if app_running; then
     log "$version is ready; quit T3 fork to install it"
+    if [ -n "$requested" ]; then return 1; fi
     return 0
   fi
 
@@ -39,7 +52,7 @@ install_pending() {
     rm -rf "$pending"
     log "installed $version"
     if [ -z "$requested" ]; then
-      /usr/bin/osascript -e "display notification \"Updated to $version\" with title \"T3 fork\"" >/dev/null 2>&1 || true
+      notify "Updated to $version"
     fi
     return 0
   fi
@@ -61,6 +74,10 @@ case "${1:-}" in
     while kill -0 "$2" 2>/dev/null; do
       sleep 1
     done
+    for ((remaining = 5; remaining > 0; remaining--)); do
+      app_running || break
+      sleep 1
+    done
     ;;
   *) exit 64 ;;
 esac
@@ -70,10 +87,12 @@ mkdir -p "$state"
   /usr/bin/lockf 9
   status=0
   install_pending "${3:-}" || status=$?
-  if [ "${1:-}" = --restart ]; then
-    /usr/bin/open "$app" 9>&-
-  elif [ "$status" -ne 0 ]; then
-    /usr/bin/osascript -e 'display notification "Could not install the pending update." with title "T3 fork"' >/dev/null 2>&1 || true
+  if [ "${1:-}" = --restart ] && ! /usr/bin/open "$app" 9>&-; then
+    log "FAIL: Could not reopen $app"
+    status=1
+  fi
+  if [ "$status" -ne 0 ]; then
+    notify "Could not install the pending update."
   fi
   exit "$status"
 ) 9>"$state/install.lock"
