@@ -66,6 +66,11 @@ has no more use, stop it and close its tab.
 
 ## Clean up
 
+A scheduled job, `~/.local/bin/storage-keeper`, closes a session by itself
+every 6 hours when each of its terminals is in the folder of a thread that
+has been settled, archived or deleted for a day, or has stopped. A server in
+the session of an open thread stays, so you still stop your own.
+
 Kill a session when its owner thread is settled or archived, or its worktree
 is gone. A merged PR is not enough, because one thread can open many PRs.
 

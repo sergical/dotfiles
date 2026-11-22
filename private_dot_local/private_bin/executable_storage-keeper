@@ -1,0 +1,319 @@
+#!/usr/bin/env python3
+"""Keeps the disk from filling up on a Mac where many coding agents work.
+
+Agents leave three kinds of files behind, and no tool removes them:
+
+1. Scratch folders. Claude Code gives each session a folder under
+   /private/tmp/claude-<uid>/ and tells the agent it may be cleared. Only a
+   restart clears it. A folder goes when each T3 Code thread in its working
+   folder is finished (settled, archived or deleted), so open work keeps its
+   files. A folder with no thread goes after two weeks without a write.
+2. Build folders in T3 Code worktrees (node_modules, .next, target). They stay
+   after the thread is finished.
+3. Package caches (pnpm, uv, npm, Homebrew) that only grow.
+4. Rex sessions. Agents open a session for a dev server and leave it, with the
+   server running or its tab kept open after it stopped. A session goes when
+   each of its terminals is in the folder of a finished thread or has stopped,
+   or when it has no terminals left.
+   A session with a terminal anywhere else, such as one you opened, stays.
+5. iOS simulators that an agent booted and left. One goes after 8 hours, and
+   only while the Simulator app is closed, so one on your screen stays.
+
+This script removes those, and only those. Each one is rebuilt or downloaded
+again when needed. It never removes a worktree, source files, git data, or
+anything in Movies, Documents, Downloads or iCloud. Cargo build folders have
+their own tool, cargo-build-gc.
+
+It logs free space on each run. When free space is under the floor after the
+cleanup, it shows a notification, because what is left needs a person.
+
+  STORAGE_KEEPER_DRY_RUN=1   print what would go, change nothing
+  STORAGE_KEEPER_FLOOR_GB    notify under this much free space (default 100)
+"""
+
+import json
+import os
+import re
+import shutil
+import sqlite3
+import subprocess
+import time
+
+HOME = os.path.expanduser("~")
+DRY_RUN = os.environ.get("STORAGE_KEEPER_DRY_RUN") == "1"
+FLOOR_GB = int(os.environ.get("STORAGE_KEEPER_FLOOR_GB") or 100)
+DAY = 86400
+# A thread that the user reopens within a day keeps its files.
+THREAD_FINISHED_FOR = 1 * DAY
+# Scratch of a session that T3 Code does not know, such as one from a terminal.
+UNKNOWN_SCRATCH_IDLE = 14 * DAY
+SIMULATOR_MAX_BOOTED = 8 * 3600
+CACHE_PRUNE_EVERY = 7 * DAY
+STATE = os.path.join(HOME, ".local/state/storage-watch")
+T3_STATE_DB = os.path.join(HOME, ".t3/userdata/statev2.sqlite")
+T3_WORKTREES = os.path.join(HOME, ".t3/worktrees")
+BUILD_FOLDERS = ("node_modules", ".next", ".turbo", ".output", "target")
+CACHE_COMMANDS = (
+    ["pnpm", "store", "prune"],
+    # Waits up to 60 s for the cache lock, then gives up. A running tool holds it.
+    ["uv", "cache", "prune"],
+    ["npm", "cache", "clean", "--force"],
+    ["brew", "cleanup", "--prune=all", "-s"],
+)
+
+
+def log(text):
+    print(time.strftime("%F %T"), text, flush=True)
+
+
+def free_gb():
+    return shutil.disk_usage(HOME).free / 2**30
+
+
+def remove(path, why):
+    """Remove one folder and return the gigabytes it held."""
+    size = 0
+    for root, _, files in os.walk(path):
+        for name in files:
+            try:
+                size += os.lstat(os.path.join(root, name)).st_blocks * 512
+            except OSError:
+                pass
+    if not DRY_RUN:
+        shutil.rmtree(path, ignore_errors=True)
+    if size > 2**28:
+        log(f"  {'would remove' if DRY_RUN else 'removed'} {size / 2**30:.1f} GB {path.replace(HOME, '~')} ({why})")
+    return size / 2**30
+
+
+def written_since(path, cutoff):
+    for root, _, files in os.walk(path):
+        for name in files:
+            try:
+                if os.lstat(os.path.join(root, name)).st_mtime > cutoff:
+                    return True
+            except OSError:
+                pass
+    return False
+
+
+def clean_scratch(threads):
+    root = f"/private/tmp/claude-{os.getuid()}"
+    if not os.path.isdir(root):
+        return
+    # Claude names each folder after the working folder, with "-" for each
+    # character that is not a letter or a digit.
+    # Two working folders can get the same name, so one open thread keeps both.
+    finished = {}
+    for path, done in threads.items():
+        name = re.sub(r"[^A-Za-z0-9]", "-", path)
+        finished[name] = finished.get(name, True) and done
+    total = count = 0
+    for project in os.scandir(root):
+        if not project.is_dir(follow_symlinks=False):
+            continue
+        done = finished.get(project.name)
+        if done is False:
+            continue
+        why = "scratch of a finished thread" if done else "scratch with no thread, idle 2 weeks"
+        cutoff = time.time() - (THREAD_FINISHED_FOR if done else UNKNOWN_SCRATCH_IDLE)
+        for session in os.scandir(project.path):
+            if not session.is_dir(follow_symlinks=False):
+                continue
+            if session.stat(follow_symlinks=False).st_mtime > cutoff or written_since(session.path, cutoff):
+                continue
+            total += remove(session.path, why)
+            count += 1
+        if not DRY_RUN and not os.listdir(project.path):
+            os.rmdir(project.path)
+    log(f"scratch: {count} session folders, {total:.1f} GB listed")
+
+
+def thread_folders():
+    """Map each T3 thread working folder to True when all its threads are finished."""
+    cutoff = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(time.time() - THREAD_FINISHED_FOR))
+    database = sqlite3.connect(f"file:{T3_STATE_DB}?mode=ro", uri=True, timeout=30)
+    try:
+        rows = database.execute(
+            """
+            select json_extract(payload_json, '$.worktreePath'),
+                   coalesce(deleted_at, archived_at),
+                   json_extract(payload_json, '$.settledAt'),
+                   json_extract(payload_json, '$.unsettledAt')
+            from orchestration_v2_projection_threads
+            where json_extract(payload_json, '$.worktreePath') is not null
+            """
+        ).fetchall()
+    finally:
+        database.close()
+    finished = {}
+    for path, gone, settled, unsettled in rows:
+        is_gone = bool(gone) and gone < cutoff
+        is_settled = bool(settled) and settled < cutoff and (not unsettled or unsettled < settled)
+        finished[path] = finished.get(path, True) and (is_gone or is_settled)
+    return finished
+
+
+def build_folders(worktree):
+    for root, folders, _ in os.walk(worktree):
+        if root[len(worktree):].count(os.sep) >= 4:
+            folders[:] = []
+            continue
+        for name in list(folders):
+            path = os.path.join(root, name)
+            if name == ".git" or os.path.islink(path):
+                folders.remove(name)
+            elif name in BUILD_FOLDERS:
+                folders.remove(name)
+                # Only a folder that Cargo made, not a source folder named target.
+                if name != "target" or any(
+                    os.path.exists(os.path.join(path, mark)) for mark in ("CACHEDIR.TAG", ".rustc_info.json")
+                ):
+                    yield path
+
+
+def clean_worktrees(threads):
+    total = count = 0
+    for worktree, done in threads.items():
+        if not done or not worktree.startswith(T3_WORKTREES + os.sep) or not os.path.isdir(worktree):
+            continue
+        for path in build_folders(worktree):
+            total += remove(path, "build folder of a finished thread")
+            count += 1
+    log(f"worktrees: {count} build folders of finished threads, {total:.1f} GB listed")
+
+
+def rex(*arguments):
+    # Without --autostart=false this would start Rex on a machine that has it closed.
+    result = subprocess.run(["rex", "--autostart=false", *arguments], capture_output=True, text=True, timeout=30)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip()[-200:])
+    return json.loads(result.stdout)
+
+
+def in_finished_thread(folder, threads):
+    owners = [path for path in threads if folder == path or folder.startswith(path + os.sep)]
+    return bool(owners) and threads[max(owners, key=len)]
+
+
+def close_rex_sessions(threads):
+    if not shutil.which("rex"):
+        return
+    try:
+        sessions = rex("ls", "--json")["sessions"]
+    except Exception as error:
+        log(f"rex: not read, no session closed: {error!r}")
+        return
+    count = 0
+    for session in sessions:
+        try:
+            blocks = rex("block", "ls", "-s", session["session_id"], "--json")["blocks"]
+            folders = []
+            for block in blocks:
+                process = rex("block", "call", "-s", session["session_id"], "-b", block["block_id"], "process")
+                folder = (process.get("foreground") or {}).get("cwd") or (process.get("child") or {}).get("cwd")
+                if folder:
+                    folders.append(folder)
+                elif not process.get("last_exit"):
+                    # Running, but Rex cannot say where. Not ours to close.
+                    folders.append("")
+        except Exception:
+            continue
+        if not all(in_finished_thread(folder, threads) for folder in folders):
+            continue
+        why = "all terminals in finished threads" if folders else "all terminals stopped" if blocks else "no terminals left"
+        log(f"  {'would close' if DRY_RUN else 'closed'} Rex session {session.get('label')} ({why})")
+        if not DRY_RUN:
+            subprocess.run(["rex", "--autostart=false", "kill", session["session_id"]], capture_output=True, timeout=30)
+        count += 1
+    log(f"rex: {count} of {len(sessions)} sessions closed")
+
+
+def seconds(elapsed):
+    """`ps` prints elapsed time as [[dd-]hh:]mm:ss."""
+    days, _, clock = elapsed.rpartition("-")
+    parts = [int(part) for part in clock.split(":")]
+    while len(parts) < 3:
+        parts.insert(0, 0)
+    return int(days or 0) * 86400 + parts[0] * 3600 + parts[1] * 60 + parts[2]
+
+
+def shut_down_simulators():
+    processes = subprocess.run(["ps", "-Ao", "etime=,command="], capture_output=True, text=True, timeout=30).stdout
+    if re.search(r"/Simulator\.app/Contents/MacOS/Simulator(\s|$)", processes, re.MULTILINE):
+        return
+    for line in processes.splitlines():
+        match = re.match(r"\s*(\S+)\s+launchd_sim .*/CoreSimulator/Devices/([0-9A-F-]{36})/", line)
+        if match and seconds(match.group(1)) > SIMULATOR_MAX_BOOTED:
+            log(f"  {'would shut down' if DRY_RUN else 'shut down'} simulator {match.group(2)}, booted {seconds(match.group(1)) // 3600} hours")
+            if not DRY_RUN:
+                subprocess.run(["xcrun", "simctl", "shutdown", match.group(2)], capture_output=True, timeout=120)
+
+
+def prune_caches():
+    stamp = os.path.join(STATE, "caches-pruned")
+    if os.path.exists(stamp) and time.time() - os.path.getmtime(stamp) < CACHE_PRUNE_EVERY:
+        return
+    for command in CACHE_COMMANDS:
+        if not shutil.which(command[0]):
+            continue
+        if DRY_RUN:
+            log(f"  would run: {' '.join(command)}")
+            continue
+        try:
+            result = subprocess.run(
+                command, capture_output=True, text=True, timeout=900,
+                env={**os.environ, "UV_LOCK_TIMEOUT": "60"},
+            )
+            log(f"caches: {' '.join(command)}: {'ok' if result.returncode == 0 else 'skipped, ' + result.stderr.strip()[-120:]}")
+        except subprocess.TimeoutExpired:
+            log(f"caches: {' '.join(command)}: stopped after 15 minutes")
+    if not DRY_RUN:
+        open(stamp, "w").close()
+
+
+def notify_if_low(free):
+    stamp = os.path.join(STATE, "notified")
+    if free >= FLOOR_GB or DRY_RUN:
+        return
+    if os.path.exists(stamp) and time.time() - os.path.getmtime(stamp) < DAY:
+        return
+    text = f"{free:.0f} GB free after the automatic cleanup. What is left needs you: ask an agent for a storage review."
+    subprocess.run(
+        ["osascript", "-e", f"display notification {json.dumps(text)} with title \"Disk space is low\""],
+        capture_output=True, timeout=30,
+    )
+    open(stamp, "w").close()
+
+
+def main():
+    os.makedirs(STATE, exist_ok=True)
+    before = free_gb()
+    log(f"start: {before:.1f} GB free{' (dry run)' if DRY_RUN else ''}")
+    try:
+        threads = thread_folders()
+    except Exception as error:
+        # Without thread state nothing is known to be finished, so remove nothing.
+        log(f"stop: thread state not read, nothing removed: {error!r}")
+        return
+    clean_scratch(threads)
+    clean_worktrees(threads)
+    for step in (lambda: close_rex_sessions(threads), shut_down_simulators, prune_caches):
+        try:
+            step()
+        except Exception as error:
+            log(f"step skipped: {error!r}")
+    after = free_gb()
+    # `df` gives what this volume uses; the free number is shared by all volumes.
+    used_kb = int(subprocess.run(["df", "-k", HOME], capture_output=True, text=True).stdout.splitlines()[-1].split()[2])
+    log(f"done: {after:.1f} GB free, {after - before:+.1f} GB")
+    if not DRY_RUN:
+        with open(os.path.join(STATE, "log.tsv"), "a") as history:
+            history.write(
+                f"{time.strftime('%F %H:%M')}\tused_gb={used_kb / 2**20:.0f}\tfree_gb={after:.0f}\tfreed_gb={after - before:.1f}\n"
+            )
+    notify_if_low(after)
+
+
+if __name__ == "__main__":
+    main()
