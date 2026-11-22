@@ -50,15 +50,37 @@ priority alerts while we test? ... why not confirm everything end to end"
 rare-case rule. Review rounds kept adding tests for "synthetic edge cases
 with no effect on real files" (skill-studio #551). "also why do we keep
 skipped tests?" (2026-11-19). */ -}}
-- **Rare cases**, under about 1 in 1,000 normal uses: a crash between two
-  writes, a clock that goes backwards, input no real source sends, two taps
-  in the same millisecond. Fix them when they happen.
+- **Rare cases.** See "What counts as rare" below. Fix them when they
+  happen.
 - Tests of copy, styling, or view or DOM structure; of a library or the
   framework; of a mock returning what you told it to; of code only tests
   call; or of behavior another test already covers at another level.
 - Skipped tests. Make a test run or delete it. Never add retries to make a
   flaky test pass: fix the cause or delete it.
 - Tests written to raise a coverage number. Do not add coverage gates.
+
+## What counts as rare
+
+{{/* why: the user, 2026-11-21: "how do we define rare cases? i dont want it
+to start missing things it should be catching". A frequency like "1 in
+1,000" can't be measured by an agent, so the test is two questions about
+normal use and cost, plus a list of common events that are never rare. */ -}}
+A case is rare only when both answers are no:
+
+1. Will a normal user hit it within a month of everyday use?
+2. If it happens, does it lose or corrupt their data, cost them more than about a dollar,
+   expose a secret, or leave them stuck with no way out?
+
+These happen to every user, so they are never rare: no network or a slow
+one, the app killed in the background, the phone restarting, a sign-in
+that expires, the first launch with nothing saved, a new day, week or
+month, headphones, Bluetooth or the car connecting and disconnecting, a
+call interrupting, long or non-English text and emoji, and real data from
+the real sources the app reads. Anything a user, a log or a crash report
+has shown is never rare.
+
+When you skip a case as rare, say so in your reply, in one line per case,
+so the user can overrule you. Never skip one silently.
 
 When a review finding is a rare case, answer "rare case, not fixed, per the
 testing skill" and move on. Fix a rare case only when the fix is a line or

@@ -55,9 +55,12 @@ pstack-principle-test-behavior-not-implementation. */ -}}
 cases with no effect on real files" (skill-studio #551); the user: "lets not
 worry about things that might happen in 0.001 percent of instances"
 (2026-11-21). */ -}}
-- Do not report rare cases, under about 1 in 1,000 normal uses, and do not
-  ask for tests of them. Report a case only with the normal use that reaches
-  it.
+- Do not report rare cases, and do not ask for tests of them. A case is
+  rare only if a normal user would not hit it within a month of everyday use
+  and it would not lose data, cost more than about a dollar, expose a secret or leave the user
+  stuck. No network, an app killed in the background, an expired sign-in, a
+  first launch and a new day, week or month are never rare. Report a case
+  with the normal use that reaches it.
 {{/* why: the core of poteto's Comment Sicko (pstack-no-comments), which
 the user runs by hand. Its keep list is shortened here. Rated nit so that
 comments get fixed but never add a review round. */ -}}
