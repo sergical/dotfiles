@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "lines": [
     [
       {
@@ -41,7 +41,7 @@
         "type": "custom-symbol",
         "color": "black",
         "backgroundColor": "green",
-        "customSymbol": "\u21bb",
+        "customSymbol": "↻",
         "merge": "no-padding"
       },
       {
@@ -67,7 +67,7 @@
         "type": "custom-symbol",
         "color": "black",
         "backgroundColor": "yellow",
-        "customSymbol": "\u21bb",
+        "customSymbol": "↻",
         "merge": "no-padding"
       },
       {
