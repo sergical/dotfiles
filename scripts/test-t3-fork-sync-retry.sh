@@ -31,7 +31,15 @@ case "$1" in
       printf '\ncheck:changed summary\n  FAIL  node --test (2 files)  1.0s\n'
       exit 1
     fi
+    if [ "$SCENARIO" = lint ]; then
+      printf '\ncheck:changed summary\n  FAIL  lint  1.0s\n'
+      exit 1
+    fi
     if vp test run --passWithNoTests apps/web/passing.test.ts apps/web/failing.browser.test.ts; then
+      exit 98
+    fi
+    if [ "$SCENARIO" = mixed ] &&
+      vp test run apps/web/src/reactCompilerCoverage.test.ts -t 'compiles a|^(?!.*compiles )'; then
       exit 98
     fi
     printf '\ncheck:changed summary\n'
@@ -83,6 +91,14 @@ case "$*" in
       esac
     done
     exit 1
+    ;;
+  'test run apps/web/src/reactCompilerCoverage.test.ts -t '*)
+    echo initial-compiler >>"$CALLS"
+    exit 1
+    ;;
+  'test run --maxWorkers=1 --no-file-parallelism apps/web/src/reactCompilerCoverage.test.ts -t '*)
+    echo compiler-retry >>"$CALLS"
+    [ "$7" = 'compiles a|^(?!.*compiles )' ] || { echo unexpected-pattern >>"$CALLS"; exit 97; }
     ;;
   'test run --maxWorkers=1 --no-file-parallelism '*)
     echo retry >>"$CALLS"
@@ -139,8 +155,10 @@ run_case recovers 0 $'check\ninitial-tests\nretry\nbuild'
 echo 'PASS: retried only the failed file, built, and left no failed marker'
 run_case repeats 1 $'check\ninitial-tests\nretry'
 echo 'PASS: a second failure wrote the failed marker'
-run_case mixed 1 $'check\ninitial-tests'
-echo 'PASS: a React Compiler failure wrote the failed marker without a retry'
+run_case mixed 0 $'check\ninitial-tests\ninitial-compiler\ncompiler-retry\nretry\nbuild'
+echo 'PASS: a React Compiler failure retried its stage with one worker, pattern intact'
+run_case lint 1 $'check'
+echo 'PASS: a lint failure wrote the failed marker without a retry'
 run_case timeout 0 $'check\ninitial-tests\nretry\nbuild'
 echo 'PASS: a timed-out test stage retried its original files with one worker'
 run_case node 0 $'check\ninitial-tests\nretry\nbuild'

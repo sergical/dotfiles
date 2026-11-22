@@ -80,6 +80,9 @@ case "$*" in
     "$T3_CHECK_VP" exec node --test --test-reporter=tap "${@:4}" | tee "$T3_CHECK_DIR/node.tap"
     exit 0
     ;;
+  'test run '*' -t '*)
+    printf '%s\0' "${@:3}" >"$T3_CHECK_DIR/compiler-args"
+    ;;
 esac
 exec "$T3_CHECK_VP" "$@"
 SH
@@ -95,12 +98,21 @@ SH
     summary && /^  (FAIL|TIMEOUT)  / {
       if ($0 ~ /^  (FAIL|TIMEOUT)  test \([0-9]+ files\)  /) print $1, "vitest"
       else if ($0 ~ /^  (FAIL|TIMEOUT)  node --test \([0-9]+ files\)  /) print $1, "node"
+      else if ($0 ~ /^  (FAIL|TIMEOUT)  react compiler \([0-9]+ files\)  /) print $1, "compiler"
       else exit 1
     }
   ' "$check_dir/output")" || exit 1
   [ -n "$retries" ] || exit 1
 
   while read -r outcome runner; do
+    if [ "$runner" = compiler ]; then
+      [ -s "$check_dir/compiler-args" ] || exit 1
+      args=()
+      while IFS= read -r -d '' arg; do args+=("$arg"); done <"$check_dir/compiler-args"
+      log "Retrying react compiler tests once with one worker"
+      vp test run --maxWorkers=1 --no-file-parallelism "${args[@]}" </dev/null || exit 1
+      continue
+    fi
     files=()
     case "$runner" in
       vitest)
