@@ -37,14 +37,14 @@ STATE = os.path.join(
 # Where a command can start: the start of the line, after a shell operator,
 # or after a wrapper such as `npx`. Variable assignments may come first.
 START = (
-    r"(?:^|[;&|({]|\b(?:then|do|time|exec|env|nice|npx|bunx|pnpx|xargs)\b|\b(?:ba|z)?sh\s+-l?c\s+[\'\"]?)\s*"
+    r"(?:^|[;&|({]|\b(?:then|do|time|exec|env|nice|npx|bunx|pnpx|xargs|corepack|caffeinate(?:\s+-\w+)*|timeout\s+\S+)(?=\s)|\b(?:ba|z)?sh\s+-l?c\s+[\'\"]?)\s*"
     r"(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*"
 )
-RUNNER = r"(?:pnpm|npm|yarn|bun|vp)(?:\s+(?:run|exec|-s|--silent|-r|-w|--filter\s+\S+|-C\s+\S+))*\s+"
+RUNNER = r"(?:pnpm|npm|yarn|bun|vp)(?:\s+(?:run|exec|-s|--silent|-r|-w|(?:--filter|--dir|-F|-C)[\s=]\S+))*\s+"
 HEAVY_COMMAND = re.compile(
     START
     + r"(?:"
-    + r"(?:" + RUNNER + r")?(?:vitest|jest|tsc|tsgo|turbo|nx|xcodebuild)(?=[\s\'\")]|$)"
+    + r"(?:" + RUNNER + r")?(?:\S*/)?(?:vitest|jest|tsc|tsgo|turbo|nx|xcodebuild)(?=[\s\'\")]|$)"
     + r"|(?:" + RUNNER + r")?playwright\s+test\b"
     + r"|(?:" + RUNNER + r")?(?:next|vite)\s+build\b"
     + r"|go\s+(?:build|test|vet|install)\b"

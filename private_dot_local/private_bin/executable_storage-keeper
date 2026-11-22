@@ -243,7 +243,7 @@ def shut_down_simulators():
     if re.search(r"/Simulator\.app/Contents/MacOS/Simulator(\s|$)", processes, re.MULTILINE):
         return
     for line in processes.splitlines():
-        match = re.match(r"\s*(\S+)\s+launchd_sim .*/CoreSimulator/Devices/([0-9A-F-]{36})/", line)
+        match = re.match(r"\s*(\S+)\s+(?:\S*/)?launchd_sim .*/CoreSimulator/Devices/([0-9A-F-]{36})/", line)
         if match and seconds(match.group(1)) > SIMULATOR_MAX_BOOTED:
             log(f"  {'would shut down' if DRY_RUN else 'shut down'} simulator {match.group(2)}, booted {seconds(match.group(1)) // 3600} hours")
             if not DRY_RUN:
