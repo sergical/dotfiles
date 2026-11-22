@@ -46,6 +46,6 @@ if [ -z "$commit_message" ]; then
   commit_message="Capture $(basename "$1") drift"
 fi
 
-git commit -m "$commit_message"
+DOTFILES_COMMIT_ON_MAIN=1 git commit -m "$commit_message"
 git push
 echo "Captured, verified, and pushed."
