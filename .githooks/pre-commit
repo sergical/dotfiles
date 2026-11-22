@@ -2,4 +2,12 @@
 set -eu
 
 repository_root=$(git rev-parse --show-toplevel)
+
+# Commits made on main stayed on one machine for days, and GitHub main moved
+# on without them. Every change goes through a branch and a pull request.
+if [ "$(git branch --show-current)" = main ] && [ "${DOTFILES_COMMIT_ON_MAIN:-}" != 1 ]; then
+  echo "Do not commit on main. Run: git switch -c <topic> origin/main" >&2
+  echo "Then commit, push and open a pull request. See \"Change Something\" in AGENTS.md." >&2
+  exit 1
+fi
 exec "$repository_root/scripts/check-source.sh" staged

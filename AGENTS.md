@@ -5,6 +5,29 @@ safe for immediate public disclosure. Do not add credentials, account IDs,
 private hostnames, work-only configuration, licensed skill contents, sessions,
 caches, generated databases, or private repository topology.
 
+## Change Something
+
+Follow these steps for every change. They are the whole path from an idea to
+a machine that runs it.
+
+1. Run `scripts/status.sh`. It prints which machine this is (personal or
+   work, and its profile flags), whether the source is in step with GitHub,
+   and which files on this machine differ from the source. Clear up anything
+   it lists before you start, or say why you leave it.
+2. Run `git switch -c <topic> origin/main`. The pre-commit hook refuses a
+   commit on `main`.
+3. Edit the source files. To try the change on this machine, read
+   `chezmoi diff <target>` and then run `chezmoi apply <target>` for each
+   target you changed. Never run a bare `chezmoi apply`.
+4. Run the checks under Validation, commit, push, and open a pull request.
+   Merge it when both jobs in `.github/workflows/validate.yml` pass.
+5. Run `git switch main && git pull --ff-only`, then `chezmoi apply <target>`
+   again for each changed target. A LaunchAgent that is new also needs
+   `launchctl bootstrap gui/$(id -u) <plist>` once.
+6. Run `scripts/status.sh` again. The change is done when it shows no
+   commits that are not on GitHub, no source edits, and no differing file
+   that belongs to your change.
+
 ## Working Rules
 
 - Edit individual Chezmoi source files. Never run blanket `chezmoi re-add`.
