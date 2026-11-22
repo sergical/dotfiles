@@ -46,11 +46,21 @@ pstack-principle-test-behavior-not-implementation. */ -}}
   internals change. For example: tests that mirror their mocks, check text,
   styling or page structure, test a library instead of our code, repeat
   another test, are skipped, or need retries to pass.
-- Flag missing tests. A bug fix needs a test that fails without the fix. A
-  data migration needs a test of old data against new code. Code that must
-  give the same result after a round trip or a second run needs a property
-  test. A changed main user flow needs an end-to-end test, if the repository
-  has them.
+- Flag missing tests. A fix for a bug users hit needs a test that fails
+  without the fix. A data migration needs a test of old data against new
+  code. Code that must give the same result after a round trip or a second
+  run needs a property test. A changed main user flow needs an end-to-end
+  test, if the repository has them.
+{{/* why: review rounds kept adding tests and guards for "synthetic edge
+cases with no effect on real files" (skill-studio #551); the user: "lets not
+worry about things that might happen in 0.001 percent of instances"
+(2026-11-21). */ -}}
+- Do not report rare cases, and do not ask for tests of them. A case is
+  rare only if a normal user would not hit it within a month of everyday use
+  and it would not lose data, cost more than about a dollar, expose a secret or leave the user
+  stuck. No network, an app killed in the background, an expired sign-in, a
+  first launch and a new day, week or month are never rare. Report a case
+  with the normal use that reaches it.
 {{/* why: the core of poteto's Comment Sicko (pstack-no-comments), which
 the user runs by hand. Its keep list is shortened here. Rated nit so that
 comments get fixed but never add a review round. */ -}}

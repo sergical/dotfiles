@@ -1,0 +1,44 @@
+{{/* why: the user pasted this procedure as a long prompt in at least three
+repositories between 2026-11-19 and 2026-11-21. As a skill it runs the same
+way every time, and it applies the testing skill's rules. */ -}}
+---
+name: test-audit
+description: Audit every test in a repository, delete the low-value ones, rewrite brittle ones, add the missing high-value ones, and fix what keeps junk tests coming back. Run only when the user asks for a test audit.
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: false
+  opencode/slash: true
+---
+
+# Test Audit
+
+Read `~/.agents/skills/testing/SKILL.md` first. Its rules decide every keep,
+delete, rewrite and add below.
+
+1. **Branch.** Work on a new branch from the default branch. Record the
+   before counts: tests per kind (unit, integration, end to end, property)
+   and the full-suite run time.
+2. **Audit in parallel.** Split the test files among subagents. Give each one
+   the testing skill's rules. Each returns one row per test: keep, delete,
+   rewrite or add, with a one-line reason. Write the table to
+   `docs/test-audit.md`.
+3. **Delete** flaky or retry-masked, skipped, tautological or mock-mirroring
+   tests, tests of copy, styling or structure, tests of a library or the
+   framework, tests of dead code, and rare-case tests. A deleted duplicate
+   names the test that still covers its behavior, in the table and in the
+   commit message.
+4. **Rewrite** brittle or hand-picked-example tests as real integration tests
+   or property tests.
+5. **Add** what is missing: one end-to-end test per main user flow against
+   the real app, property tests for rules like round trips and idempotency,
+   a regression test for each user-visible bug fixed in `git log`, and an
+   old-data-against-new-code test for each saved-data format change.
+6. **Fix the sources.** Remove coverage gates and CI retries. Change any
+   AGENTS.md, CLAUDE.md, contributing guide or agent config that tells agents
+   to write tests the testing skill rejects. Add a short testing section to
+   the repository's AGENTS.md that points to the testing skill's rules.
+7. **Commit small.** Type-check, lint and the full suite pass before each
+   commit. One kind of change per commit.
+8. **Hand back.** Read the `diff-review` skill, then the `pr-body` skill, and
+   open a draft PR with the before and after counts and run time. If the
+   repository has no remote, ask before you create one.

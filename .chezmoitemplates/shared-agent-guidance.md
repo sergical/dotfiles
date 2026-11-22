@@ -57,6 +57,13 @@ decide the review and PR flow. */ -}}
 - Before you start or stop a dev server or run `rex`, read the `dev-servers` skill.
 - When the code is finished, read the `diff-review` skill.
 - Before you open or update a PR, read the `pr-body` skill.
+{{/* why: the user ran the same test audit in three repositories in three
+days, deleting dozens of agent-written tests each time, and said "lets not
+worry about things that might happen in 0.001 percent of instances"
+(2026-11-21). The rule sits here so it applies even when the skill is not
+read; the skill has the detail. */ -}}
+- Test normal use, not rare cases. Before you write, change or review a
+  test, or brief an agent that will, read the `testing` skill.
 
 # Safety
 

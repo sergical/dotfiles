@@ -1,0 +1,128 @@
+{{/* Each rule has a "why" note. chezmoi removes the notes, so agents never
+read them. Evidence: the user's sessions 2026-10-19 to 2026-11-21. The user
+pasted the same "Audit every test in this codebase" prompt in at least three
+repositories (sentry-devex, skill-studio, learn), and each audit deleted
+dozens of tests agents had written (learn: 63 of 208). The tests come back
+because nothing global said which tests to write; review briefs said "fix
+each finding with a test that can go red" and asked for adversarial edge
+cases. This skill is the "what to write" half; the test-audit skill is the
+cleanup half. */ -}}
+---
+name: testing
+description: Use before you write, change, delete or review tests, before you add a test for a bug fix or a review finding, when you brief another agent that will, when you set up test checks in CI, and when you prove a change works. Says which tests earn their place, which to skip, and how to verify.
+---
+
+# Testing
+
+{{/* why: "lets not worry about things that might happen in 0.001 percent of
+instances. assume normal usage and sudden edge cases can be ironed out in
+the future" (learn, 2026-11-21). "why do we have so many tests? can we remove
+90% of them and still have the same confidence ... i feel like we were
+adding tests just to add them" (sentry-devex). */ -}}
+The goal is confidence that the product works in normal use, with as few
+tests as possible. A test earns its place only if it would catch a realistic
+break in what a user sees, does, or pays for. Fewer, truer tests beat more
+tests.
+
+## Write these
+
+{{/* why: "lets make sure our system and verification flows test it end to
+end properly instead of me having to catch simple issues like this"
+(skill-studio). "whats wrong with creating real issues and triggering high
+priority alerts while we test? ... why not confirm everything end to end"
+(didthis). */ -}}
+1. **Each main user flow, end to end, against the real app**: the real build,
+   the real UI or API, real storage. One test per flow, written the way a user
+   does it. Prefer real services, in their test or sandbox mode when they
+   have one, over mocks. A few cents per run is fine. Ask before a run costs
+   more than about $1 or messages a real person.
+2. **A rule that must always hold** (a round trip gives back the input, a
+   second run changes nothing, a total is never negative): one property test
+   with random inputs, instead of a few hand-picked examples.
+3. **A bug a user actually hit**: one regression test at the level the user
+   saw it, that fails without the fix.
+4. **A change to the format of saved data**: one test that loads real old
+   data with the new code.
+
+## Do not write these
+
+{{/* why: the four kinds the user's audit prompt deletes every time, plus the
+rare-case rule. Review rounds kept adding tests for "synthetic edge cases
+with no effect on real files" (skill-studio #551). "also why do we keep
+skipped tests?" (2026-11-19). */ -}}
+- **Rare cases.** See "What counts as rare" below. Fix them when they
+  happen.
+- Tests of copy, styling, or view or DOM structure; of a library or the
+  framework; of a mock returning what you told it to; of code only tests
+  call; or of behavior another test already covers at another level.
+- Skipped tests. Make a test run or delete it. Never add retries to make a
+  flaky test pass: fix the cause or delete it.
+- Tests written to raise a coverage number. Do not add coverage gates.
+
+## What counts as rare
+
+{{/* why: the user, 2026-11-21: "how do we define rare cases? i dont want it
+to start missing things it should be catching". A frequency like "1 in
+1,000" can't be measured by an agent, so the test is two questions about
+normal use and cost, plus a list of common events that are never rare. */ -}}
+A case is rare only when both answers are no:
+
+1. Will a normal user hit it within a month of everyday use?
+2. If it happens, does it lose or corrupt their data, cost them more than about a dollar,
+   expose a secret, or leave them stuck with no way out?
+
+These happen to every user, so they are never rare: no network or a slow
+one, the app killed in the background, the phone restarting, a sign-in
+that expires, the first launch with nothing saved, a new day, week or
+month, headphones, Bluetooth or the car connecting and disconnecting, a
+call interrupting, long or non-English text and emoji, and real data from
+the real sources the app reads. Anything a user, a log or a crash report
+has shown is never rare.
+
+When you skip a case as rare, say so in your reply, in one line per case,
+so the user can overrule you. Never skip one silently.
+
+When a review finding is a rare case, answer "rare case, not fixed, per the
+testing skill" and move on. Fix a rare case only when the fix is a line or
+two and the reviewer showed how normal use reaches it, and then add no test.
+
+## Test the real thing, quietly
+
+{{/* why: "you keep using the fucking default narration from apple thats
+absolutely garbage and it doesn't help" (learn, 2026-11-21): unit and UI
+tests narrated with the compact system voice, out loud, while the product
+uses a premium cloud voice. Earlier the same week UI tests played a video,
+a podcast and speech through the Mac speakers and ran on the simulator that
+held the user's logins. */ -}}
+- Prove a feature with what the user gets, never a worse stand-in: not the
+  default system voice for a premium voice, not a mock API for the real one,
+  not a placeholder for real content. If the real thing costs money, record
+  its real output once, check it in as a fixture, and replay it.
+- Tests make no sound and open nothing on the user's screen. Mute every
+  audio and video output in test runs.
+- Never run tests on the user's own devices, simulators, browser profiles or
+  accounts. Use separate ones.
+
+## Before you hand back
+
+{{/* why: "i want to test the final version that you're proud of not a half
+baked implementation" (sentry-devex). The global rule "Do not say done
+without a number or something you saw". */ -}}
+- Run the changed flow for real and show the proof: a screenshot, a number,
+  or the output. A green unit suite does not prove a feature works.
+- Run the full suite. A failure is a bug or a bad test: fix it or delete the
+  test. Never rerun until green.
+
+## Briefing another agent
+
+{{/* why: the junk tests in learn came from the orchestrator's own briefs:
+"every finding gets a test that fails before the fix" and "find adversarial
+edge cases" (2026-11-20). */ -}}
+When you delegate code, a fix or a review, copy into the brief the first
+paragraph of this skill, the list under "Do not write these", and the
+section "What counts as rare". Never write
+"every finding needs a test", and never ask a reviewer for adversarial edge
+cases.
+
+Other skills that ask for tests, such as TDD or bug diagnosis skills, decide
+how to write a test. This skill decides whether a test is worth writing.
