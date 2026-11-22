@@ -59,6 +59,93 @@ rebase_onto_tag() {
   return 1
 }
 
+run_fork_checks() (
+  check_dir="$(mktemp -d)" || exit 1
+  trap 'rm -rf "$check_dir"' EXIT
+  export T3_CHECK_DIR="$check_dir" T3_CHECK_VP
+  T3_CHECK_VP="$(command -v vp)" || exit 1
+  # check-changed has no reporter flag and drops test output when a stage times out.
+  # Record the file arguments before launch so that stage can still be rerun.
+  cat >"$check_dir/vp" <<'SH' || exit 1
+#!/bin/bash
+set -euo pipefail
+export PATH="${PATH#*:}"
+case "$*" in
+  'test run --passWithNoTests '*)
+    printf '%s\n' "${@:4}" >"$T3_CHECK_DIR/vitest-files"
+    set -- "$@" --no-color --reporter=default --reporter=json "--outputFile.json=$T3_CHECK_DIR/vitest.json"
+    ;;
+  'exec node --test '*)
+    printf '%s\n' "${@:4}" >"$T3_CHECK_DIR/node-files"
+    "$T3_CHECK_VP" exec node --test --test-reporter=tap "${@:4}" | tee "$T3_CHECK_DIR/node.tap"
+    exit 0
+    ;;
+esac
+exec "$T3_CHECK_VP" "$@"
+SH
+  chmod +x "$check_dir/vp" || exit 1
+  if PATH="$check_dir:$PATH" node scripts/check-changed.ts "$tag" >"$check_dir/output" 2>&1; then
+    cat "$check_dir/output"
+    exit 0
+  fi
+  cat "$check_dir/output"
+
+  retries="$(awk '
+    /^check:changed summary$/ { summary = 1; next }
+    summary && /^  (FAIL|TIMEOUT)  / {
+      if ($0 ~ /^  (FAIL|TIMEOUT)  test \([0-9]+ files\)  /) print $1, "vitest"
+      else if ($0 ~ /^  (FAIL|TIMEOUT)  node --test \([0-9]+ files\)  /) print $1, "node"
+      else exit 1
+    }
+  ' "$check_dir/output")" || exit 1
+  [ -n "$retries" ] || exit 1
+
+  while read -r outcome runner; do
+    files=()
+    case "$runner" in
+      vitest)
+        if [ "$outcome" = FAIL ] && [ -s "$check_dir/vitest.json" ] &&
+          ! grep -Eq '^[[:space:]]*Errors[[:space:]]+[0-9]+ errors?' "$check_dir/output"; then
+          node --input-type=module - "$check_dir/vitest.json" "$check_dir/vitest-files" >"$check_dir/failed-files" <<'JS' || : >"$check_dir/failed-files"
+import { readFileSync, realpathSync } from "node:fs";
+import { relative } from "node:path";
+const report = JSON.parse(readFileSync(process.argv[2], "utf8"));
+const selected = new Set(readFileSync(process.argv[3], "utf8").trimEnd().split("\n"));
+const failed = new Set(report.testResults
+  .filter(({ status }) => status === "failed")
+  .map(({ name }) => relative(process.cwd(), realpathSync(name))));
+if (report.success === false && [...failed].every((file) => selected.has(file))) {
+  for (const file of failed) console.log(file);
+}
+JS
+        fi
+        ;;
+      node)
+        if [ "$outcome" = FAIL ] && [ -s "$check_dir/node.tap" ]; then
+          awk '
+            NR == FNR { selected[$0] = 1; next }
+            /^not ok [0-9]+ - / {
+              sub(/^not ok [0-9]+ - /, "")
+              if (!($0 in selected)) exit 1
+              print
+            }
+          ' "$check_dir/node-files" "$check_dir/node.tap" >"$check_dir/failed-files" || : >"$check_dir/failed-files"
+        fi
+        ;;
+    esac
+    retry_files="$check_dir/failed-files"
+    if [ ! -s "$retry_files" ]; then retry_files="$check_dir/$runner-files"; fi
+    [ -s "$retry_files" ] || exit 1
+    while IFS= read -r file; do files+=("$file"); done <"$retry_files"
+    rm -f "$check_dir/failed-files"
+    log "Retrying $runner tests once with one worker (${#files[@]} files)"
+    case "$runner" in
+      vitest) vp test run --maxWorkers=1 --no-file-parallelism "${files[@]}" || exit 1 ;;
+      node) vp exec node --test --test-concurrency=1 "${files[@]}" || exit 1 ;;
+    esac </dev/null
+  done <<<"$retries"
+)
+
 if [ "$tag" != "$base" ]; then
   rebase_attempt="$tag+$(git rev-parse --short HEAD)"
   [ "$(cat "$state/rebase-failed" 2>/dev/null)" != "$rebase_attempt" ] || exit 0
@@ -79,7 +166,7 @@ done
 log "building $want"
 vp install --frozen-lockfile >/dev/null || { echo "$want" >"$state/failed"; fail "Install failed for $want"; }
 if [ "$(git rev-list --count "$tag..HEAD")" -gt 0 ]; then
-  node scripts/check-changed.ts "$tag" || { echo "$want" >"$state/failed"; fail "Checks failed for $want"; }
+  run_fork_checks || { echo "$want" >"$state/failed"; fail "Checks failed for $want"; }
 fi
 
 set -a
