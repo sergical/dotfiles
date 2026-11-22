@@ -1,4 +1,5 @@
 #!/bin/bash
+# Run manually on macOS to check the installer against scratch bundles.
 set -euo pipefail
 
 source_dir="$(cd "$(dirname "$0")/.." && pwd)"
@@ -31,3 +32,10 @@ printf 'v0.1.0-nightly.1+1234567890\n' >"$pending/version"
     echo "Shared installer left the running app and pending bundle in place."
   '\'' "$1" "$2"
 ' _ "$T3_FORK_SYNC_APP_PATH/Contents/MacOS/Fake" "$installer"
+
+/bin/bash "$installer"
+[ "$(cat "$T3_FORK_SYNC_APP_PATH/marker")" = new ]
+[ "$(cat "$T3_FORK_SYNC_APP_PATH.previous/marker")" = old ]
+[ "$(cat "$T3_FORK_SYNC_STATE_DIR/installed")" = v0.1.0-nightly.1+1234567890 ]
+[ ! -e "$pending" ]
+echo "Shared installer copied the pending bundle, kept .previous, and recorded the installed version."
