@@ -13,7 +13,6 @@ export TMPDIR
 repo="${T3_FORK_REPO:-$HOME/src/t3code-fork}"
 branch="t3-fork"
 app_name="T3 fork"
-app="/Applications/$app_name.app"
 state="$HOME/.t3-fork-lab/sync"
 pending="$state/pending"
 mkdir -p "$state"
@@ -26,41 +25,14 @@ fail() {
   exit 1
 }
 
-lock="$state/lock"
-if ! mkdir "$lock" 2>/dev/null; then
-  if kill -0 "$(cat "$lock/pid" 2>/dev/null)" 2>/dev/null; then
-    log "another sync is running"
-    exit 0
-  fi
-  rm -rf "$lock" && mkdir "$lock"
+exec 9>"$state/build.lock"
+if ! /usr/bin/lockf -t 0 -s 9; then
+  log "another sync is running"
+  exit 0
 fi
-echo $$ >"$lock/pid"
-trap 'rm -rf "$lock"' EXIT
 
-app_running() { pgrep -qf "^$app/Contents/MacOS/" 2>/dev/null; }
-
-install_pending() {
-  [ -d "$pending/$app_name.app" ] || return 0
-  if app_running; then
-    log "$(cat "$pending/version") is ready; quit $app_name to install it"
-    return 0
-  fi
-  rm -rf "$app.previous"
-  [ ! -d "$app" ] || mv "$app" "$app.previous"
-  if ditto "$pending/$app_name.app" "$app"; then
-    rm -rf "$app.previous"
-    log "installed $(cat "$pending/version")"
-    notify "Updated to $(cat "$pending/version")"
-    cat "$pending/version" >"$state/installed"
-    rm -rf "$pending"
-  else
-    rm -rf "$app"
-    [ ! -d "$app.previous" ] || mv "$app.previous" "$app"
-    fail "Could not install $(cat "$pending/version")"
-  fi
-}
-
-install_pending
+installer="$(dirname "$0")/t3-fork-install-pending"
+"$installer"
 
 cd "$repo"
 [ "$(git branch --show-current)" = "$branch" ] || fail "$repo is not on $branch"
@@ -88,8 +60,11 @@ rebase_onto_tag() {
 }
 
 if [ "$tag" != "$base" ]; then
+  rebase_attempt="$tag+$(git rev-parse --short HEAD)"
+  [ "$(cat "$state/rebase-failed" 2>/dev/null)" != "$rebase_attempt" ] || exit 0
   log "rebasing $branch from $base onto $tag"
   if ! rebase_onto_tag; then
+    printf '%s\n' "$rebase_attempt" >"$state/rebase-failed"
     git rebase --abort
     fail "Fork commits conflict with $tag. The fork stays on $base."
   fi
@@ -123,11 +98,17 @@ node scripts/build-desktop-artifact.ts --platform mac --target zip --arch arm64 
 
 zip="$(find "$out" -maxdepth 1 -name '*.zip' | head -1)"
 [ -n "$zip" ] || { echo "$want" >"$state/failed"; fail "Build made no app for $want"; }
-rm -rf "$pending" && mkdir -p "$pending"
-ditto -x -k "$zip" "$pending" || { echo "$want" >"$state/failed"; fail "Could not unpack $want"; }
-[ -d "$pending/$app_name.app" ] || { echo "$want" >"$state/failed"; fail "The build for $want has no $app_name.app"; }
-echo "$want" >"$pending/version"
+staging="$(mktemp -d "$state/pending.XXXXXXXX")"
+trap 'rm -rf "$staging"' EXIT
+ditto -x -k "$zip" "$staging" || { echo "$want" >"$state/failed"; fail "Could not unpack $want"; }
+[ -d "$staging/$app_name.app" ] || { echo "$want" >"$state/failed"; fail "The build for $want has no $app_name.app"; }
+echo "$want" >"$staging/version"
+(
+  /usr/bin/lockf 8
+  rm -rf "$pending"
+  mv "$staging" "$pending"
+) 8>"$state/install.lock"
 rm -rf "$out"
 log "built $want"
 
-install_pending
+"$installer"
