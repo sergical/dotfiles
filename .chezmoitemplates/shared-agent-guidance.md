@@ -65,6 +65,20 @@ read; the skill has the detail. */ -}}
 - Test normal use, not rare cases. Before you write, change or review a
   test, or brief an agent that will, read the `testing` skill.
 
+# Shared machine
+
+{{/* why: on 2026-11-21 about 13 Claude and 6 Codex sessions ran on one
+14-core, 36 GB machine. Five full test runs with 14 workers each, plus builds,
+put the load at 230 and 21 GB in swap. Dev servers ran for 6 hours and two
+simulators for 6 and 10 hours after their use. The machine-load-gate hook and
+the limits in ~/.zshenv enforce the first rule; this text says why a command
+waits, and covers what no check can see. */ -}}
+- Other agents use this machine at the same time. A check makes each test
+  run, build and type check wait for a turn, and limits its workers. Do not
+  work around it. While you work, run only the tests for what you changed.
+- Stop each dev server, simulator and browser that you started as soon as
+  you have what you need from it.
+
 # Safety
 
 {{/* why: incident in August, an agent typed into another session's terminal.

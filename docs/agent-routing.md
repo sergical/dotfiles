@@ -17,6 +17,9 @@ outside the repository.
 | `~/.agents/skills/video-context/` | `dot_agents/skills/video-context/` | Video transcript and frames through `summarize`, loaded on demand |
 | `~/.agents/skills/testing/` | `dot_agents/skills/testing/` | Which tests to write, skip and run, loaded on demand |
 | `~/.agents/skills/test-audit/` | `dot_agents/skills/test-audit/` | User-invoked audit that deletes junk tests and adds missing ones |
+| `~/.agents/hooks/machine-load-gate.py` | `dot_agents/hooks/executable_machine-load-gate.py` | Check before each shell command: heavy jobs (tests, builds, type checks) wait until fewer than a set number run on the machine. Wired into Claude (`settings.json`), Codex (`hooks.json`, after the user trusts it) and Cursor (`~/.cursor/hooks.json`). OpenCode and Pi have no working adapter yet; they get only the worker limit below |
+| `~/.cursor/hooks.json` | `private_dot_cursor/hooks.json` | Calls the check above before each Cursor shell command |
+| `~/.zshenv` (one block) | `modify_dot_zshenv` | Worker limit for each test run and build, about a third of the cores |
 | `~/.cursor/rules/shared-agent-guidance.mdc` | `private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl` | Always-applied rule rendered from the common template |
 | `~/.claude/` | `private_dot_claude/` | Claude instructions and settings |
 | `~/.codex/` | `dot_codex/` | Link to the shared instructions, hooks, and `model_reasoning_effort` in `config.toml`. Codex owns the rest of that file. |

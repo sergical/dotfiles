@@ -11,6 +11,18 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh -c 'f=$HOME/.agents/hooks/machine-load-gate.py; [ -f \"$f\" ] && python3 -I \"$f\" || true'",
+            "timeout": 270
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "apply_patch|Edit|Write",

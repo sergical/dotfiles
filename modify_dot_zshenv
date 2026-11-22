@@ -1,0 +1,32 @@
+#!/bin/sh
+# Chezmoi owns only the "machine job limits" block of ~/.zshenv. The rest of
+# the file holds machine settings, so keep it as is.
+#
+# Every zsh reads ~/.zshenv, so the block reaches each command that an agent
+# runs. Many agents build and test on one machine at once, and each tool
+# starts one worker per core unless it is told a number. The block gives each
+# job about a third of the cores. To use more for one command, set the
+# variable on that command: VITEST_MAX_WORKERS=14 pnpm test
+awk '
+/^# >>> machine job limits >>>$/ { skip = 1; next }
+/^# <<< machine job limits <<<$/ { skip = 0; next }
+!skip { print }
+'
+cat <<'EOF'
+# >>> machine job limits >>>
+# Managed by chezmoi (modify_dot_zshenv). Edit the source, not this block.
+if [[ -z $MACHINE_JOB_WORKERS ]]; then
+  MACHINE_JOB_WORKERS=$(( $(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 6) / 3 ))
+  (( MACHINE_JOB_WORKERS < 2 )) && MACHINE_JOB_WORKERS=2
+  export MACHINE_JOB_WORKERS
+fi
+: ${VITEST_MAX_WORKERS:=$MACHINE_JOB_WORKERS} ${CARGO_BUILD_JOBS:=$MACHINE_JOB_WORKERS}
+: ${GOMAXPROCS:=$MACHINE_JOB_WORKERS} ${RAYON_NUM_THREADS:=$MACHINE_JOB_WORKERS}
+# Vitest before version 4 reads these names. Version 2 stops with an error
+# when its default minimum, one worker per core, is above the maximum.
+: ${VITEST_MAX_THREADS:=$MACHINE_JOB_WORKERS} ${VITEST_MAX_FORKS:=$MACHINE_JOB_WORKERS}
+: ${VITEST_MIN_THREADS:=1} ${VITEST_MIN_FORKS:=1}
+export VITEST_MAX_WORKERS VITEST_MAX_THREADS VITEST_MAX_FORKS VITEST_MIN_THREADS VITEST_MIN_FORKS
+export CARGO_BUILD_JOBS GOMAXPROCS RAYON_NUM_THREADS
+# <<< machine job limits <<<
+EOF
