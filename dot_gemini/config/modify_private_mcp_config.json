@@ -1,0 +1,3 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := fromJson (default "{}" (trim .chezmoi.stdin)) -}}
+{{ $config | setValueAtPath "mcpServers.executor.serverUrl" .executor_url | toPrettyJson }}

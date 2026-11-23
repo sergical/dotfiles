@@ -11,7 +11,7 @@ Initialization stores profile choices in the machine-local Chezmoi config.
 | Personal | Pi models for personal subscriptions, Bedrock and Workers AI; the Sentry and Codex Claude plugins; Claude auto memory. Off by default, so a machine without the flag keeps the default Pi models, has those plugins and auto memory off, and on macOS gets the hourly `t3-fork-sync` LaunchAgent and the `storage-keeper` LaunchAgent, which every 6 hours removes agent scratch folders and build folders of finished T3 Code threads and logs free space |
 
 Initialization also asks for `executor_url`, the hosted Executor MCP address.
-OpenCode and Pi get an `executor` entry only when it is set, so the private
+When set, it configures Executor for Antigravity, OpenCode and Pi. The private
 address stays in the machine-local config and out of this repository.
 
 OpenCode also gets local stdio entries for the DaVinci Resolve MCP and the

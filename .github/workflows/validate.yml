@@ -154,6 +154,7 @@ jobs:
           jq empty "$HOME/.claude/settings.json"
           jq empty "$HOME/.config/opencode/opencode.json"
           jq -e '.mcpServers.executor.url == "https://executor.example.invalid/mcp"' "$HOME/.agents/mcp.json"
+          jq -e '.mcpServers.executor.serverUrl == "https://executor.example.invalid/mcp"' "$HOME/.gemini/config/mcp_config.json"
           jq -e '.mcp.executor.url == "https://executor.example.invalid/mcp"' "$HOME/.config/opencode/opencode.json"
           test -f "$HOME/.agents/skills/simplify-code/SKILL.md"
           test -f "$HOME/.agents/skills/babysit-pr/SKILL.md"

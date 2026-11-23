@@ -27,6 +27,10 @@ scripts/
 .pi/**
 {{- end }}
 
+{{- if not (dig "executor_url" "" .) }}
+.gemini/config/mcp_config.json
+{{- end }}
+
 {{- if not .profile_editor }}
 .config/cmux
 .config/cmux/**
