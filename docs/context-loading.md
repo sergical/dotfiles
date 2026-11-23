@@ -7,6 +7,7 @@ harness reaches that guidance through its own supported context path.
 
 | Harness | Global context target | How shared guidance arrives |
 | --- | --- | --- |
+| Antigravity | `~/.gemini/AGENTS.md` | Symlink to `~/.agents/AGENTS.md` (and `~/.gemini/config/skills` symlinks to `~/.agents/skills`) |
 | Claude Code | `~/.claude/CLAUDE.md` | Explicit `@~/.agents/AGENTS.md` import |
 | Codex | `~/.codex/AGENTS.md` | Symlink to `~/.agents/AGENTS.md` |
 | OpenCode2 | `~/.config/opencode/AGENTS.md` | Symlink to `~/.agents/AGENTS.md` |
@@ -17,6 +18,15 @@ Nothing discovers `~/.agents/AGENTS.md` by that path. The import, rendered
 rule, and symlinks are the compatibility layer.
 
 ## Primary-session Order
+
+### Antigravity
+
+Antigravity loads global guidance from `~/.gemini/AGENTS.md` (symlinked to
+`~/.agents/AGENTS.md`) and global skills from `~/.gemini/config/skills`
+(symlinked to `~/.agents/skills`), then loads project `AGENTS.md`, `GEMINI.md`,
+and `.agents/skills` walking up to the workspace root. Note that Antigravity
+ignores `disable-model-invocation: true`, so exposed skills remain
+model-visible there unless filtered via `skills.json`.
 
 ### Claude Code
 

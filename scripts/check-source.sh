@@ -39,7 +39,8 @@ while IFS= read -r source_path; do
     dot_agents/private_mcp.json.tmpl) ;;
     dot_agents/hooks/executable_ui-review-reminder.py|dot_agents/hooks/executable_machine-load-gate.py) ;;
     dot_agents/skills/simplify-code/SKILL.md|dot_agents/skills/simplify-code/agents/openai.yaml) ;;
-    dot_agents/skills/dev-servers/SKILL.md|dot_agents/skills/dev-servers/executable_list-blocks.sh|dot_agents/skills/diff-review/SKILL.md.tmpl|dot_agents/skills/pr-body/SKILL.md.tmpl|dot_agents/skills/video-context/SKILL.md|dot_agents/skills/testing/SKILL.md.tmpl|dot_agents/skills/test-audit/SKILL.md.tmpl|dot_agents/skills/test-audit/agents/openai.yaml) ;;
+    dot_agents/skills/babysit-pr/SKILL.md|dot_agents/skills/dev-servers/SKILL.md|dot_agents/skills/dev-servers/executable_list-blocks.sh|dot_agents/skills/diff-review/SKILL.md.tmpl|dot_agents/skills/full-send/SKILL.md|dot_agents/skills/full-stop/SKILL.md|dot_agents/skills/pr-body/SKILL.md.tmpl|dot_agents/skills/video-context/SKILL.md|dot_agents/skills/testing/SKILL.md.tmpl|dot_agents/skills/test-audit/SKILL.md.tmpl|dot_agents/skills/test-audit/agents/openai.yaml) ;;
+    dot_gemini/symlink_AGENTS.md|dot_gemini/config/symlink_skills) ;;
     dot_codex/symlink_AGENTS.md|dot_codex/hooks.json.tmpl|dot_codex/modify_private_config.toml) ;;
     private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl|private_dot_cursor/hooks.json) ;;
     private_dot_local/private_bin/executable_skill-inventory|private_dot_local/private_bin/executable_t3-fork-sync) ;;
