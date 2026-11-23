@@ -58,7 +58,9 @@ required check) was hidden in a stray paragraph (2026-11-19). */ -}}
 5. Start the body with up to three bold lines, each only when it applies:
    `Door: one-way` when the change is hard to undo (stored data, a public
    contract, deleted data), who merges it if not the agent and why, and what
-   must happen after the merge.
+   must happen after the merge. If the repository has `scripts/gate/gate`,
+   run `scripts/gate/gate risk --json` locally to inform `Door: one-way` and
+   who merges it.
 {{/* why: Theo, Dex ("exactly one sentence") and Warp all open with the
 problem. Warp: the first paragraph tells a reader whether the PR is theirs.
 Issue link: Warp ("never invent a plausible ticket ID"), Sentry ("only when
@@ -92,11 +94,12 @@ the diff". Dex lists "surprising decisions". */ -}}
 {{/* why: Matt's Evidence section (screenshot first, then the test that
 failed and now passes). Warp's honest validation: never write intent as a
 result. 4 sessions of complaints that descriptions copied the check list. */ -}}
-10. Prove it: a screenshot for a UI change, otherwise the test that failed
-    before and passes now, or the command output that changed. If something
-    did not run, say so once and name what should run. Never write an
-    intention as a result. Do not list passing checks, because GitHub shows
-    them.
+10. Prove it: a screenshot for a UI change (or a short recording for
+    multi-step UI or motion changes when a static screenshot cannot show it),
+    otherwise the test that failed before and passes now, or the command output
+    that changed. If something did not run, say so once and name what should
+    run. Never write an intention as a result. Do not list passing checks,
+    because GitHub shows them.
 {{/* why: Dex's "special things to note" (1 to 3, or none), Matt's "merge
 danger" (one-way door, blast radius) and Warp's focus areas ("where you are
 unsure" is "the single most valuable line"). The Nov 16 trim removed this

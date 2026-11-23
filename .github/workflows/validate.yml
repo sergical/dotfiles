@@ -156,16 +156,25 @@ jobs:
           jq -e '.mcpServers.executor.url == "https://executor.example.invalid/mcp"' "$HOME/.agents/mcp.json"
           jq -e '.mcp.executor.url == "https://executor.example.invalid/mcp"' "$HOME/.config/opencode/opencode.json"
           test -f "$HOME/.agents/skills/simplify-code/SKILL.md"
+          test -f "$HOME/.agents/skills/babysit-pr/SKILL.md"
+          test -f "$HOME/.agents/skills/full-send/SKILL.md"
+          test -f "$HOME/.agents/skills/full-stop/SKILL.md"
           chezmoi --config "$RUNNER_TEMP/chezmoi.toml" --source "$GITHUB_WORKSPACE" \
             execute-template <"$GITHUB_WORKSPACE/.chezmoitemplates/shared-agent-guidance.md" |
             cmp - "$HOME/.agents/AGENTS.md"
           if grep -n -E '\{\{|why:' "$HOME/.agents/AGENTS.md" \
-            "$HOME/.agents/skills/diff-review/SKILL.md" "$HOME/.agents/skills/pr-body/SKILL.md"; then
+            "$HOME/.agents/skills/diff-review/SKILL.md" "$HOME/.agents/skills/pr-body/SKILL.md" \
+            "$HOME/.agents/skills/babysit-pr/SKILL.md" "$HOME/.agents/skills/full-send/SKILL.md" \
+            "$HOME/.agents/skills/full-stop/SKILL.md"; then
             echo "A template note reached a rendered agent file." >&2
             exit 1
           fi
           test -L "$HOME/.codex/AGENTS.md"
           cmp "$HOME/.codex/AGENTS.md" "$HOME/.agents/AGENTS.md"
+          test -L "$HOME/.gemini/AGENTS.md"
+          cmp "$HOME/.gemini/AGENTS.md" "$HOME/.agents/AGENTS.md"
+          test -L "$HOME/.gemini/config/skills"
+          test -f "$HOME/.gemini/config/skills/full-send/SKILL.md"
           jq empty "$HOME/.codex/hooks.json"
           grep -qx 'model_reasoning_effort = "xhigh"' "$HOME/.codex/config.toml"
           jq empty "$HOME/.pi/agent/settings.json"

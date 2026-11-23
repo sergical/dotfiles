@@ -10,9 +10,12 @@ outside the repository.
 | Target | Chezmoi source | Purpose |
 | --- | --- | --- |
 | `~/.agents/AGENTS.md` | `dot_agents/AGENTS.md.tmpl` | Shared behavior rendered from the common template |
+| `~/.agents/skills/babysit-pr/` | `dot_agents/skills/babysit-pr/` | PR watch, bot review, and clean unwatch procedure, loaded on demand |
 | `~/.agents/skills/simplify-code/` | `dot_agents/skills/simplify-code/` | Cleanup of a passing change; runs when the user asks or a review flags unneeded code |
 | `~/.agents/skills/dev-servers/` | `dot_agents/skills/dev-servers/` | Rex and dev server procedure, loaded on demand |
 | `~/.agents/skills/diff-review/` | `dot_agents/skills/diff-review/` | Cross-provider diff review procedure, loaded on demand |
+| `~/.agents/skills/full-send/` | `dot_agents/skills/full-send/` | Hands-off end-to-end implementation, proof, PR, and merge when requested |
+| `~/.agents/skills/full-stop/` | `dot_agents/skills/full-stop/` | Same workflow as `full-send`, holding before merge and unwatching once green |
 | `~/.agents/skills/pr-body/` | `dot_agents/skills/pr-body/` | Pull request title and body, loaded on demand |
 | `~/.agents/skills/video-context/` | `dot_agents/skills/video-context/` | Video transcript and frames through `summarize`, loaded on demand |
 | `~/.agents/skills/testing/` | `dot_agents/skills/testing/` | Which tests to write, skip and run, loaded on demand |
@@ -21,6 +24,8 @@ outside the repository.
 | `~/.cursor/hooks.json` | `private_dot_cursor/hooks.json` | Calls the check above before each Cursor shell command |
 | `~/.zshenv` (one block) | `modify_dot_zshenv` | Worker limit for each test run and build, about a third of the cores |
 | `~/.cursor/rules/shared-agent-guidance.mdc` | `private_dot_cursor/rules/shared-agent-guidance.mdc.tmpl` | Always-applied rule rendered from the common template |
+| `~/.gemini/AGENTS.md` | `dot_gemini/symlink_AGENTS.md` | Antigravity global context symlink to `~/.agents/AGENTS.md` |
+| `~/.gemini/config/skills` | `dot_gemini/config/symlink_skills` | Antigravity global skills symlink to `~/.agents/skills` |
 | `~/.claude/` | `private_dot_claude/` | Claude instructions and settings |
 | `~/.codex/` | `dot_codex/` | Link to the shared instructions, hooks, and `model_reasoning_effort` in `config.toml`. Codex owns the rest of that file. |
 | `~/.config/opencode/` | `private_dot_config/private_opencode/` | OpenCode2 settings and the `plan` agent |
