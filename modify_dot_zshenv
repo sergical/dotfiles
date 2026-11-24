@@ -1,15 +1,16 @@
 #!/bin/sh
-# Chezmoi owns only the "machine job limits" block of ~/.zshenv. The rest of
-# the file holds machine settings, so keep it as is.
+# Chezmoi owns only the marked blocks of ~/.zshenv. The rest of the file
+# holds machine settings, so keep it as is.
 #
-# Every zsh reads ~/.zshenv, so the block reaches each command that an agent
-# runs. Many agents build and test on one machine at once, and each tool
-# starts one worker per core unless it is told a number. The block gives each
-# job about a third of the cores. To use more for one command, set the
-# variable on that command: VITEST_MAX_WORKERS=14 pnpm test
+# Every zsh reads ~/.zshenv, so these blocks reach each command that an agent
+# runs and every login shell probe (such as T3 Code Desktop). Many agents build
+# and test on one machine at once, and each tool starts one worker per core
+# unless it is told a number. The job-limits block gives each job about a third
+# of the cores. To use more for one command, set the variable on that command:
+# VITEST_MAX_WORKERS=14 pnpm test
 awk '
-/^# >>> machine job limits >>>$/ { skip = 1; next }
-/^# <<< machine job limits <<<$/ { skip = 0; next }
+/^# >>> (machine job limits|telemetry opt-out) >>>$/ { skip = 1; next }
+/^# <<< (machine job limits|telemetry opt-out) <<<$/ { skip = 0; next }
 !skip { print }
 '
 cat <<'EOF'
@@ -29,4 +30,9 @@ fi
 export VITEST_MAX_WORKERS VITEST_MAX_THREADS VITEST_MAX_FORKS VITEST_MIN_THREADS VITEST_MIN_FORKS
 export CARGO_BUILD_JOBS GOMAXPROCS RAYON_NUM_THREADS
 # <<< machine job limits <<<
+# >>> telemetry opt-out >>>
+# Managed by chezmoi (modify_dot_zshenv). Edit the source, not this block.
+: ${T3CODE_TELEMETRY_ENABLED:=false}
+export T3CODE_TELEMETRY_ENABLED
+# <<< telemetry opt-out <<<
 EOF
