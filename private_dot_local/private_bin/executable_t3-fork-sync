@@ -32,6 +32,7 @@ if ! /usr/bin/lockf -t 0 -s 9; then
 fi
 
 installer="$(dirname "$0")/t3-fork-install-pending"
+"$installer"
 
 cd "$repo"
 [ "$(git branch --show-current)" = "$branch" ] || fail "$repo is not on $branch"
@@ -166,10 +167,7 @@ want="$tag+$(git rev-parse --short HEAD)"
 for done_file in installed failed; do
   [ "$(cat "$state/$done_file" 2>/dev/null)" != "$want" ] || exit 0
 done
-if [ "$(cat "$pending/version" 2>/dev/null)" = "$want" ]; then
-  "$installer"
-  exit 0
-fi
+[ "$(cat "$pending/version" 2>/dev/null)" != "$want" ] || exit 0
 
 log "building $want"
 vp install --frozen-lockfile >/dev/null || { echo "$want" >"$state/failed"; fail "Install failed for $want"; }

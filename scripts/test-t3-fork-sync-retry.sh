@@ -11,6 +11,7 @@ export T3_FORK_REPO="$scratch/fork"
 export CALLS="$scratch/calls"
 bin="$HOME/.vite-plus/bin"
 state="$HOME/.t3-fork-lab/sync"
+export T3_FORK_SYNC_STATE_DIR="$state"
 mkdir -p "$bin" "$T3_FORK_REPO"
 cp "$source_dir/private_dot_local/private_bin/executable_t3-fork-sync" "$scratch/t3-fork-sync"
 printf '#!/bin/bash\nexit 0\n' >"$scratch/t3-fork-install-pending"
@@ -209,3 +210,19 @@ SCENARIO=recovers bash "$scratch/t3-fork-sync" >"$scratch/log" 2>&1 || status=$?
 [ -z "$(git status --porcelain)" ]
 [ "$(cat "$state/pending/version")" = "$pending_version" ]
 echo 'PASS: a true conflict leaves the fork clean and keeps the pending build'
+
+# The real installer must consume verified pending work even when upstream cannot be reached.
+cp "$source_dir/private_dot_local/private_bin/executable_t3-fork-install-pending" \
+  "$scratch/t3-fork-install-pending"
+export T3_FORK_SYNC_APP_PATH="$scratch/Installed T3 fork.app"
+mkdir -p "$T3_FORK_SYNC_APP_PATH"
+echo verified >"$state/pending/T3 fork.app/marker"
+git remote set-url origin "$scratch/missing-upstream"
+: >"$CALLS"
+status=0
+SCENARIO=recovers bash "$scratch/t3-fork-sync" >"$scratch/log" 2>&1 || status=$?
+[ "$status" -ne 0 ] && [ ! -s "$CALLS" ]
+[ "$(cat "$state/installed")" = "$pending_version" ] || { cat "$scratch/log" >&2; exit 1; }
+[ "$(cat "$T3_FORK_SYNC_APP_PATH/marker")" = verified ]
+[ ! -e "$state/pending" ]
+echo 'PASS: ordinary quit installs the verified pending app before a failed fetch'
