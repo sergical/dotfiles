@@ -69,6 +69,7 @@ cat >"$bin/vp" <<'SH'
 set -euo pipefail
 case "$*" in
   'install --frozen-lockfile') exit 0 ;;
+  'run scenarios --target web --workers 1 '*) echo journeys >>"$CALLS"; [ "$SCENARIO" != browser ] ;;
   'exec node --test --test-reporter=tap .github/scripts/passing.test.cjs .github/scripts/failing.test.cjs')
     echo initial-tests >>"$CALLS"
     printf 'ok 1 - .github/scripts/passing.test.cjs\nnot ok 2 - .github/scripts/failing.test.cjs\n'
@@ -132,6 +133,8 @@ want="v0.0.0-nightly.1+$(git rev-parse --short HEAD)"
 
 run_case() {
   rm -rf "$state"
+  mkdir -p "$state/pending"
+  printf "previous\n" >"$state/pending/version"
   : >"$CALLS"
   local status=0
   SCENARIO="$1" /bin/bash "$scratch/t3-fork-sync" >"$scratch/log" 2>&1 || status=$?
@@ -147,19 +150,62 @@ run_case() {
     [ "$(cat "$state/pending/version")" = "$want" ]
   else
     [ "$(cat "$state/failed")" = "$want" ]
-    [ ! -e "$state/pending" ]
+    [ "$(cat "$state/pending/version")" = previous ]
   fi
 }
 
-run_case recovers 0 $'check\ninitial-tests\nretry\nbuild'
+run_case recovers 0 $'check\ninitial-tests\nretry\njourneys\nbuild'
 echo 'PASS: retried only the failed file, built, and left no failed marker'
 run_case repeats 1 $'check\ninitial-tests\nretry'
 echo 'PASS: a second failure wrote the failed marker'
-run_case mixed 0 $'check\ninitial-tests\ninitial-compiler\ncompiler-retry\nretry\nbuild'
+run_case mixed 0 $'check\ninitial-tests\ninitial-compiler\ncompiler-retry\nretry\njourneys\nbuild'
 echo 'PASS: a React Compiler failure retried its stage with one worker, pattern intact'
 run_case lint 1 $'check'
 echo 'PASS: a lint failure wrote the failed marker without a retry'
-run_case timeout 0 $'check\ninitial-tests\nretry\nbuild'
+run_case timeout 0 $'check\ninitial-tests\nretry\njourneys\nbuild'
 echo 'PASS: a timed-out test stage retried its original files with one worker'
-run_case node 0 $'check\ninitial-tests\nretry\nbuild'
+run_case node 0 $'check\ninitial-tests\nretry\njourneys\nbuild'
 echo 'PASS: a Node test failure retried only the failed file with one worker'
+
+run_case browser 1 $'check\ninitial-tests\nretry\njourneys'
+echo 'PASS: a browser failure blocked the build and preserved the previous pending version'
+
+fork_tip="$(git rev-parse HEAD)"
+git switch -qc upstream v0.0.0-nightly.1
+git merge --ff-only "$fork_tip" >/dev/null
+echo next >upstream
+git add upstream
+git commit -qm upstream
+git tag v0.0.0-nightly.2
+git switch -q t3-fork
+echo next >fork
+git add fork
+git commit -qm local
+local_tip="$(git rev-parse HEAD)"
+rm -rf "$state"
+: >"$CALLS"
+SCENARIO=recovers bash "$scratch/t3-fork-sync" >"$scratch/log" 2>&1
+git merge-base --is-ancestor "$local_tip" HEAD
+git merge-base --is-ancestor v0.0.0-nightly.2 HEAD
+merged_tip="$(git rev-parse HEAD)"
+: >"$CALLS"
+SCENARIO=recovers bash "$scratch/t3-fork-sync" >"$scratch/log" 2>&1
+[ ! -s "$CALLS" ]
+[ "$(git rev-parse HEAD)" = "$merged_tip" ]
+echo 'PASS: shared history merges once and a repeated sync does no work'
+
+git switch -qc conflicting v0.0.0-nightly.2
+echo conflict >fork
+git add fork
+git commit -qm conflicting
+git tag v0.0.0-nightly.3
+git switch -q t3-fork
+pending_version="$(cat "$state/pending/version")"
+: >"$CALLS"
+status=0
+SCENARIO=recovers bash "$scratch/t3-fork-sync" >"$scratch/log" 2>&1 || status=$?
+[ "$status" -eq 1 ] && [ ! -s "$CALLS" ]
+[ "$(git rev-parse HEAD)" = "$merged_tip" ]
+[ -z "$(git status --porcelain)" ]
+[ "$(cat "$state/pending/version")" = "$pending_version" ]
+echo 'PASS: a true conflict leaves the fork clean and keeps the pending build'
