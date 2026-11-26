@@ -1,0 +1,10 @@
+# One build folder per Cargo workspace, outside the checkout, so parallel
+# worktrees neither share nor duplicate intermediate files. Final binaries stay
+# in each workspace's own target/. Cargo never deletes ~/.cargo/build folders;
+# cargo-build-gc does.
+[build]
+build-dir = "{cargo-cache-home}/build/{workspace-path-hash}"
+incremental = false
+
+[profile.test]
+debug = false

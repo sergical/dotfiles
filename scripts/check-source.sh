@@ -34,6 +34,7 @@ while IFS= read -r source_path; do
     scripts/capture.sh|scripts/check-agent-routing.sh|scripts/check-source.sh|scripts/status.sh|scripts/install-public-skills.sh|scripts/normalize-opencode-user-skills.rb|scripts/test-t3-fork-install-pending.sh) ;;
     scripts/test-t3-fork-sync-retry.sh) ;;
     dot_Brewfile|dot_gitconfig.tmpl|dot_zprofile|dot_zshrc.tmpl|modify_dot_zshenv) ;;
+    dot_cargo/config.toml) ;;
     private_dot_npmrc.tmpl) ;;
     dot_agents/AGENTS.md.tmpl|dot_agents/agents.toml) ;;
     dot_agents/private_mcp.json.tmpl) ;;
