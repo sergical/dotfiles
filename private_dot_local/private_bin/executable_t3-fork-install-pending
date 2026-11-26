@@ -19,6 +19,81 @@ app_running() {
   /usr/bin/pgrep -aqf "^$app_pattern/Contents/MacOS/"
 }
 
+read_build() {
+  local bundle="$1" requested="$2" plist commit version
+  plist="$bundle/Contents/Info.plist"
+  commit="$(/usr/bin/plutil -extract T3ForkCommitHash raw "$plist")" || return 1
+  version="$(/usr/bin/plutil -extract CFBundleShortVersionString raw "$plist")" || return 1
+  [ "$version" = "${requested/-nightly./-fork.}" ] && [[ "$commit" = "${expected_commit}"* ]]
+}
+
+report_restart_failure() {
+  local message="$1"
+  log "FAIL: $message"
+  if printf '%s\n' "$message" >"$state/restart-failure.tmp"; then
+    mv "$state/restart-failure.tmp" "$state/restart-failure" || true
+  fi
+  notify "$message"
+}
+
+open_fork_app() {
+  local mode="$1" name
+  shift
+  local -a switches=() launch_args=("$@")
+  local -a launch_env=(--env "T3_FORK_SYNC_STATE_DIR=$state" --env "T3_FORK_SYNC_APP_PATH=$app")
+  if [ "$mode" = verify ]; then switches=(-W -n); fi
+  for name in T3CODE_HOME T3CODE_PORT T3_FORK_SYNC_INSTALLER T3_FORK_REPO; do
+    if [ -n "${!name:-}" ]; then launch_env+=(--env "$name=${!name}"); fi
+  done
+  if [ "$app" != "$default_app" ]; then
+    launch_env+=(--env "HOME=$HOME" --env "CFFIXED_USER_HOME=$HOME")
+    launch_args+=(--use-mock-keychain)
+  fi
+  exec /usr/bin/open ${switches[@]+"${switches[@]}"} -a "$app" ${launch_env[@]+"${launch_env[@]}"} ${launch_args[@]+--args "${launch_args[@]}"}
+}
+
+launch_and_verify() {
+  local launch_number="$1" attempt waiter pid health deadline result=1
+  local -a launch_args=()
+  attempt="$(mktemp -d "$state/restart.XXXXXXXX")" || return 1
+  launch_args=("--t3-fork-restart-attempt=${attempt##*/}")
+  if [ -n "$route" ]; then launch_args+=("--t3-fork-restart-route=$route"); fi
+  log "restart launch $launch_number for $requested"
+  # LaunchServices starts the replacement in the GUI session and waits for that instance's exit.
+  open_fork_app verify "${launch_args[@]}" 9>&- &
+  waiter=$!
+  deadline=$((SECONDS + 120))
+  while kill -0 "$waiter" 2>/dev/null; do
+    if [ -f "$attempt/ready" ]; then
+      {
+        read -r pid
+        read -r health
+      } <"$attempt/ready"
+      if [[ "$pid" =~ ^[1-9][0-9]*$ ]] &&
+        [[ "$(/bin/ps -ww -p "$pid" -o command=)" = "$executable --t3-fork-restart-attempt=${attempt##*/}"* ]] &&
+        [[ "$health" =~ ^http://127\.0\.0\.1:[0-9]+/\.well-known/t3/environment$ ]] &&
+        /usr/bin/curl --noproxy '*' --max-time 2 -fsS "$health" >/dev/null &&
+        read_build "$app" "$expected_version" &&
+        kill -0 "$pid" 2>/dev/null; then
+        log "restart ready: $requested, PID $pid, backend $health, main window shown"
+        result=0
+        break
+      fi
+    fi
+    if [ "$SECONDS" -ge "$deadline" ]; then
+      result=2
+      break
+    fi
+    sleep 0.25
+  done
+  # Stop our open waiter only. LaunchServices owns the desktop process.
+  kill "$waiter" 2>/dev/null || true
+  wait "$waiter" 2>/dev/null || true
+  rm -rf "$attempt"
+  if [ "$result" = 1 ]; then log "restart launch $launch_number exited before readiness"; fi
+  return "$result"
+}
+
 install_pending() {
   local requested="$1" version installed
   version="$(cat "$pending/version" 2>/dev/null || true)"
@@ -35,6 +110,10 @@ install_pending() {
   fi
   if [ ! -d "$pending/T3 fork.app" ]; then
     log "FAIL: Missing pending bundle for $version"
+    return 1
+  fi
+  if [ -n "$requested" ] && ! read_build "$pending/T3 fork.app" "$expected_version"; then
+    log "FAIL: Pending bundle does not match $requested"
     return 1
   fi
   if app_running; then
@@ -69,8 +148,21 @@ case "${1:-}" in
   "")
     [ "$#" = 0 ] || exit 64
     ;;
+  --restart-protocol)
+    [ "$#" = 1 ] || exit 64
+    printf '1\n'
+    exit 0
+    ;;
   --restart)
-    [ "$#" = 3 ] && [[ "$2" =~ ^[1-9][0-9]*$ ]] && [ -n "$3" ] || exit 64
+    [ "$#" = 3 ] || [ "$#" = 4 ] || exit 64
+    [[ "$2" =~ ^[1-9][0-9]*$ ]] &&
+      [[ "$3" =~ ^v([0-9]+\.[0-9]+\.[0-9]+-nightly\.[0-9.]+)\+([0-9a-f]{4,40})$ ]] || exit 64
+    requested="$3"
+    expected_version="${BASH_REMATCH[1]}"
+    expected_commit="${BASH_REMATCH[2]}"
+    route="${4:-}"
+    mkdir -p "$state"
+    log "restart waiting for PID $2 for $requested"
     while kill -0 "$2" 2>/dev/null; do
       sleep 1
     done
@@ -85,14 +177,33 @@ esac
 mkdir -p "$state"
 (
   /usr/bin/lockf 9
+  if [ "${1:-}" != --restart ]; then
+    install_pending "" || { notify "Could not install the pending update."; exit 1; }
+    exit 0
+  fi
+  if ! install_pending "$requested" || ! read_build "$app" "$expected_version"; then
+    report_restart_failure "T3 fork could not install $requested."
+    (open_fork_app fallback) 9>&- || log "FAIL: Could not reopen $app"
+    exit 1
+  fi
+  if app_running; then
+    report_restart_failure "T3 fork was opened before its update restart could finish."
+    exit 1
+  fi
+  executable="$app/Contents/MacOS/$(/usr/bin/plutil -extract CFBundleExecutable raw "$app/Contents/Info.plist")"
   status=0
-  install_pending "${3:-}" || status=$?
-  if [ "${1:-}" = --restart ] && ! /usr/bin/open "$app" 9>&-; then
-    log "FAIL: Could not reopen $app"
-    status=1
+  launch_and_verify 1 || status=$?
+  if [ "$status" = 1 ]; then
+    status=0
+    launch_and_verify 2 || status=$?
   fi
-  if [ "$status" -ne 0 ]; then
-    notify "Could not install the pending update."
-  fi
+  case "$status" in
+    0) rm -f "$state/restart-failure" ;;
+    1) report_restart_failure "T3 fork $requested did not become ready after two launches. The previous app is saved beside it with a .previous suffix." ;;
+    2)
+      log "Startup verification timed out for $requested"
+      notify "T3 fork is taking longer than expected to start after its update."
+      ;;
+  esac
   exit "$status"
 ) 9>"$state/install.lock"
