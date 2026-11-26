@@ -31,6 +31,10 @@ scripts/
 .gemini/config/mcp_config.json
 {{- end }}
 
+{{- if not (or (stat "/Applications/Rex.app") (stat "/Applications/Rex Beta.app")) }}
+.local/bin/rex
+{{- end }}
+
 {{- if not .profile_editor }}
 .config/cmux
 .config/cmux/**

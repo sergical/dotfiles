@@ -1,0 +1,10 @@
+{{- /* The rex command line tool lives inside the Rex app. The app moved from
+       "Rex Beta.app" to "Rex.app" and left the old link pointing nowhere, so
+       every `rex` call (dev-server tabs, the Claude session hook,
+       storage-keeper) failed. Point at whichever app is installed. */ -}}
+{{- $helper := "Contents/Helpers/Rex Server.rex/Contents/MacOS/rex" -}}
+{{- if stat (joinPath "/Applications/Rex.app" $helper) -}}
+{{ joinPath "/Applications/Rex.app" $helper }}
+{{- else -}}
+{{ joinPath "/Applications/Rex Beta.app" $helper }}
+{{- end -}}
