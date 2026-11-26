@@ -58,6 +58,12 @@ Library/Application Support/Cursor/**
 {{- if or (dig "profile_personal" false .) (ne .chezmoi.os "darwin") }}
 .local/bin/t3-fork-sync
 .local/bin/storage-keeper
+Library/LaunchAgents/local.t3-fork-sync.plist
+Library/LaunchAgents/local.storage-keeper.plist
+{{- end }}
+
+{{- if ne .chezmoi.os "darwin" }}
+.local/bin/cargo-build-gc
 Library/LaunchAgents
 Library/LaunchAgents/**
 {{- end }}

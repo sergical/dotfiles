@@ -2,3 +2,11 @@
 type = "file"
 url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/ggml-base.bin"
 checksum.sha256 = "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe"
+
+# Empties old Cargo build folders under ~/.cargo/build (see dot_cargo/config.toml).
+# Pinned to the skill-studio commit that last changed the script; MIT licence.
+[".local/bin/cargo-build-gc"]
+type = "file"
+url = "https://raw.githubusercontent.com/sergical/skill-studio/c0c12ffa50b497f106f7ab0dc7815422146394ff/tools/cargo-build-gc.pl"
+checksum.sha256 = "aa69c3a28cfb81ac24f99d2b62392cc145f0771a17b213c6b8a31d120c273d0d"
+executable = true
