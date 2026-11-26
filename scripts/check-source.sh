@@ -46,6 +46,7 @@ while IFS= read -r source_path; do
     private_dot_local/private_bin/executable_skill-inventory|private_dot_local/private_bin/executable_t3-fork-sync) ;;
     private_dot_local/private_bin/executable_t3-fork-install-pending|private_Library/LaunchAgents/local.t3-fork-sync.plist.tmpl) ;;
     private_dot_local/private_bin/executable_storage-keeper|private_Library/LaunchAgents/local.storage-keeper.plist.tmpl) ;;
+    private_Library/LaunchAgents/local.cargo-build-gc.plist.tmpl) ;;
     private_dot_aws/private_config.tmpl) ;;
     private_dot_claude/private_settings.json.tmpl|private_dot_claude/CLAUDE.md) ;;
     private_dot_claude/bin/executable_ccstatusline-autocompact) ;;
