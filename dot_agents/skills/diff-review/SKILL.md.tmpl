@@ -19,10 +19,12 @@ Theo's sol-loop and council use another provider. The user asked "did codex
 review this?" in 4 sessions. */ -}}
 ## Reviewer
 
-Use one reviewer from the other provider: Codex `gpt-6.1-sol` for code that
-Claude wrote, Claude Opus for code that Codex wrote. If that provider is not
-available, say that the review is not done. Do not use a different model, and
-do not start a second reviewer unless the user asks.
+Use one reviewer from the other provider, on its newest top model: Codex
+`gpt-6.2-astra` for code that Claude wrote, Claude `claude-opus-5-5` for code
+that Codex wrote. If the orchestrator lists a newer top model for that
+provider, use it and say which. If that provider is not available, say that
+the review is not done. Do not use a different provider, and do not start a
+second reviewer unless the user asks.
 
 {{/* why: every source agrees the reviewer must not see the writer's
 reasoning (Anthropic, Theo, Matt Pocock, poteto). Severity levels and "flag
