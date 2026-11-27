@@ -59,8 +59,8 @@ case "$1" in
   scripts/build-desktop-artifact.ts)
     echo build >>"$CALLS"
     out="${!#}"
-    mkdir -p "$out" "$HOME/bundle/T3 fork.app"
-    ditto -c -k --keepParent "$HOME/bundle/T3 fork.app" "$out/app.zip"
+    mkdir -p "$out" "$HOME/bundle/forkT.app"
+    ditto -c -k --keepParent "$HOME/bundle/forkT.app" "$out/app.zip"
     ;;
   *) exec "$REAL_NODE" "$@" ;;
 esac
@@ -216,7 +216,7 @@ cp "$source_dir/private_dot_local/private_bin/executable_t3-fork-install-pending
   "$scratch/t3-fork-install-pending"
 export T3_FORK_SYNC_APP_PATH="$scratch/Installed T3 fork.app"
 mkdir -p "$T3_FORK_SYNC_APP_PATH"
-echo verified >"$state/pending/T3 fork.app/marker"
+echo verified >"$state/pending/forkT.app/marker"
 git remote set-url origin "$scratch/missing-upstream"
 : >"$CALLS"
 status=0
