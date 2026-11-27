@@ -1,7 +1,7 @@
 #!/bin/bash
-# Keeps "T3 fork" on the newest upstream T3 Code nightly plus the fork's commits.
+# Keeps "forkT" on the newest upstream T3 Code nightly plus the fork's commits.
 # Merges the newest nightly, checks, builds, and installs the app in /Applications.
-# T3 fork has no update feed: while it runs, the build waits and installs after you quit it.
+# forkT has no update feed: while it runs, the build waits and installs after you quit it.
 set -euo pipefail
 
 export PATH="$HOME/.vite-plus/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
@@ -12,7 +12,7 @@ export TMPDIR
 
 repo="${T3_FORK_REPO:-$HOME/src/t3code-fork}"
 branch="t3-fork"
-app_name="T3 fork"
+app_name="forkT"
 state="$HOME/.t3-fork-lab/sync"
 pending="$state/pending"
 mkdir -p "$state"
@@ -188,7 +188,7 @@ set -a
 set +a
 # No update repository: the app gets no update feed, so it never fetches upstream builds.
 unset GITHUB_REPOSITORY T3CODE_DESKTOP_UPDATE_REPOSITORY
-# A -nightly version would brand the app "T3 fork (Nightly)" with the nightly icon.
+# A -nightly version would brand the app "forkT (Nightly)" with the nightly icon.
 version="$(echo "${tag#v}" | sed 's/-nightly\./-fork./')"
 out="$state/build"
 rm -rf "$out"
@@ -201,7 +201,8 @@ zip="$(find "$out" -maxdepth 1 -name '*.zip' | head -1)"
 staging="$(mktemp -d "$state/pending.XXXXXXXX")"
 trap 'rm -rf "$staging"' EXIT
 ditto -x -k "$zip" "$staging" || { echo "$want" >"$state/failed"; fail "Could not unpack $want"; }
-[ -d "$staging/$app_name.app" ] || { echo "$want" >"$state/failed"; fail "The build for $want has no $app_name.app"; }
+# An older fork checkout can still produce the legacy bundle.
+[ -d "$staging/$app_name.app" ] || [ -d "$staging/T3 fork.app" ] || { echo "$want" >"$state/failed"; fail "The build for $want has no $app_name.app"; }
 echo "$want" >"$staging/version"
 (
   /usr/bin/lockf 8

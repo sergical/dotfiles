@@ -1,22 +1,33 @@
 #!/bin/bash
-# Installs the pending T3 fork build, optionally after a desktop restart request.
+# Installs the pending forkT build, optionally after a desktop restart request.
 set -euo pipefail
 
 state="${T3_FORK_SYNC_STATE_DIR:-$HOME/.t3-fork-lab/sync}"
-default_app="/Applications/T3 fork.app"
+default_app="/Applications/forkT.app"
 app="${T3_FORK_SYNC_APP_PATH:-$default_app}"
 pending="$state/pending"
+legacy_app=""
+case "${app##*/}" in
+  "T3 fork.app"|forkT.app)
+    legacy_app="${app%/*}/T3 fork.app"
+    app="${app%/*}/forkT.app"
+    ;;
+esac
 
 log() { echo "$(date '+%F %T') $*"; }
 notify() {
-  [ "$app" = "$default_app" ] || return 0
-  /usr/bin/osascript -e "display notification \"$1\" with title \"T3 fork\"" >/dev/null 2>&1 || true
+  [ "$app" = "$default_app" ] || [ "$app" = "/Applications/T3 fork.app" ] || return 0
+  /usr/bin/osascript -e "display notification \"$1\" with title \"forkT\"" >/dev/null 2>&1 || true
 }
 
 app_running() {
-  local app_pattern
-  app_pattern=$(printf '%s\n' "$app" | /usr/bin/sed 's/[][\\.^$*+?(){}|]/\\&/g')
-  /usr/bin/pgrep -aqf "^$app_pattern/Contents/MacOS/"
+  local path app_pattern
+  for path in "$app" "$legacy_app"; do
+    [ -n "$path" ] || continue
+    app_pattern=$(printf '%s\n' "$path" | /usr/bin/sed 's/[][\\.^$*+?(){}|]/\\&/g')
+    if /usr/bin/pgrep -aqf "^$app_pattern/Contents/MacOS/"; then return 0; fi
+  done
+  return 1
 }
 
 read_build() {
@@ -45,7 +56,7 @@ open_fork_app() {
   for name in T3CODE_HOME T3CODE_PORT T3_FORK_SYNC_INSTALLER T3_FORK_REPO; do
     if [ -n "${!name:-}" ]; then launch_env+=(--env "$name=${!name}"); fi
   done
-  if [ "$app" != "$default_app" ]; then
+  if [ "$app" != "$default_app" ] && [ "$app" != "/Applications/T3 fork.app" ]; then
     launch_env+=(--env "HOME=$HOME" --env "CFFIXED_USER_HOME=$HOME")
     launch_args+=(--use-mock-keychain)
   fi
@@ -95,7 +106,7 @@ launch_and_verify() {
 }
 
 install_pending() {
-  local requested="$1" version installed
+  local requested="$1" version installed bundle previous migrate=0
   version="$(cat "$pending/version" 2>/dev/null || true)"
   installed="$(cat "$state/installed" 2>/dev/null || true)"
   if [ -n "$requested" ] && [ "$requested" = "$installed" ]; then
@@ -108,24 +119,47 @@ install_pending() {
   if [ -z "$version" ] || [ "$version" = "$installed" ]; then
     return 0
   fi
-  if [ ! -d "$pending/T3 fork.app" ]; then
+  bundle="$pending/forkT.app"
+  if [ ! -d "$bundle" ]; then
+    bundle="$pending/T3 fork.app"
+  fi
+  if [ ! -d "$bundle" ]; then
     log "FAIL: Missing pending bundle for $version"
     return 1
   fi
-  if [ -n "$requested" ] && ! read_build "$pending/T3 fork.app" "$expected_version"; then
+  if [ -n "$requested" ] && ! read_build "$bundle" "$expected_version"; then
     log "FAIL: Pending bundle does not match $requested"
     return 1
   fi
   if app_running; then
-    log "$version is ready; quit T3 fork to install it"
+    log "$version is ready; quit forkT to install it"
     if [ -n "$requested" ]; then return 1; fi
     return 0
   fi
 
-  if [ -d "$app" ]; then
-    rm -rf "$app.previous" && mv "$app" "$app.previous" || return 1
+  previous="$app"
+  if [ -n "$legacy_app" ] && [ "$app" != "$legacy_app" ]; then
+    if [ -L "$legacy_app" ] && [ "$(readlink "$legacy_app")" != "forkT.app" ]; then
+      log "FAIL: $legacy_app links to another application"
+      return 1
+    fi
+    if [ -d "$legacy_app" ] && [ ! -L "$legacy_app" ]; then
+      [ ! -e "$app" ] || { log "FAIL: Both $legacy_app and $app exist"; return 1; }
+      previous="$legacy_app"
+      migrate=1
+    fi
+    if [ -e "$previous" ]; then
+      [ ! -L "$previous" ] &&
+        [ "$(/usr/bin/plutil -extract CFBundleIdentifier raw "$previous/Contents/Info.plist")" = com.sergical.t3fork ] ||
+        { log "FAIL: $previous does not identify the installed fork"; return 1; }
+    fi
   fi
-  if /usr/bin/ditto "$pending/T3 fork.app" "$app" &&
+
+  if [ -d "$previous" ]; then
+    rm -rf "$app.previous" && mv "$previous" "$app.previous" || return 1
+  fi
+  if /usr/bin/ditto "$bundle" "$app" &&
+    { [ "$migrate" = 0 ] || { ln -s forkT.app "$legacy_app" && /usr/bin/chflags -h hidden "$legacy_app"; }; } &&
     printf '%s\n' "$version" >"$state/installed.tmp" &&
     mv "$state/installed.tmp" "$state/installed"; then
     rm -rf "$pending"
@@ -137,8 +171,9 @@ install_pending() {
   fi
 
   rm -rf "$app"
+  if [ "$migrate" = 1 ] && [ -L "$legacy_app" ]; then rm "$legacy_app"; fi
   if [ -d "$app.previous" ]; then
-    mv "$app.previous" "$app"
+    mv "$app.previous" "$previous"
   fi
   log "FAIL: Could not install $version"
   return 1
@@ -177,17 +212,21 @@ esac
 mkdir -p "$state"
 (
   /usr/bin/lockf 9
+  if [ -n "$legacy_app" ] && [ ! -e "$app" ] && [ ! -d "$pending/forkT.app" ] &&
+    { [ -d "$legacy_app" ] || [ -d "$pending/T3 fork.app" ]; }; then
+    app="$legacy_app"
+  fi
   if [ "${1:-}" != --restart ]; then
     install_pending "" || { notify "Could not install the pending update."; exit 1; }
     exit 0
   fi
   if ! install_pending "$requested" || ! read_build "$app" "$expected_version"; then
-    report_restart_failure "T3 fork could not install $requested."
-    (open_fork_app fallback) 9>&- || log "FAIL: Could not reopen $app"
+    report_restart_failure "forkT could not install $requested."
+    ([ -d "$app" ] || { [ -d "$legacy_app" ] && app="$legacy_app"; }; open_fork_app fallback) 9>&- || log "FAIL: Could not reopen $app"
     exit 1
   fi
   if app_running; then
-    report_restart_failure "T3 fork was opened before its update restart could finish."
+    report_restart_failure "forkT was opened before its update restart could finish."
     exit 1
   fi
   executable="$app/Contents/MacOS/$(/usr/bin/plutil -extract CFBundleExecutable raw "$app/Contents/Info.plist")"
@@ -199,10 +238,10 @@ mkdir -p "$state"
   fi
   case "$status" in
     0) rm -f "$state/restart-failure" ;;
-    1) report_restart_failure "T3 fork $requested did not become ready after two launches. The previous app is saved beside it with a .previous suffix." ;;
+    1) report_restart_failure "forkT $requested did not become ready after two launches. The previous app is saved beside it with a .previous suffix." ;;
     2)
       log "Startup verification timed out for $requested"
-      notify "T3 fork is taking longer than expected to start after its update."
+      notify "forkT is taking longer than expected to start after its update."
       ;;
   esac
   exit "$status"

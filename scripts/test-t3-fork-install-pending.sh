@@ -7,11 +7,16 @@ installer="$source_dir/private_dot_local/private_bin/executable_t3-fork-install-
 scratch="$(cd "$(mktemp -d)" && pwd -P)"
 trap 'rm -rf "$scratch"' EXIT
 export T3_FORK_SYNC_STATE_DIR="$scratch/sync"
-export T3_FORK_SYNC_APP_PATH="$scratch/Fake App.app"
+export T3_FORK_SYNC_APP_PATH="$scratch/T3 fork.app"
 pending="$T3_FORK_SYNC_STATE_DIR/pending"
-mkdir -p "$T3_FORK_SYNC_APP_PATH/Contents/MacOS" "$pending/T3 fork.app"
+mkdir -p "$T3_FORK_SYNC_APP_PATH/Contents/MacOS" "$pending/forkT.app/Contents" "$scratch/T3 Code.app"
+for bundle in "$T3_FORK_SYNC_APP_PATH" "$pending/forkT.app"; do
+  /usr/bin/plutil -create xml1 "$bundle/Contents/Info.plist"
+  /usr/bin/plutil -insert CFBundleIdentifier -string com.sergical.t3fork "$bundle/Contents/Info.plist"
+done
+echo upstream >"$scratch/T3 Code.app/marker"
 printf 'old\n' >"$T3_FORK_SYNC_APP_PATH/marker"
-printf 'new\n' >"$pending/T3 fork.app/marker"
+printf 'new\n' >"$pending/forkT.app/marker"
 printf 'v0.1.0-nightly.1+1234567890\n' >"$pending/version"
 
 /bin/bash -c '
@@ -35,10 +40,17 @@ printf 'v0.1.0-nightly.1+1234567890\n' >"$pending/version"
 
 /bin/bash "$installer"
 [ "$(cat "$T3_FORK_SYNC_APP_PATH/marker")" = new ]
-[ "$(cat "$T3_FORK_SYNC_APP_PATH.previous/marker")" = old ]
+[ -L "$T3_FORK_SYNC_APP_PATH" ]
+[ "$(readlink "$T3_FORK_SYNC_APP_PATH")" = forkT.app ]
+[ "$(stat -f %Sf "$T3_FORK_SYNC_APP_PATH")" = hidden ]
+[ "$(cat "$scratch/forkT.app/marker")" = new ]
+[ "$(cat "$scratch/forkT.app.previous/marker")" = old ]
+[ "$(cat "$scratch/T3 Code.app/marker")" = upstream ]
 [ "$(cat "$T3_FORK_SYNC_STATE_DIR/installed")" = v0.1.0-nightly.1+1234567890 ]
 [ ! -e "$pending" ]
-echo "Shared installer copied the pending bundle, kept .previous, and recorded the installed version."
+echo "Legacy app migrated to forkT with a hidden working link, a backup and the recorded version. Stock app stayed intact."
+export T3_FORK_SYNC_APP_PATH="$scratch/Fake App.app"
+mkdir -p "$T3_FORK_SYNC_APP_PATH"
 
 # LaunchServices is exercised with a small app that can exit before announcing readiness.
 fixtures="$scratch/fixtures"
@@ -161,6 +173,6 @@ for ((i = 0; i < 100; i++)); do
   if [ -f "$T3_FORK_SYNC_STATE_DIR/fallback-opened" ]; then break; fi
   sleep 0.05
 done
-test -f "$T3_FORK_SYNC_STATE_DIR/fallback-opened"
+test -f "$T3_FORK_SYNC_STATE_DIR/fallback-opened" || { cat "$fixtures/stale.log" >&2; exit 1; }
 test "$(cat "$T3_FORK_SYNC_STATE_DIR/installed")" = "$version"
 echo "A stale restart request reported the install failure and reopened the current app."
