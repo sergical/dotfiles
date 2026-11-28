@@ -85,7 +85,7 @@ path = "skills/agent-browser"
 [[skills]]
 name = "install-anti-slop"
 source = "sergical/anti-slop"
-ref = "1306fc58537b68247150ebcd28cd4efd351d51bf"
+ref = "9c334873bbc70d348aedc2688286884951731dd3"
 path = "skills/install-anti-slop"
 
 [[skills]]
